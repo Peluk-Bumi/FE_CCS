@@ -110,7 +110,7 @@ export default function Footer() {
                 />
                 <div>
                   <h3 className={brandTitleClass}>
-                    3TREESIFY
+                    PELUK BUMI
                   </h3>
                   <p className={brandSubClass}>Monitoring & Restorasi Ekosistem</p>
                 </div>

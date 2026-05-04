@@ -130,7 +130,7 @@ export default function Navbar({ isUser = false }) {
                   className="text-lg font-bold text-white leading-tight"
                   whileHover={{ scale: 1.05 }}
                 >
-                  3TREESIFY
+                  PELUK BUMI
                 </motion.h1>
                 <p className="text-xs text-emerald-100 font-medium leading-tight hidden sm:block">
                   Traceability System
