@@ -9,22 +9,47 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function getExplorerAddressUrl(chainId, address) {
+  if (chainId === 80002n) {
+    return `https://amoy.polygonscan.com/address/${address}`;
+  }
+
+  if (chainId === 137n) {
+    return `https://polygonscan.com/address/${address}`;
+  }
+
+  return `https://polygonscan.com/address/${address}`;
+}
+
 async function main() {
   console.log("🚀 Starting deployment...\n");
 
   const {
     PRIVATE_KEY,
-    SEPOLIA_URL
+    POLYGON_AMOY_URL,
+    POLYGON_MAINNET_URL,
+    VITE_POLYGON_AMOY_RPC_URL,
+    VITE_POLYGON_RPC_URL,
+    VITE_POLYGON_MAINNET_RPC_URL,
+    TARGET_CHAIN
   } = process.env;
 
-  if (!PRIVATE_KEY || !SEPOLIA_URL) {
-    console.error("❌ Missing PRIVATE_KEY or SEPOLIA_URL in .env");
+  const normalizedTarget = (TARGET_CHAIN || 'amoy').toLowerCase();
+  const rpcUrl = normalizedTarget === 'polygon'
+    ? (POLYGON_MAINNET_URL || VITE_POLYGON_MAINNET_RPC_URL)
+    : (POLYGON_AMOY_URL || VITE_POLYGON_AMOY_RPC_URL || VITE_POLYGON_RPC_URL || 'https://rpc-amoy.polygon.technology');
+
+  if (!PRIVATE_KEY || !rpcUrl) {
+    console.error("❌ Missing PRIVATE_KEY or Polygon RPC URL in .env");
     process.exit(1);
   }
 
   // Setup provider and wallet
-  const provider = new ethers.JsonRpcProvider(SEPOLIA_URL);
+  const provider = new ethers.JsonRpcProvider(rpcUrl);
   const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+
+  const network = await provider.getNetwork();
+  console.log("🌐 Connected network:", network.name, `(${network.chainId})`);
   
   console.log("📝 Deploying contracts with account:", wallet.address);
 
@@ -47,8 +72,8 @@ async function main() {
   
   console.log("\n✅ DocumentRegistry deployed successfully!");
   console.log("📍 Contract address:", address);
-  console.log("\n🔗 View on Etherscan:");
-  console.log(`   https://sepolia.etherscan.io/address/${address}\n`);
+  console.log("\n🔗 View on explorer:");
+  console.log(`   ${getExplorerAddressUrl(network.chainId, address)}\n`);
 
   // Test contract
   console.log("🧪 Testing contract...");
@@ -56,7 +81,7 @@ async function main() {
   console.log("✅ Initial document count:", count.toString());
 
   console.log("\n📝 Update your .env files with this address:");
-  console.log(`   CONTRACT_ADDRESS=${address}\n`);
+  console.log(`   VITE_CONTRACT_ADDRESS=${address}\n`);
 
   // Save to file for easy reference
   const outputPath = path.join(__dirname, '..', 'DEPLOY_ADDRESS.txt');

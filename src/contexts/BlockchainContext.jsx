@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import blockchainService from '../services/blockchain.js'; // ✅ FIXED: Use default import
 
 const BlockchainContext = createContext();
+let initializationPromise = null;
 
 export function BlockchainProvider({ children }) {
   const [isReady, setIsReady] = useState(false);
@@ -11,18 +12,24 @@ export function BlockchainProvider({ children }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const initializeBlockchain = async () => {
+  const initializeBlockchain = async (force = false) => {
+    if (!force && initializationPromise) {
+      return initializationPromise;
+    }
+
+    initializationPromise = (async () => {
     try {
       console.log('[BlockchainContext] Initializing blockchain service...');
 
       const initialized = await blockchainService.initialize();
 
       if (initialized) {
-        setIsReady(true);
-        setIsConnected(true);
-        setWalletAddress(blockchainService.getWalletAddress());
-
         const status = await blockchainService.getWalletStatus();
+        const resolvedAddress = status?.address || blockchainService.getWalletAddress() || null;
+
+        setIsReady(true);
+        setIsConnected(Boolean(resolvedAddress));
+        setWalletAddress(resolvedAddress);
         setWalletStatus(status);
 
         console.log('[BlockchainContext] ✅ Blockchain service ready');
@@ -42,7 +49,11 @@ export function BlockchainProvider({ children }) {
       setWalletStatus(null);
     } finally {
       setLoading(false);
+      initializationPromise = null;
     }
+    })();
+
+    return initializationPromise;
   };
 
   // ✅ Initialize blockchain service on mount
@@ -53,7 +64,7 @@ export function BlockchainProvider({ children }) {
   // ✅ Retry connection manually from UI
   const connectWallet = async () => {
     setLoading(true);
-    await initializeBlockchain();
+    await initializeBlockchain(true);
   };
 
   // ✅ Store document directly to blockchain

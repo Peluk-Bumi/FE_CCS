@@ -15,6 +15,13 @@ export default function WalletIndicator() {
   const buttonRef = useRef(null);
   const panelRef = useRef(null);
   const [panelPosition, setPanelPosition] = useState({ top: 0, left: 0 });
+  const hasDom = typeof document !== 'undefined' && Boolean(document.body);
+  const safeBalance = Number.isFinite(Number(balance)) ? Number(balance).toFixed(4) : '0.0000';
+  const walletLabel = isConnected
+    ? 'Wallet Connected'
+    : isReady
+      ? 'Read-Only Mode'
+      : 'Wallet Disconnected';
 
   useEffect(() => {
     if (!showModal || !buttonRef.current) return;
@@ -77,18 +84,18 @@ export default function WalletIndicator() {
         }`}
         whileHover={{ scale: 1.05, boxShadow: '0 10px 40px -10px rgba(16, 185, 129, 0.5)' }}
         whileTap={{ scale: 0.95 }}
-        title={isConnected ? 'Wallet Connected' : 'Wallet Disconnected'}
+        title={walletLabel}
       >
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-white animate-pulse' : 'bg-white/60'}`}></div>
           <FiBriefcase className="w-4 h-4" />
           <span className="hidden sm:inline text-sm">
-            {isConnected ? 'Wallet Connected' : 'Wallet Disconnected'}
+            {walletLabel}
           </span>
         </div>
       </motion.button>
 
-      {showModal && createPortal(
+      {showModal && hasDom && createPortal(
         <AnimatePresence>
           <motion.div
             ref={panelRef}
@@ -181,7 +188,7 @@ export default function WalletIndicator() {
                           MATIC Balance
                         </p>
                         <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                          {Number(balance).toFixed(4)} MATIC
+                          {safeBalance} MATIC
                         </p>
                       </motion.div>
 

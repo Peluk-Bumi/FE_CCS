@@ -142,7 +142,7 @@ export default function Sidebar({ isUser = false, onClose }) {
             whileTap={{ scale: 0.98 }}
           >
             <FiFileText className={location.pathname === "/admin/laporan" ? "text-white" : "text-emerald-600 dark:text-emerald-400"} />
-            <span className="font-medium">Laporan</span>
+            <span className="font-medium">Log Transaksi</span>
             {location.pathname === "/admin/laporan" && (
               <span className="ml-auto h-2 w-2 rounded-full bg-white/80 animate-pulse" />
             )}

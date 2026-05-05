@@ -14,17 +14,35 @@ const CONTRACT_ABI = [
   "event DocumentStored(uint256 indexed docId, string docType, string docHash, address indexed uploader, uint256 timestamp)"
 ];
 
-// ✅ FIXED: Multiple RPC URLs for production reliability with better rotation
-const PRIMARY_RPC_URL = import.meta.env.VITE_POLYGON_MAINNET_RPC_URL || import.meta.env.VITE_POLYGON_RPC_URL || "https://polygon-rpc.com";
-const FALLBACK_RPC_URLS = [
+const POLYGON_AMOY_CHAIN_ID = 80002n;
+const TARGET_CHAIN_ID = BigInt(import.meta.env.VITE_POLYGON_CHAIN_ID || "137");
+
+const MAINNET_RPC_URLS = [
+  import.meta.env.VITE_POLYGON_MAINNET_RPC_URL,
+  import.meta.env.VITE_POLYGON_RPC_URL,
   "https://polygon-rpc.com",
   "https://rpc-mainnet.maticvigil.com",
   "https://rpc.ankr.com/polygon",
   "https://polygon-mainnet.public.blastapi.io",
   "https://polygon.drpc.org",
   "https://1rpc.io/matic"
-];
-const TARGET_CHAIN_ID = BigInt(import.meta.env.VITE_POLYGON_CHAIN_ID || "137");
+].filter(Boolean);
+
+const AMOY_RPC_URLS = [
+  import.meta.env.VITE_POLYGON_AMOY_RPC_URL,
+  import.meta.env.VITE_POLYGON_RPC_URL,
+  "https://rpc-amoy.polygon.technology",
+  "https://polygon-amoy-bor-rpc.publicnode.com",
+  "https://rpc.ankr.com/polygon_amoy"
+].filter(Boolean);
+
+const ACTIVE_NETWORK_RPC_URLS = TARGET_CHAIN_ID === POLYGON_AMOY_CHAIN_ID ? AMOY_RPC_URLS : MAINNET_RPC_URLS;
+
+const PRIMARY_RPC_URL = ACTIVE_NETWORK_RPC_URLS[0] || "https://polygon-rpc.com";
+const FALLBACK_RPC_URLS = ACTIVE_NETWORK_RPC_URLS.filter((url, index, allUrls) => {
+  return url !== PRIMARY_RPC_URL && allUrls.indexOf(url) === index;
+});
+
 const EXPLORER_BASE_URL = import.meta.env.VITE_BLOCKCHAIN_EXPLORER_BASE_URL || "https://polygonscan.com";
 
 // ✅ RATE LIMITING CONTROLS
@@ -42,6 +60,19 @@ const PRIVATE_KEY = import.meta.env.VITE_WALLET_PRIVATE_KEY || "";
 
 // ✅ Contract Address dari environment
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || "0x5C5F6CE61647600bB8c04F59c0F2B493EBE78DDF";
+
+const warnStore = globalThis.__ccsBlockchainWarned || new Set();
+globalThis.__ccsBlockchainWarned = warnStore;
+
+function warnOnce(key, message, details) {
+  if (warnStore.has(key)) return;
+  warnStore.add(key);
+  if (details !== undefined) {
+    console.warn(message, details);
+    return;
+  }
+  console.warn(message);
+}
 
 // ✅ RATE LIMITED REQUEST QUEUE PROCESSOR
 async function processRequestQueue() {
@@ -91,6 +122,21 @@ class BlockchainService {
     this.isReady = false;
     this.currentRpcUrl = null;
     this.lastError = null;
+    this.hasShownZeroBalanceWarning = false;
+  }
+
+  isNonRetryableError(error) {
+    const errorCode = error?.code;
+    const message = (error?.message || '').toLowerCase();
+
+    return (
+      errorCode === 'BAD_DATA' ||
+      errorCode === 'INVALID_ARGUMENT' ||
+      errorCode === 'UNSUPPORTED_OPERATION' ||
+      message.includes('could not decode result data') ||
+      message.includes('execution reverted') ||
+      message.includes('call revert exception')
+    );
   }
 
   // ✅ FIXED: Smart RPC provider selection with rotation and blacklisting
@@ -191,6 +237,10 @@ class BlockchainService {
         return await fn();
       } catch (error) {
         console.warn(`[Blockchain] Attempt ${attempt}/${maxRetries} failed:`, error.message);
+
+        if (this.isNonRetryableError(error)) {
+          throw error;
+        }
         
         // ✅ Handle 429 specifically
         if (error.message.includes('429') || error.message.includes('Too Many Requests')) {
@@ -323,6 +373,7 @@ class BlockchainService {
         // ✅ Verify we're on configured polygon network
         if (network.chainId !== TARGET_CHAIN_ID) {
           console.warn(`[Blockchain] ⚠️ Chain mismatch. Expected: ${TARGET_CHAIN_ID}, Current: ${network.chainId}`);
+          console.warn('[Blockchain] Check your .env RPC and chain settings for the same network.');
         }
         
         this.provider = provider;
@@ -348,8 +399,12 @@ class BlockchainService {
             
             console.log('[Blockchain] Wallet Balance:', ethers.formatEther(balance), 'ETH');
             
-            if (balance === 0n) {
-              console.warn('[Blockchain] ⚠️ Wallet has zero balance - transactions will fail');
+            if (balance === 0n && !this.hasShownZeroBalanceWarning) {
+              warnOnce(
+                `wallet-zero-balance:${this.walletAddress || 'unknown'}`,
+                '[Blockchain] ⚠️ Wallet has zero balance - transactions will fail'
+              );
+              this.hasShownZeroBalanceWarning = true;
             }
           } catch (balanceErr) {
             console.warn('[Blockchain] Could not check balance:', balanceErr.message);
@@ -366,6 +421,33 @@ class BlockchainService {
       // ✅ STEP 6: Connect to contract with enhanced validation and rate limiting
       if (hasValidContractAddress) {
         try {
+          // ✅ Verify contract bytecode exists on the active chain before making ABI calls
+          const deployedCode = await this.executeWithRetry(async () => {
+            return await Promise.race([
+              this.provider.getCode(CONTRACT_ADDRESS),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Contract bytecode check timeout')), 15000)
+              )
+            ]);
+          }, 2, 2000);
+
+          if (!deployedCode || deployedCode === '0x') {
+            this.contract = null;
+            this.lastError = `No contract deployed at ${CONTRACT_ADDRESS} on chain ${TARGET_CHAIN_ID.toString()}`;
+            warnOnce(
+              `no-bytecode:${TARGET_CHAIN_ID.toString()}:${CONTRACT_ADDRESS}`,
+              '[Blockchain] ⚠️ No contract bytecode found at configured address. Continue in degraded wallet mode.',
+              {
+                contractAddress: CONTRACT_ADDRESS,
+                chainId: TARGET_CHAIN_ID.toString(),
+              }
+            );
+          }
+
+          if (!deployedCode || deployedCode === '0x') {
+            throw new Error(this.lastError);
+          }
+
           // ✅ Use provider for read-only operations, signer for write operations
           this.contract = new ethers.Contract(
             CONTRACT_ADDRESS,
@@ -392,7 +474,10 @@ class BlockchainService {
         } catch (contractErr) {
           this.contract = null;
           this.lastError = `Contract unreachable on active network: ${contractErr.message}`;
-          console.warn('[Blockchain] ⚠️ Contract connection failed. Continue in degraded wallet mode:', contractErr.message);
+          warnOnce(
+            `contract-failed:${TARGET_CHAIN_ID.toString()}:${CONTRACT_ADDRESS}`,
+            `[Blockchain] ⚠️ Contract connection failed. Continue in degraded wallet mode: ${contractErr.message}`
+          );
         }
       } else {
         this.contract = null;
