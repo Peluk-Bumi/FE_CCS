@@ -7,13 +7,11 @@ const EXPLORER_BASE_URL = import.meta.env.VITE_BLOCKCHAIN_EXPLORER_BASE_URL || '
 
 export default function BlockchainStatus() {
   const { 
-    isReady, 
-    isConnected, 
+    isReady,
     loading, 
     walletAddress, 
     walletStatus, 
-    error,
-    getExplorerUrl 
+    error
   } = useBlockchain();
 
   if (loading) {

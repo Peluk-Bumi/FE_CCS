@@ -59,9 +59,10 @@ export default function Dashboard() {
     }
   }, []);
 
-  // Polling function for realtime data
+  // ✅ Polling function for realtime data - fetches every 5 seconds
   useEffect(() => {
     let isMounted = true;
+    const POLLING_INTERVAL = 5000; // 5 seconds
 
     const fetchStats = async () => {
       try {
@@ -234,10 +235,26 @@ export default function Dashboard() {
       }
     };
 
+    // Initial fetch
     fetchStats();
+
+    // ✅ FIXED: Setup polling interval for real-time updates
+    const intervalId = setInterval(() => {
+      if (isMounted) {
+        fetchStats();
+      }
+    }, POLLING_INTERVAL);
+
+    // Store interval ID in ref for potential manual control
+    pollingRef.current = intervalId;
 
     return () => {
       isMounted = false;
+      // ✅ Clear polling interval on unmount
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
     };
   }, [navigate]);
 

@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../../contexts/ThemeContext";
-import LoadingSpinner from "./LoadingSpinner";
 
 export default function Navbar({ isUser = false }) {
   const { user, isAuthenticated, logout } = useAuth();
@@ -12,8 +11,8 @@ export default function Navbar({ isUser = false }) {
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [navigating, setNavigating] = useState(false);
+  const [setScrolled] = useState(false);
+  const [setNavigating] = useState(false);
   const dropdownRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
 

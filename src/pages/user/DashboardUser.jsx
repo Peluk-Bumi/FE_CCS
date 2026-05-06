@@ -41,9 +41,16 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const navigate = useNavigate();
 
+  // ✅ Real-time polling setup - updates every 5 seconds
   useEffect(() => {
+    let isMounted = true;
+    const pollingRef = React.useRef();
+    const POLLING_INTERVAL = 5000; // 5 seconds
+
     const fetchStats = async () => {
       try {
+        if (!isMounted) return;
+        
         // ✅ FIXED: Use correct localStorage method if needed
         const token = localStorage.getItem('token');
         if (!token) {
@@ -148,7 +155,26 @@ export default function Dashboard() {
       }
     };
     
+    // Initial fetch
     fetchStats();
+
+    // ✅ Setup polling interval for real-time updates
+    const intervalId = setInterval(() => {
+      if (isMounted) {
+        fetchStats();
+      }
+    }, POLLING_INTERVAL);
+
+    pollingRef.current = intervalId;
+
+    return () => {
+      isMounted = false;
+      // ✅ Clear polling interval on unmount
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
   }, []);
 
   // ✅ Stat cards untuk user dashboard

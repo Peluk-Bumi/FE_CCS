@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   FiActivity,
@@ -51,6 +51,8 @@ export default function LaporanPage() {
   const [activityFilter, setActivityFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [retryingId, setRetryingId] = useState(null);
+  // ✅ Polling ref at top level (React hook rules)
+  const pollingRef = useRef();
 
   const fetchTransactionHistory = async (page = 1) => {
     setLoading(true);
@@ -82,6 +84,56 @@ export default function LaporanPage() {
 
   useEffect(() => {
     fetchTransactionHistory(1);
+  }, []);
+
+  // ✅ Real-time polling setup - updates every 15 seconds for transaction history
+  useEffect(() => {
+    let isMounted = true;
+    const POLLING_INTERVAL = 15000; // 15 seconds
+
+    const pollTransactionHistory = async () => {
+      if (!isMounted) return;
+
+      try {
+        const response = await api.get("/laporan/transaction-history", {
+          params: { page: 1, per_page: 50 },
+          timeout: 30000,
+        });
+
+        if (!isMounted) return;
+
+        setLogs(response.data?.data || []);
+        setMeta(
+          response.data?.meta || {
+            current_page: 1,
+            last_page: 1,
+            per_page: 50,
+            total: (response.data?.data || []).length,
+          }
+        );
+        setError(null);
+      } catch (err) {
+        console.error('[LaporanPage] Polling error:', err);
+        // Continue polling even on error
+      }
+    };
+
+    // Setup polling interval
+    const intervalId = setInterval(() => {
+      if (isMounted) {
+        pollTransactionHistory();
+      }
+    }, POLLING_INTERVAL);
+
+    pollingRef.current = intervalId;
+
+    return () => {
+      isMounted = false;
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
   }, []);
 
   const filteredLogs = useMemo(() => {
