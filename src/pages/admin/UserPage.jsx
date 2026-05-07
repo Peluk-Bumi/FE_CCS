@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import api from "../../api/axios";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { toast } from "react-toastify";
@@ -11,7 +11,7 @@ import {
 
 export default function UserPage() {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("all");
@@ -23,19 +23,102 @@ export default function UserPage() {
   const [userToDelete, setUserToDelete] = useState(null);
   const [form, setForm] = useState({ name: "", email: "", role: "user", password: "" });
   const [submitting, setSubmitting] = useState(false);
+  // ✅ Polling ref at top level (React hook rules)
+  const pollingRef = useRef();
 
-  // Fetch users
+  useEffect(() => {
+    try {
+      const cachedUsers = sessionStorage.getItem("users_cache");
+      if (cachedUsers) {
+        const parsed = JSON.parse(cachedUsers);
+        if (Array.isArray(parsed)) {
+          setUsers(parsed);
+        }
+      }
+    } catch (cacheError) {
+      console.warn("[UserPage] Failed to read cached users:", cacheError);
+    }
+  }, []);
+
+  // ✅ Initial data load
   useEffect(() => {
     fetchUsers();
+  }, []);
+
+  // ✅ Real-time polling setup - updates every 15 seconds for user list
+  useEffect(() => {
+    let isMounted = true;
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+    const POLLING_INTERVAL = 15000; // 15 seconds
+    const TIMEOUT = 15000; // 15 second timeout
+
+    const pollUsers = async () => {
+      if (!isMounted) return;
+
+      try {
+        const response = await api.get("/users?per_page=100&page=1", { timeout: TIMEOUT });
+        if (!isMounted) return;
+
+        // ✅ Handle both paginated and non-paginated responses
+        const userData = Array.isArray(response.data?.data) ? response.data.data : (response.data?.data?.length ? response.data.data : []);
+        setUsers(userData);
+        retryCount = 0; // Reset retry count on success
+        
+        try {
+          sessionStorage.setItem("users_cache", JSON.stringify(userData));
+        } catch (cacheError) {
+          console.warn("[UserPage] Failed to store users cache:", cacheError);
+        }
+        
+        setError(null);
+      } catch (err) {
+        retryCount++;
+        console.error(`[UserPage] Polling error (attempt ${retryCount}/${MAX_RETRIES}):`, err.message);
+        
+        // ✅ Don't fail immediately - continue polling even on timeout
+        if (retryCount < MAX_RETRIES) {
+          // Exponential backoff: 5s, 10s, 15s
+          const backoffTime = 5000 * Math.pow(2, retryCount - 1);
+          console.log(`[UserPage] Retrying in ${backoffTime}ms...`);
+        }
+      }
+    };
+
+    // Initial fetch
+    pollUsers();
+
+    // Setup polling interval
+    const intervalId = setInterval(() => {
+      if (isMounted) {
+        pollUsers();
+      }
+    }, POLLING_INTERVAL);
+
+    pollingRef.current = intervalId;
+
+    return () => {
+      isMounted = false;
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
   }, []);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/users");
-      const userData = response.data?.data || response.data || [];
+      const response = await api.get("/users?per_page=100&page=1", { timeout: 15000 });
+      // ✅ Handle both paginated and non-paginated responses
+      const userData = Array.isArray(response.data?.data) ? response.data.data : (response.data?.data?.length ? response.data.data : []);
       console.log('[UserPage] Users fetched:', userData);
       setUsers(userData);
+      try {
+        sessionStorage.setItem("users_cache", JSON.stringify(userData));
+      } catch (cacheError) {
+        console.warn("[UserPage] Failed to store users cache:", cacheError);
+      }
       setError(null);
     } catch (err) {
       console.error("Fetch users error:", err);
@@ -43,10 +126,14 @@ export default function UserPage() {
         setError("Anda tidak memiliki izin untuk melihat data users.");
       } else if (err.response?.status === 405) {
         setError("Backend endpoint /users tidak mendukung method GET.");
+      } else if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+        setError("Permintaan timeout - backend tidak merespons. Silakan cek koneksi atau coba lagi.");
       } else {
         setError("Gagal memuat data user. Silakan coba lagi.");
       }
-      setUsers([]);
+      if (users.length === 0) {
+        setUsers([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -163,7 +250,7 @@ export default function UserPage() {
     }
   };
 
-  if (loading) return <LoadingSpinner show={true} message="Memuat data users..." />;
+  if (loading && users.length === 0 && !error) return <LoadingSpinner show={true} message="Memuat data users..." size="small" />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-950">

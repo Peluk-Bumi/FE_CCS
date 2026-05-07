@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../../contexts/ThemeContext";
-import LoadingSpinner from "./LoadingSpinner";
 
 export default function Navbar({ isUser = false }) {
   const { user, isAuthenticated, logout } = useAuth();
@@ -12,8 +11,8 @@ export default function Navbar({ isUser = false }) {
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [navigating, setNavigating] = useState(false);
+  const [setScrolled] = useState(false);
+  const [setNavigating] = useState(false);
   const dropdownRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
 
@@ -130,7 +129,7 @@ export default function Navbar({ isUser = false }) {
                   className="text-lg font-bold text-white leading-tight"
                   whileHover={{ scale: 1.05 }}
                 >
-                  3TREESIFY
+                  PELUK BUMI
                 </motion.h1>
                 <p className="text-xs text-emerald-100 font-medium leading-tight hidden sm:block">
                   Traceability System
@@ -188,7 +187,7 @@ export default function Navbar({ isUser = false }) {
                 <motion.button
                   onClick={toggleTheme}
                   className="hidden sm:block p-2.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all"
-                  whileHover={{ scale: 1.1, rotate: 180 }}
+                  whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
                   {theme === "dark" ? (
@@ -322,7 +321,7 @@ export default function Navbar({ isUser = false }) {
                 <motion.button
                   onClick={toggleTheme}
                   className="p-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all"
-                  whileHover={{ scale: 1.1, rotate: 180 }}
+                  whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
                   {theme === "dark" ? (

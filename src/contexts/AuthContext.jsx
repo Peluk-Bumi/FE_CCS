@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 import api from "../api/axios";
 import { jwtDecode } from "jwt-decode";
+import { autoLoginIfDev, setupDevTools } from "../utils/devHelper";
 
 const AuthContext = createContext();
 
@@ -58,6 +59,9 @@ export const AuthProvider = ({ children }) => {
     if (initRef.current) return;
     initRef.current = true;
 
+    // Setup dev tools first
+    setupDevTools();
+
     const checkAuth = async () => {
       const token = localStorage.getItem("token");
       const savedUser = localStorage.getItem("user");
@@ -66,6 +70,47 @@ export const AuthProvider = ({ children }) => {
         hasToken: !!token, 
         hasSavedUser: !!savedUser 
       });
+      
+      // ✅ Auto-login for development if no token
+      if (!token) {
+        const autoLoggedIn = await autoLoginIfDev(async (credentials) => {
+          try {
+            const response = await api.post("/login", {
+              email: credentials.email,
+              password: credentials.password,
+              deviceInfo: {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenResolution: `${window.screen.width}x${window.screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+              }
+            });
+            
+            const newToken = response.data?.access_token;
+            const userData = response.data?.user;
+            
+            if (newToken) {
+              localStorage.setItem("token", newToken);
+              const decoded = jwtDecode(newToken);
+              const mergedUser = { ...decoded, ...(userData || {}) };
+              localStorage.setItem("user", JSON.stringify(mergedUser));
+              setUser(mergedUser);
+              setIsAuthenticated(true);
+              setRefreshTimer(newToken);
+              return { success: true, data: response.data };
+            }
+            return { success: false, message: 'No token in response' };
+          } catch (error) {
+            return { success: false, message: error.message };
+          }
+        });
+        
+        if (autoLoggedIn) {
+          setLoading(false);
+          return;
+        }
+      }
       
       if (token) {
         try {

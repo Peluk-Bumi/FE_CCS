@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiBarChart2, FiDownload, FiRefreshCw, FiX } from "react-icons/fi";
 import api from "../../api/axios";
@@ -80,6 +80,18 @@ const getMonitoringListFromAnyShape = (value) => {
   return [value];
 };
 
+const deriveSurvivalRate = (monitoring) => {
+  const planted = parseNumber(monitoring?.jumlah_bibit_ditanam);
+  const dead = parseNumber(monitoring?.jumlah_bibit_mati);
+
+  if (planted === null || planted <= 0 || dead === null || dead < 0) {
+    return null;
+  }
+
+  const survived = Math.max(planted - dead, 0);
+  return (survived / planted) * 100;
+};
+
 const getHeightValue = (monitoring) => {
   return (
     parseNumber(monitoring?.tinggi_bibit) ??
@@ -155,6 +167,8 @@ export default function EvaluasiPage() {
   const [recommendations, setRecommendations] = useState([]);
   const [savedNarratives, setSavedNarratives] = useState({});
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  // ✅ Polling ref at top level (React hook rules)
+  const pollingRef = useRef();
 
   const fetchEvaluasiData = async () => {
     setLoading(true);
@@ -186,8 +200,63 @@ export default function EvaluasiPage() {
     }
   };
 
+  // ✅ Initial data load
   useEffect(() => {
     fetchEvaluasiData();
+  }, [user?.role]);
+
+  // ✅ Real-time polling setup - updates every 10 seconds for evaluasi data
+  useEffect(() => {
+    let isMounted = true;
+    const POLLING_INTERVAL = 10000; // 10 seconds
+
+    const pollEvaluasiData = async () => {
+      if (!isMounted) return;
+
+      try {
+        const perencanaanEndpoint = user?.role === "admin" ? "/perencanaan/all" : "/perencanaan";
+
+        const [perencanaanRes, implementasiRes, monitoringRes] = await Promise.allSettled([
+          api.get(perencanaanEndpoint),
+          api.get("/implementasi"),
+          api.get("/monitoring"),
+        ]);
+
+        if (!isMounted) return;
+
+        const perencanaanData =
+          perencanaanRes.status === "fulfilled" ? toArray(perencanaanRes.value.data) : [];
+        const implementasiData =
+          implementasiRes.status === "fulfilled" ? toArray(implementasiRes.value.data) : [];
+        const monitoringData =
+          monitoringRes.status === "fulfilled" ? toArray(monitoringRes.value.data) : [];
+
+        setPerencanaanList(Array.isArray(perencanaanData) ? perencanaanData : []);
+        setImplementasiList(Array.isArray(implementasiData) ? implementasiData : []);
+        setMonitoringList(Array.isArray(monitoringData) ? monitoringData : []);
+        setError(null);
+      } catch (error) {
+        console.error('[EvaluasiPage] Polling error:', error);
+        // Continue polling even on error
+      }
+    };
+
+    // Setup polling interval
+    const intervalId = setInterval(() => {
+      if (isMounted) {
+        pollEvaluasiData();
+      }
+    }, POLLING_INTERVAL);
+
+    pollingRef.current = intervalId;
+
+    return () => {
+      isMounted = false;
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
   }, [user?.role]);
 
   const companyReports = useMemo(() => {
@@ -233,7 +302,7 @@ export default function EvaluasiPage() {
       ]);
 
       const survivalValues = monitoringItems
-        .map((item) => parseNumber(item?.survival_rate))
+        .map((item) => parseNumber(item?.survival_rate) ?? deriveSurvivalRate(item))
         .filter((value) => value !== null);
 
       const diameterValues = monitoringItems

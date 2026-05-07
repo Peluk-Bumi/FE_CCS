@@ -14,17 +14,36 @@ const CONTRACT_ABI = [
   "event DocumentStored(uint256 indexed docId, string docType, string docHash, address indexed uploader, uint256 timestamp)"
 ];
 
-// ✅ FIXED: Multiple RPC URLs for production reliability with better rotation
-const PRIMARY_RPC_URL = import.meta.env.VITE_SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com";
-const FALLBACK_RPC_URLS = [
-  "https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161", // Keep as fallback only
-  "https://rpc.sepolia.org",
-  "https://ethereum-sepolia.blockpi.network/v1/rpc/public",
-  "https://sepolia.gateway.tenderly.co",
-  "https://rpc2.sepolia.org",
-  "https://ethereum-sepolia-rpc.publicnode.com",
-  "https://sepolia-rpc.scroll.io"
-];
+const POLYGON_AMOY_CHAIN_ID = 80002n;
+const TARGET_CHAIN_ID = BigInt(import.meta.env.VITE_POLYGON_CHAIN_ID || "137");
+
+const MAINNET_RPC_URLS = [
+  import.meta.env.VITE_POLYGON_MAINNET_RPC_URL,
+  import.meta.env.VITE_POLYGON_RPC_URL,
+  "https://polygon-rpc.com",
+  "https://rpc-mainnet.maticvigil.com",
+  "https://rpc.ankr.com/polygon",
+  "https://polygon-mainnet.public.blastapi.io",
+  "https://polygon.drpc.org",
+  "https://1rpc.io/matic"
+].filter(Boolean);
+
+const AMOY_RPC_URLS = [
+  import.meta.env.VITE_POLYGON_AMOY_RPC_URL,
+  import.meta.env.VITE_POLYGON_RPC_URL,
+  "https://rpc-amoy.polygon.technology",
+  "https://polygon-amoy-bor-rpc.publicnode.com",
+  "https://rpc.ankr.com/polygon_amoy"
+].filter(Boolean);
+
+const ACTIVE_NETWORK_RPC_URLS = TARGET_CHAIN_ID === POLYGON_AMOY_CHAIN_ID ? AMOY_RPC_URLS : MAINNET_RPC_URLS;
+
+const PRIMARY_RPC_URL = ACTIVE_NETWORK_RPC_URLS[0] || "https://polygon-rpc.com";
+const FALLBACK_RPC_URLS = ACTIVE_NETWORK_RPC_URLS.filter((url, index, allUrls) => {
+  return url !== PRIMARY_RPC_URL && allUrls.indexOf(url) === index;
+});
+
+const EXPLORER_BASE_URL = import.meta.env.VITE_BLOCKCHAIN_EXPLORER_BASE_URL || "https://polygonscan.com";
 
 // ✅ RATE LIMITING CONTROLS
 let lastRequestTime = 0;
@@ -41,6 +60,19 @@ const PRIVATE_KEY = import.meta.env.VITE_WALLET_PRIVATE_KEY || "";
 
 // ✅ Contract Address dari environment
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || "0x5C5F6CE61647600bB8c04F59c0F2B493EBE78DDF";
+
+const warnStore = globalThis.__ccsBlockchainWarned || new Set();
+globalThis.__ccsBlockchainWarned = warnStore;
+
+function warnOnce(key, message, details) {
+  if (warnStore.has(key)) return;
+  warnStore.add(key);
+  if (details !== undefined) {
+    console.warn(message, details);
+    return;
+  }
+  console.warn(message);
+}
 
 // ✅ RATE LIMITED REQUEST QUEUE PROCESSOR
 async function processRequestQueue() {
@@ -89,6 +121,22 @@ class BlockchainService {
     this.walletAddress = null;
     this.isReady = false;
     this.currentRpcUrl = null;
+    this.lastError = null;
+    this.hasShownZeroBalanceWarning = false;
+  }
+
+  isNonRetryableError(error) {
+    const errorCode = error?.code;
+    const message = (error?.message || '').toLowerCase();
+
+    return (
+      errorCode === 'BAD_DATA' ||
+      errorCode === 'INVALID_ARGUMENT' ||
+      errorCode === 'UNSUPPORTED_OPERATION' ||
+      message.includes('could not decode result data') ||
+      message.includes('execution reverted') ||
+      message.includes('call revert exception')
+    );
   }
 
   // ✅ FIXED: Smart RPC provider selection with rotation and blacklisting
@@ -189,6 +237,10 @@ class BlockchainService {
         return await fn();
       } catch (error) {
         console.warn(`[Blockchain] Attempt ${attempt}/${maxRetries} failed:`, error.message);
+
+        if (this.isNonRetryableError(error)) {
+          throw error;
+        }
         
         // ✅ Handle 429 specifically
         if (error.message.includes('429') || error.message.includes('Too Many Requests')) {
@@ -255,6 +307,7 @@ class BlockchainService {
   // ✅ Initialize blockchain service dengan PRODUCTION FIXES
   async initialize() {
     try {
+      this.lastError = null;
       if (this.isReady) {
         console.log('[Blockchain] Service already initialized');
         return true;
@@ -263,23 +316,17 @@ class BlockchainService {
       console.log('[Blockchain] Starting initialization with rate limiting...');
 
       // ✅ STEP 1: Validate Contract Address Format
-      if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-        console.error('[Blockchain] ❌ CONTRACT ADDRESS INVALID:', {
+      const hasValidContractAddress =
+        !!CONTRACT_ADDRESS &&
+        CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000" &&
+        /^0x[a-fA-F0-9]{40}$/.test(CONTRACT_ADDRESS);
+
+      if (!hasValidContractAddress) {
+        this.lastError = 'Contract address invalid or not configured for active network';
+        console.warn('[Blockchain] ⚠️ Contract address invalid. Continue in degraded wallet mode.', {
           value: CONTRACT_ADDRESS,
           env: import.meta.env.VITE_CONTRACT_ADDRESS,
-          error: 'Contract not configured or is zero address'
         });
-        return false;
-      }
-
-      // ✅ Validate address format (must be 42 chars starting with 0x)
-      if (!/^0x[a-fA-F0-9]{40}$/.test(CONTRACT_ADDRESS)) {
-        console.error('[Blockchain] ❌ CONTRACT ADDRESS FORMAT INVALID:', {
-          value: CONTRACT_ADDRESS,
-          expected: '0x + 40 hex characters',
-          length: CONTRACT_ADDRESS?.length || 'undefined'
-        });
-        return false;
       }
 
       // ✅ STEP 2: Validate Private Key (allow read-only mode if no key)
@@ -323,14 +370,16 @@ class BlockchainService {
         
         console.log('[Blockchain] ✅ Provider created for network:', network.name, 'ChainID:', network.chainId);
         
-        // ✅ Verify we're on Sepolia (chainId 11155111)
-        if (network.chainId !== 11155111n) {
-          console.warn(`[Blockchain] ⚠️ Not on Sepolia network. Current: ${network.chainId}`);
+        // ✅ Verify we're on configured polygon network
+        if (network.chainId !== TARGET_CHAIN_ID) {
+          console.warn(`[Blockchain] ⚠️ Chain mismatch. Expected: ${TARGET_CHAIN_ID}, Current: ${network.chainId}`);
+          console.warn('[Blockchain] Check your .env RPC and chain settings for the same network.');
         }
         
         this.provider = provider;
       } catch (providerErr) {
         console.error('[Blockchain] ❌ Provider creation failed:', providerErr.message);
+        this.lastError = `Provider initialization failed: ${providerErr.message}`;
         return false;
       }
 
@@ -350,14 +399,19 @@ class BlockchainService {
             
             console.log('[Blockchain] Wallet Balance:', ethers.formatEther(balance), 'ETH');
             
-            if (balance === 0n) {
-              console.warn('[Blockchain] ⚠️ Wallet has zero balance - transactions will fail');
+            if (balance === 0n && !this.hasShownZeroBalanceWarning) {
+              warnOnce(
+                `wallet-zero-balance:${this.walletAddress || 'unknown'}`,
+                '[Blockchain] ⚠️ Wallet has zero balance - transactions will fail'
+              );
+              this.hasShownZeroBalanceWarning = true;
             }
           } catch (balanceErr) {
             console.warn('[Blockchain] Could not check balance:', balanceErr.message);
           }
         } catch (walletErr) {
           console.error('[Blockchain] ❌ Wallet creation failed:', walletErr.message);
+          this.lastError = `Wallet initialization failed: ${walletErr.message}`;
           return false;
         }
       } else {
@@ -365,40 +419,69 @@ class BlockchainService {
       }
 
       // ✅ STEP 6: Connect to contract with enhanced validation and rate limiting
-      try {
-        // ✅ Use provider for read-only operations, signer for write operations
-        this.contract = new ethers.Contract(
-          CONTRACT_ADDRESS, 
-          CONTRACT_ABI, 
-          this.signer || this.provider
-        );
-        
-        console.log('[Blockchain] ✅ Contract instance created');
-        
-        // ✅ FIXED: Enhanced contract testing with rate-limited retries
-        console.log('[Blockchain] Testing contract connection with rate limiting...');
-        
-        const documentCount = await this.executeWithRetry(async () => {
-          return await Promise.race([
-            this.contract.getDocumentCount(),
-            new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Contract call timeout')), 15000)
-            )
-          ]);
-        });
+      if (hasValidContractAddress) {
+        try {
+          // ✅ Verify contract bytecode exists on the active chain before making ABI calls
+          const deployedCode = await this.executeWithRetry(async () => {
+            return await Promise.race([
+              this.provider.getCode(CONTRACT_ADDRESS),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Contract bytecode check timeout')), 15000)
+              )
+            ]);
+          }, 2, 2000);
 
-        console.log('[Blockchain] ✅ Contract test successful - Document count:', documentCount.toString());
-        
-      } catch (contractErr) {
-        console.error('[Blockchain] ❌ Contract connection failed:', contractErr.message);
-        
-        // ✅ In production, allow graceful degradation
-        if (import.meta.env.PROD) {
-          console.warn('[Blockchain] Production: Allowing degraded service mode');
-          this.isReady = true;
-          return true;
+          if (!deployedCode || deployedCode === '0x') {
+            this.contract = null;
+            this.lastError = `No contract deployed at ${CONTRACT_ADDRESS} on chain ${TARGET_CHAIN_ID.toString()}`;
+            warnOnce(
+              `no-bytecode:${TARGET_CHAIN_ID.toString()}:${CONTRACT_ADDRESS}`,
+              '[Blockchain] ⚠️ No contract bytecode found at configured address. Continue in degraded wallet mode.',
+              {
+                contractAddress: CONTRACT_ADDRESS,
+                chainId: TARGET_CHAIN_ID.toString(),
+              }
+            );
+          }
+
+          if (!deployedCode || deployedCode === '0x') {
+            throw new Error(this.lastError);
+          }
+
+          // ✅ Use provider for read-only operations, signer for write operations
+          this.contract = new ethers.Contract(
+            CONTRACT_ADDRESS,
+            CONTRACT_ABI,
+            this.signer || this.provider
+          );
+
+          console.log('[Blockchain] ✅ Contract instance created');
+
+          // ✅ FIXED: Enhanced contract testing with rate-limited retries
+          console.log('[Blockchain] Testing contract connection with rate limiting...');
+
+          const documentCount = await this.executeWithRetry(async () => {
+            return await Promise.race([
+              this.contract.getDocumentCount(),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Contract call timeout')), 15000)
+              )
+            ]);
+          });
+
+          console.log('[Blockchain] ✅ Contract test successful - Document count:', documentCount.toString());
+
+        } catch (contractErr) {
+          this.contract = null;
+          this.lastError = `Contract unreachable on active network: ${contractErr.message}`;
+          warnOnce(
+            `contract-failed:${TARGET_CHAIN_ID.toString()}:${CONTRACT_ADDRESS}`,
+            `[Blockchain] ⚠️ Contract connection failed. Continue in degraded wallet mode: ${contractErr.message}`
+          );
         }
-        return false;
+      } else {
+        this.contract = null;
+        console.warn('[Blockchain] ⚠️ Contract disabled. Continue in degraded wallet mode.');
       }
 
       console.log('[Blockchain] ✅ Service initialized successfully with rate limiting:', {
@@ -419,6 +502,7 @@ class BlockchainService {
         stack: error.stack?.substring(0, 500),
         environment: import.meta.env.PROD ? 'PRODUCTION' : 'DEVELOPMENT'
       });
+      this.lastError = `Initialization failed: ${error.message}`;
       
       // ✅ In production, try to recover gracefully
       if (import.meta.env.PROD) {
@@ -430,6 +514,10 @@ class BlockchainService {
       this.isReady = false;
       return false;
     }
+  }
+
+  getLastError() {
+    return this.lastError;
   }
 
   // ✅ Get wallet address (untuk ditampilkan di UI)
@@ -651,7 +739,7 @@ class BlockchainService {
         blockNumber: receipt.blockNumber,
         gasUsed: receipt.gasUsed.toString(),
         contractAddress: CONTRACT_ADDRESS,
-        explorerUrl: `https://sepolia.etherscan.io/tx/${receipt.hash}`,
+        explorerUrl: `${EXPLORER_BASE_URL}/tx/${receipt.hash}`,
         walletAddress: this.walletAddress
       };
 
@@ -955,10 +1043,10 @@ class BlockchainService {
 
   // ✅ Get blockchain explorer URL
   getExplorerUrl(txHash) {
-    return `https://sepolia.etherscan.io/tx/${txHash}`;
+    return `${EXPLORER_BASE_URL}/tx/${txHash}`;
   }
 
-  // ✅ REAL-TIME: Fetch transaction data dari Sepolia RPC dengan PROPER JSON
+  // ✅ REAL-TIME: Fetch transaction data dari Polygon RPC dengan PROPER JSON
   async fetchTransactionFromSepolia(txHash, retries = 3) {
     try {
       console.log('[Blockchain] ========== FETCH TX DEBUG ==========');
@@ -976,7 +1064,7 @@ class BlockchainService {
         return null;
       }
 
-      const rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL;
+      const rpcUrl = import.meta.env.VITE_POLYGON_MAINNET_RPC_URL || import.meta.env.VITE_POLYGON_RPC_URL || PRIMARY_RPC_URL;
       
       console.log('[Blockchain] RPC URL:', rpcUrl);
       console.log('[Blockchain] RPC URL Valid:', !!rpcUrl);
@@ -986,7 +1074,7 @@ class BlockchainService {
         return null;
       }
 
-      console.log(`[Blockchain] Attempt 1/${retries}: Fetching TX from Sepolia...`);
+      console.log(`[Blockchain] Attempt 1/${retries}: Fetching TX from Polygon...`);
 
       // ✅ Retry logic dengan proper JSON
       for (let attempt = 1; attempt <= retries; attempt++) {
@@ -1082,7 +1170,7 @@ class BlockchainService {
               blockNumber: blockNumber,
               status: 'success',
               verified: true,
-              explorerUrl: `https://sepolia.etherscan.io/tx/${txHash}`,
+              explorerUrl: `${EXPLORER_BASE_URL}/tx/${txHash}`,
               fetchedAt: new Date().toISOString()
             };
           } else {
@@ -1109,6 +1197,10 @@ class BlockchainService {
       console.error('[Blockchain] ❌ Fatal error in fetchTransactionFromSepolia:', err);
       return null;
     }
+  }
+
+  async fetchTransactionFromMainnet(txHash, retries = 3) {
+    return this.fetchTransactionFromSepolia(txHash, retries);
   }
 
   // ✅ ENHANCED: Direct smart contract interaction without backend
@@ -1181,7 +1273,7 @@ class BlockchainService {
         blockNumber: receipt.blockNumber,
         gasUsed: receipt.gasUsed.toString(),
         contractAddress: CONTRACT_ADDRESS,
-        explorerUrl: `https://sepolia.etherscan.io/tx/${receipt.hash}`,
+        explorerUrl: `${EXPLORER_BASE_URL}/tx/${receipt.hash}`,
         walletAddress: this.walletAddress,
         timestamp: new Date().toISOString()
       };
