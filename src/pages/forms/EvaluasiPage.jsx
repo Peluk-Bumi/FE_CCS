@@ -5,7 +5,7 @@ import api from "../../api/axios";
 import { useAuth } from "../../contexts/AuthContext";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import SummaryCards from "../../components/evaluasi/SummaryCards";
-import NarrativeEditor from "../../components/evaluasi/NarrativeEditor";
+// NarrativeEditor removed per request (editable narratives removed)
 import RecommendationsSection from "../../components/evaluasi/RecommendationsSection";
 import IntroductionSection from "../../components/evaluasi/IntroductionSection";
 import MethodologySection from "../../components/evaluasi/MethodologySection";
@@ -165,7 +165,6 @@ export default function EvaluasiPage() {
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [narratives, setNarratives] = useState({});
   const [recommendations, setRecommendations] = useState([]);
-  const [savedNarratives, setSavedNarratives] = useState({});
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   // ✅ Polling ref at top level (React hook rules)
   const pollingRef = useRef();
@@ -333,7 +332,8 @@ export default function EvaluasiPage() {
         survivalRate: survivalValues.length ? `${mean(survivalValues).toFixed(2)}%` : "-",
         avgHeight: heightValues.length ? mean(heightValues).toFixed(2) : "-",
         avgDiameter: diameterValues.length ? mean(diameterValues).toFixed(2) : "-",
-        healthCondition: getHealthLabel(healthScores),
+          healthCondition: getHealthLabel(healthScores),
+          monitoringItems: monitoringItems,
       };
     });
   }, [implementasiList, monitoringList, perencanaanList]);
@@ -347,14 +347,13 @@ export default function EvaluasiPage() {
     if (!selectedCompanyReport) {
       setNarratives({});
       setRecommendations([]);
-      setSavedNarratives({});
+      // savedNarratives was removed; nothing to reset here
       return;
     }
 
-    // Generate narratives
+    // Generate narratives (read-only now)
     const generated = generateFullNarrative(selectedCompanyReport);
     setNarratives(generated);
-    setSavedNarratives(generated);
 
     // Generate recommendations
     const recs = getRecommendations(selectedCompanyReport);
@@ -547,15 +546,51 @@ export default function EvaluasiPage() {
                   {/* Methodology Section */}
                   <MethodologySection report={selectedCompanyReport} />
 
-                  {/* Narrative Editor */}
+                  {/* Hasil & Pembahasan - tampilkan hingga 6 data monitoring jika ada */}
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Hasil & Pembahasan (Dapat Diedit)</h3>
-                    <NarrativeEditor 
-                      narratives={narratives}
-                      onSave={(field, value) => {
-                        setNarratives(prev => ({ ...prev, [field]: value }));
-                      }}
-                    />
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Hasil & Pembahasan</h3>
+                    <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
+                      {selectedCompanyReport?.monitoringItems && selectedCompanyReport.monitoringItems.length > 0 ? (
+                        selectedCompanyReport.monitoringItems.slice(0, 6).map((m, idx) => {
+                          const date = formatDateId(resolveMonitoringDate(m)) || "-";
+                          const survivalVal = m?.survival_rate ?? deriveSurvivalRate(m);
+                          const survival = (survivalVal !== null && survivalVal !== undefined) ? (typeof survivalVal === 'number' ? `${survivalVal.toFixed(2)}%` : survivalVal) : "-";
+                          const height = getHeightValue(m) ?? "-";
+                          const diameter = parseNumber(m?.diameter_batang) ?? (parseNumber(m?.diameter) ?? "-");
+                          const healthScore = leafConditionScore(m);
+                          const healthLabel = healthScore !== null && healthScore !== undefined ? getHealthLabel([healthScore]) : "-";
+
+                          return (
+                            <div key={idx} className="p-3 border rounded-lg bg-white dark:bg-gray-900/30">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="text-xs text-gray-500">Monitoring #{idx + 1}</div>
+                                <div className="text-xs text-gray-500">{date}</div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3 text-xs text-gray-700 dark:text-gray-300">
+                                <div>
+                                  <p className="font-semibold">Survival Rate</p>
+                                  <p>{survival}</p>
+                                </div>
+                                <div>
+                                  <p className="font-semibold">Tinggi (cm)</p>
+                                  <p>{height}</p>
+                                </div>
+                                <div>
+                                  <p className="font-semibold">Diameter (cm)</p>
+                                  <p>{diameter}</p>
+                                </div>
+                                <div>
+                                  <p className="font-semibold">Kondisi Kesehatan</p>
+                                  <p>{healthLabel}</p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="text-sm text-gray-600 dark:text-gray-400">Tidak ada data monitoring untuk ditampilkan.</div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Recommendations */}
@@ -575,14 +610,7 @@ export default function EvaluasiPage() {
                       <FiDownload size={16} />
                       {isGeneratingPdf ? "Membuat PDF..." : "Unduh PDF Laporan"}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setNarratives({ ...savedNarratives })}
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 text-sm font-semibold transition-colors"
-                    >
-                      <FiRefreshCw size={16} />
-                      Reset Narasi
-                    </button>
+                    {/* Reset Narasi button removed as narratives are now read-only */}
                   </div>
                 </div>
               </div>
