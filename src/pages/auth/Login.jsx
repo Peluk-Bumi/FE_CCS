@@ -51,7 +51,15 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(result.data.user));
       console.log('[Login] ✅ Login successful');
 
-      if (from && from !== '/login') {
+      // ✅ Check untuk redirect monitoring dari verifikasi public
+      const redirectParam = new URLSearchParams(location.search).get('redirect');
+      const monitoringId = sessionStorage.getItem('monitoring_perencanaan_id');
+      
+      if (redirectParam === 'monitoring' && monitoringId && result.data.user.role === 'user') {
+        console.log('[Login] Redirecting to monitoring with perencanaan_id:', monitoringId);
+        sessionStorage.removeItem('monitoring_perencanaan_id'); // Clear after use
+        navigate(`/user/monitoring?perencanaan_id=${monitoringId}`, { replace: true });
+      } else if (from && from !== '/login') {
         navigate(`${from}${fromSearch}`, { replace: true });
       } else if (result.data.user.role === "admin") {
         navigate("/admin/dashboard", { replace: true });
@@ -76,7 +84,15 @@ export default function Login() {
       if (result.success) {
         localStorage.setItem("user", JSON.stringify(result.data.user));
         
-        if (from && from !== '/login') {
+        // ✅ Check untuk redirect monitoring dari verifikasi public
+        const redirectParam = new URLSearchParams(location.search).get('redirect');
+        const monitoringId = sessionStorage.getItem('monitoring_perencanaan_id');
+        
+        if (redirectParam === 'monitoring' && monitoringId && result.data.user.role === 'user') {
+          console.log('[Login] Force logout - Redirecting to monitoring with perencanaan_id:', monitoringId);
+          sessionStorage.removeItem('monitoring_perencanaan_id'); // Clear after use
+          navigate(`/user/monitoring?perencanaan_id=${monitoringId}`, { replace: true });
+        } else if (from && from !== '/login') {
           navigate(`${from}${fromSearch}`, { replace: true });
         } else if (result.data.user.role === "admin") {
           navigate("/admin/dashboard", { replace: true });

@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { 
   FiCamera, FiCheckCircle, FiAlertCircle, FiRefreshCw, 
   FiX, FiDownload, FiCopy, FiChevronDown, FiChevronUp, FiUpload,
-  FiShield, FiExternalLink
+  FiShield, FiExternalLink, FiArrowRight
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
@@ -1461,8 +1461,32 @@ export default function Verifikasi() {
                   </motion.button>
                   </div>
 
-                  {/* Modal Footer - Close Button */}
-                  <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-end gap-3">
+                  {/* Modal Footer - Action Buttons */}
+                  <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between gap-3">
+                    {/* Lakukan Monitoring Button - Untuk semua user */}
+                    {laporanDetail?.id && (
+                      <motion.button
+                        onClick={() => {
+                          if (isAuthenticated && user?.role === 'user') {
+                            // Sudah login sebagai user - langsung ke monitoring
+                            navigate(`/user/monitoring?perencanaan_id=${laporanDetail.id}`);
+                          } else {
+                            // Belum login - simpan perencanaan_id dan redirect ke login
+                            sessionStorage.setItem('monitoring_perencanaan_id', laporanDetail.id);
+                            navigate('/login?redirect=monitoring');
+                          }
+                          setLaporanDetail(null);
+                        }}
+                        className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium transition-all shadow-md flex items-center justify-center gap-2"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <span>Lakukan Monitoring</span>
+                        <FiArrowRight className="w-4 h-4" />
+                      </motion.button>
+                    )}
+                    
+                    {/* Tutup Button */}
                     <motion.button
                       onClick={() => setLaporanDetail(null)}
                       className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
