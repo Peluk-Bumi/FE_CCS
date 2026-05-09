@@ -11,8 +11,8 @@ export default function Navbar({ isUser = false }) {
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [setScrolled] = useState(false);
-  const [setNavigating] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [navigating, setNavigating] = useState(false);
   const dropdownRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
 
