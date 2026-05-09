@@ -11,6 +11,8 @@ import IntroductionSection from "../../components/evaluasi/IntroductionSection";
 import MethodologySection from "../../components/evaluasi/MethodologySection";
 import { buildEvaluasiPdfBlob } from "../../utils/evaluasiPdf";
 import { generateFullNarrative, getSuccessStatus, getRecommendations } from "../../utils/evaluasiNarrator";
+import { parseStoredFiles } from "../../utils/laporanPdf";
+import { getApiOrigin } from "../../config/apiConfig";
 
 const toArray = (payload) => payload?.data || payload || [];
 
@@ -342,6 +344,15 @@ export default function EvaluasiPage() {
     return companyReports.find((item) => String(item.id) === String(selectedCompanyId)) || null;
   }, [companyReports, selectedCompanyId]);
 
+  const apiOrigin = getApiOrigin();
+  const toAbsoluteFileUrl = (path) => {
+    if (!path) return "";
+    if (/^https?:\/\//i.test(path)) return path;
+    const normalized = String(path).replace(/\\/g, "/").replace(/^\/+/, "");
+    if (apiOrigin) return `${apiOrigin}/${normalized}`;
+    return `/${normalized}`;
+  };
+
   // Generate narratives dan recommendations ketika company berubah
   useEffect(() => {
     if (!selectedCompanyReport) {
@@ -549,7 +560,7 @@ export default function EvaluasiPage() {
                   {/* Hasil & Pembahasan - tampilkan hingga 6 data monitoring jika ada */}
                   <div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Hasil & Pembahasan</h3>
-                    <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
+                    <div className="space-y-6 text-sm text-gray-700 dark:text-gray-300">
                       {selectedCompanyReport?.monitoringItems && selectedCompanyReport.monitoringItems.length > 0 ? (
                         selectedCompanyReport.monitoringItems.slice(0, 6).map((m, idx) => {
                           const date = formatDateId(resolveMonitoringDate(m)) || "-";
@@ -560,30 +571,75 @@ export default function EvaluasiPage() {
                           const healthScore = leafConditionScore(m);
                           const healthLabel = healthScore !== null && healthScore !== undefined ? getHealthLabel([healthScore]) : "-";
 
+                          const files = parseStoredFiles(m?.dokumentasi_monitoring || m?.dokumentasi || m?.files || m?.photos || m?.dokumentasi_kegiatan || m?.images || []);
+
                           return (
-                            <div key={idx} className="p-3 border rounded-lg bg-white dark:bg-gray-900/30">
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="text-xs text-gray-500">Monitoring #{idx + 1}</div>
-                                <div className="text-xs text-gray-500">{date}</div>
+                            <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900/30">
+                              {/* Header */}
+                              <div className="bg-gray-50 dark:bg-gray-800/40 px-4 py-3 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
+                                <div className="text-xs font-semibold text-gray-600 dark:text-gray-300">Monitoring #{idx + 1}</div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">{date}</div>
                               </div>
-                              <div className="grid grid-cols-2 gap-3 text-xs text-gray-700 dark:text-gray-300">
-                                <div>
-                                  <p className="font-semibold">Survival Rate</p>
-                                  <p>{survival}</p>
-                                </div>
-                                <div>
-                                  <p className="font-semibold">Tinggi (cm)</p>
-                                  <p>{height}</p>
-                                </div>
-                                <div>
-                                  <p className="font-semibold">Diameter (cm)</p>
-                                  <p>{diameter}</p>
-                                </div>
-                                <div>
-                                  <p className="font-semibold">Kondisi Kesehatan</p>
-                                  <p>{healthLabel}</p>
+
+                              {/* Metrics */}
+                              <div className="px-4 py-3">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                                  <div className="p-2 rounded bg-gray-50 dark:bg-gray-800/40">
+                                    <p className="font-semibold text-gray-900 dark:text-gray-100">Survival Rate</p>
+                                    <p className="text-gray-700 dark:text-gray-300">{survival}</p>
+                                  </div>
+                                  <div className="p-2 rounded bg-gray-50 dark:bg-gray-800/40">
+                                    <p className="font-semibold text-gray-900 dark:text-gray-100">Tinggi (cm)</p>
+                                    <p className="text-gray-700 dark:text-gray-300">{height}</p>
+                                  </div>
+                                  <div className="p-2 rounded bg-gray-50 dark:bg-gray-800/40">
+                                    <p className="font-semibold text-gray-900 dark:text-gray-100">Diameter (cm)</p>
+                                    <p className="text-gray-700 dark:text-gray-300">{diameter}</p>
+                                  </div>
+                                  <div className="p-2 rounded bg-gray-50 dark:bg-gray-800/40">
+                                    <p className="font-semibold text-gray-900 dark:text-gray-100">Kesehatan</p>
+                                    <p className="text-gray-700 dark:text-gray-300">{healthLabel}</p>
+                                  </div>
                                 </div>
                               </div>
+
+                              {/* Documentation Gallery */}
+                              {files && files.length > 0 && (
+                                <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                                  <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-3">Dokumentasi Monitoring</p>
+                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    {files.map((filePath, fileIdx) => (
+                                      <a
+                                        key={`${idx}-${fileIdx}`}
+                                        href={toAbsoluteFileUrl(filePath)}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="group block"
+                                      >
+                                        <div className="h-28 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                                          {/\.(mp4|mov|webm|ogg)$/i.test(filePath) ? (
+                                            <video
+                                              src={toAbsoluteFileUrl(filePath)}
+                                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                              preload="metadata"
+                                            />
+                                          ) : (
+                                            <img
+                                              src={toAbsoluteFileUrl(filePath)}
+                                              alt={`Doc ${fileIdx + 1}`}
+                                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                              loading="lazy"
+                                            />
+                                          )}
+                                        </div>
+                                        <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400 truncate">
+                                          {String(filePath).split("/").pop()}
+                                        </p>
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           );
                         })

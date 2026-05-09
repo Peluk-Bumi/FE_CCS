@@ -29,17 +29,44 @@ export const getStageDetails = (item) => {
 
 export const parseStoredFiles = (value) => {
   if (!value) return [];
-  if (Array.isArray(value)) return value;
+
+  const normalizeItem = (item) => {
+    if (!item && item !== 0) return null;
+    if (typeof item === "string") return item;
+    if (typeof item === "object") {
+      if (item.url) return item.url;
+      if (item.src) return item.src;
+      if (item.path) return item.path;
+      if (item.file) {
+        if (typeof item.file === 'string') return item.file;
+        if (item.file.path) return item.file.path;
+        if (item.file.url) return item.file.url;
+        if (item.file.filename) return item.file.filename;
+      }
+      if (item.filename) return item.filename;
+      if (item.name) return item.name;
+      try {
+        return JSON.stringify(item);
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  };
+
+  if (Array.isArray(value)) {
+    return value.map(normalizeItem).filter(Boolean);
+  }
 
   if (typeof value === "string") {
     try {
       const parsed = JSON.parse(value);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) return parsed.map(normalizeItem).filter(Boolean);
+      const single = normalizeItem(parsed);
+      return single ? [single] : [value];
     } catch (_) {
       return [value];
     }
-
-    return [value];
   }
 
   return [];

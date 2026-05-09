@@ -209,21 +209,55 @@ const ImplementasiForm = () => {
     }
   };
 
-  // ✅ PROCESS FILES
-  const processFiles = (files) => {
-    const imageFiles = files.filter(file => file.type.startsWith('image/'));
-    
-    if (imageFiles.length === 0) {
-      toast.error("❌ Silakan pilih file gambar!");
+  // ✅ PROCESS FILES (supports images, videos, HEIC conversion)
+  const processFiles = async (files) => {
+    const accepted = [];
+
+    for (const file of files) {
+      const name = (file.name || '').toLowerCase();
+      const isHeic = name.endsWith('.heic') || name.endsWith('.heif') || /heic|heif/.test(file.type);
+      const isImage = file.type && file.type.startsWith('image/');
+      const isVideo = file.type && file.type.startsWith('video/');
+
+      if (isHeic) {
+        try {
+          const heic2anyModule = await import('heic2any');
+          const heic2any = heic2anyModule.default || heic2anyModule;
+          const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 });
+          if (Array.isArray(converted)) {
+            converted.forEach((b, i) => {
+              const f = new File([b], `${name.replace(/\.heic|\.heif/, '')}-${i + 1}.jpg`, { type: 'image/jpeg' });
+              accepted.push(f);
+            });
+          } else if (converted) {
+            const f = new File([converted], `${name.replace(/\.heic|\.heif/, '')}.jpg`, { type: 'image/jpeg' });
+            accepted.push(f);
+          }
+        } catch (err) {
+          console.warn('[Implementasi] HEIC conversion failed:', err);
+        }
+        continue;
+      }
+
+      if (isImage || isVideo) {
+        accepted.push(file);
+      } else {
+        if (name.match(/\.(png|jpe?g|gif|svg|bmp|webp|mp4|mov|webm|ogg)$/)) {
+          accepted.push(file);
+        }
+      }
+    }
+
+    if (accepted.length === 0) {
+      toast.error('❌ Silakan pilih file gambar atau video!');
       return;
     }
 
     const currentFiles = formik.values.dokumentasi || [];
-    const newFiles = [...currentFiles, ...imageFiles];
-    
-    formik.setFieldValue("dokumentasi", newFiles);
+    const newFiles = [...currentFiles, ...accepted];
+    formik.setFieldValue('dokumentasi', newFiles);
     setShowUploadModal(false);
-    toast.success(`✅ ${imageFiles.length} gambar berhasil ditambahkan!`);
+    toast.success(`✅ ${accepted.length} file berhasil ditambahkan!`);
   };
 
   // ✅ HANDLE FILE INPUT
@@ -674,22 +708,22 @@ const ImplementasiForm = () => {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   multiple
                   onChange={handleFileSelect}
                   className="sr-only"
                   id="file-input"
                 />
                 
-                <input
-                  ref={cameraInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleCameraCapture}
-                  className="sr-only"
-                  id="camera-input"
-                />
+                      <input
+                        ref={cameraInputRef}
+                        type="file"
+                        accept="image/*,video/*"
+                        capture="environment"
+                        onChange={handleCameraCapture}
+                        className="sr-only"
+                        id="camera-input"
+                      />
 
                 {/* Content */}
                 <motion.div
