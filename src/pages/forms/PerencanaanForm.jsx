@@ -9,6 +9,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from "re
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "react-toastify/dist/ReactToastify.css";
+import PageHeader from "../../components/shared/PageHeader";
 
 // ✅ Fix Leaflet default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -199,31 +200,16 @@ const PerencanaanForm = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-12 px-4">
-      <div className="max-w-5xl mx-auto">
+    <div className="py-12">
         {/* Header */}
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <motion.div
-            className="inline-flex items-center gap-2 bg-emerald-100 dark:bg-emerald-900/20 px-4 py-2 rounded-full mb-4"
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <FiCheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Formulir Perencanaan</span>
-          </motion.div>
-          <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent mb-4">
-            Form Perencanaan Kegiatan
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
-            Isi data dengan lengkap untuk merencanakan kegiatan konservasi
-          </p>
-        </motion.div>
+
+        <PageHeader
+          badge="Formulir Perencanaan"
+          badgeIcon={FiCheckCircle}
+          title="Form Perencanaan Kegiatan"
+          description="Isi data dengan lengkap untuk merencanakan kegiatan konservasi"
+        />
+        
 
         {/* Success Animation */}
         <AnimatePresence>
@@ -249,7 +235,7 @@ const PerencanaanForm = () => {
 
         {/* Form Card */}
         <motion.div
-          className="glass bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 dark:border-gray-700/50 overflow-hidden"
+          className="glass bg-white/90 dark:bg-gray-900 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 dark:border-gray-700/50 overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -266,7 +252,7 @@ const PerencanaanForm = () => {
                   className="group"
                 >
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                    <field.icon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    <field.icon className="w-5 h-5 text-primary dark:text-primary-light" />
                     {field.label}
                   </label>
                   <div className="relative">
@@ -314,7 +300,7 @@ const PerencanaanForm = () => {
               transition={{ delay: 0.4 }}
             >
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
-                <FiCheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <FiCheckCircle className="w-5 h-5 text-primary dark:text-primary-light" />
                 Jenis Kegiatan
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -383,7 +369,7 @@ const PerencanaanForm = () => {
               transition={{ delay: 0.5 }}
             >
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
-                <FiMapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <FiMapPin className="w-5 h-5 text-primary dark:text-primary-light" />
                 Tandai Lokasi di Peta
                 <span className="text-red-500">*</span>
               </label>
@@ -423,19 +409,25 @@ const PerencanaanForm = () => {
                 <motion.button
                   type="button"
                   onClick={getCurrentLocation}
-                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold shadow-lg transition-all"
+                  className="relative group flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg overflow-hidden transition-all duration-300"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <FiNavigation className="w-5 h-5" />
-                  <span className="hidden sm:inline">Pusatkan ke Lokasi Saya</span>
-                  <span className="sm:hidden">Lokasi Saya</span>
+                  {/* hover overlay */}
+                  <span className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  {/* content */}
+                  <span className="relative z-10 flex items-center gap-2">
+                    <FiNavigation className="w-5 h-5" />
+                    <span className="hidden sm:inline">Pusatkan ke Lokasi Saya</span>
+                    <span className="sm:hidden">Lokasi Saya</span>
+                  </span>
                 </motion.button>
               </div>
 
               {/* Interactive Map */}
               <motion.div
-                className="rounded-2xl overflow-hidden border-2 border-emerald-200 dark:border-emerald-700 shadow-xl"
+                className="rounded-2xl overflow-hidden border-2 border-primary/20 dark:border-primary/30 shadow-xl"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
@@ -481,7 +473,7 @@ const PerencanaanForm = () => {
                     <FiCheckCircle className="w-5 h-5" />
                     <span className="font-semibold">Lokasi berhasil ditandai!</span>
                   </div>
-                  <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-1">
+                  <p className="text-sm text-primary dark:text-primary-light mt-1">
                     Koordinat: <span className="font-mono">{formik.values.lokasi}</span>
                   </p>
                 </motion.div>
@@ -497,28 +489,35 @@ const PerencanaanForm = () => {
               <motion.button
                 type="submit"
                 disabled={submitting}
-                className={`w-full py-4 rounded-xl font-bold text-lg shadow-xl transition-all ${
+                className={`relative group w-full py-4 rounded-xl font-bold text-lg shadow-xl overflow-hidden transition-all duration-300 ${
                   submitting
                     ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white"
+                    : "bg-primary text-primary-foreground"
                 }`}
               >
-                {submitting ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <motion.div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
-                    Menyimpan data & transaksi...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <FiCheckCircle className="w-6 h-6" />
-                    Simpan Kegiatan
-                  </span>
+                {/* hover overlay */}
+                {!submitting && (
+                  <span className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 )}
+                
+                {/* content */}
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  {submitting ? (
+                    <>
+                      <motion.div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
+                      Menyimpan data & transaksi...
+                    </>
+                  ) : (
+                    <>
+                      <FiCheckCircle className="w-6 h-6" />
+                      Simpan Kegiatan
+                    </>
+                  )}
+                </span>
               </motion.button>
             </motion.div>
           </form>
         </motion.div>
-      </div>
     </div>
   );
 };

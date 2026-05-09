@@ -54,7 +54,7 @@ export default function NarrativeEditor({ narratives, onSave }) {
             {editingField !== field.id && (
               <button
                 onClick={() => handleEdit(field.id)}
-                className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                className="p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 text-gray-600 dark:text-gray-400 transition-colors"
                 title="Edit narasi"
               >
                 <FiEdit2 size={16} />

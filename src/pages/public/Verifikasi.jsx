@@ -2,10 +2,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { 
-  FiCamera, FiCheckCircle, FiAlertCircle, FiRefreshCw, 
+import {
+  FiCamera, FiCheckCircle, FiAlertCircle, FiRefreshCw,
   FiX, FiDownload, FiCopy, FiChevronDown, FiChevronUp, FiUpload,
-  FiShield, FiExternalLink, FiArrowRight
+  FiShield, FiExternalLink
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
@@ -37,12 +37,12 @@ const fetchFromBlockchain = async (docHash, blockchainContext) => {
     }
 
     console.log('[Verifikasi] Fetching from blockchain:', docHash);
-    
+
     // ✅ Call smart contract function untuk ambil document
     const documentData = await blockchainContext.contract.getDocument(docHash);
-    
+
     console.log('[Verifikasi] Blockchain data received:', documentData);
-    
+
     // ✅ Parse blockchain data
     const parsedData = {
       id: documentData.id?.toNumber?.() || documentData.id,
@@ -60,7 +60,7 @@ const fetchFromBlockchain = async (docHash, blockchainContext) => {
       blockchain_verified: true,
       source: 'BLOCKCHAIN_POLYGON'
     };
-    
+
     return parsedData;
   } catch (err) {
     console.error('[Verifikasi] Error fetching from blockchain:', err);
@@ -84,10 +84,10 @@ export default function Verifikasi() {
   const [loadingLaporan, setLoadingLaporan] = useState(false);
   const [blockchainReady, setBlockchainReady] = useState(false);
   const [blockchainError, setBlockchainError] = useState(null);
-  
+
   // ✅ NEW: Track blockchain data separately to ensure it never gets lost
   const [blockchainData, setBlockchainData] = useState(null);
-  
+
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const blockchainContext = useBlockchain();
@@ -144,20 +144,20 @@ export default function Verifikasi() {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
-      
+
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
-      
+
       // ✅ Varian suara berbeda
       if (type === 'success') {
         // Two beeps: low then high (success sound)
         oscillator.frequency.setValueAtTime(523, audioContext.currentTime); // C5
         oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.1); // G5
-        
+
         gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
         gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + 0.1);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.25);
-        
+
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + 0.25);
       } else if (type === 'warning') {
@@ -165,7 +165,7 @@ export default function Verifikasi() {
         oscillator.frequency.value = 660; // E5
         gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-        
+
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + 0.15);
       } else if (type === 'triple') {
@@ -179,7 +179,7 @@ export default function Verifikasi() {
         gainNode.gain.setValueAtTime(0, audioContext.currentTime + 0.20);
         gainNode.gain.setValueAtTime(0.25, audioContext.currentTime + 0.24);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.32);
-        
+
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + 0.32);
       }
@@ -214,11 +214,11 @@ export default function Verifikasi() {
         const allDevices = await navigator.mediaDevices.enumerateDevices();
         const videoDevices = allDevices.filter(d => d.kind === 'videoinput');
         setDevices(videoDevices);
-        
+
         if (videoDevices.length > 0) {
           const backCamera = videoDevices.find(d => d.label.toLowerCase().includes('back'));
           setDeviceId(backCamera?.deviceId || videoDevices[0].deviceId);
-          
+
           if (scannerReady && !useManualInput) {
             setScanning(true);
           }
@@ -229,7 +229,7 @@ export default function Verifikasi() {
         setUseManualInput(true);
       }
     };
-    
+
     if (scannerReady) {
       getDevices();
     }
@@ -242,7 +242,7 @@ export default function Verifikasi() {
     const startCamera = async () => {
       try {
         console.log('[Verifikasi] Starting camera with device:', deviceId);
-        
+
         const constraints = {
           video: {
             facingMode: "environment",
@@ -254,7 +254,7 @@ export default function Verifikasi() {
 
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         const video = videoRef.current;
-        
+
         if (video) {
           video.srcObject = stream;
           await video.play().catch(err => {
@@ -306,13 +306,13 @@ export default function Verifikasi() {
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          
+
           // ✅ Try jsQR
           try {
             const { default: jsQR } = await import('jsqr');
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const code = jsQR(imageData.data, imageData.width, imageData.height);
-            
+
             if (code && code.data && code.data !== lastScannedData) {
               lastScannedData = code.data;
               console.log('[Verifikasi] QR detected from video:', code.data.substring(0, 50));
@@ -367,7 +367,7 @@ export default function Verifikasi() {
       if (Array.isArray(detections) && detections.length > 0) {
         const detection = detections[0];
         const qrData = detection?.rawValue || detection?.data || detection;
-        
+
         if (qrData) {
           console.log('[Verifikasi] QR Code detected from array:', qrData);
           processQRData(qrData);
@@ -393,7 +393,7 @@ export default function Verifikasi() {
   // ✅ Handle scan errors - FIXED
   const handleError = (error) => {
     console.error('[Verifikasi] Scan error:', error);
-    
+
     if (error?.name === 'NotAllowedError') {
       setError('❌ Izin kamera ditolak. Silakan izinkan akses kamera di pengaturan browser.');
     } else if (error?.name === 'NotFoundError') {
@@ -403,7 +403,7 @@ export default function Verifikasi() {
     } else {
       setError('❌ Gagal mengakses kamera. Gunakan input manual.');
     }
-    
+
     setScanning(false);
     setUseManualInput(true);
     toast.error(error?.message || 'Gagal mengakses kamera');
@@ -434,7 +434,7 @@ export default function Verifikasi() {
         try {
           console.log('[Verifikasi] Step 1: Trying Polygon Blockchain...');
           laporan = await blockchainContext.getDocument(qrDataParsed.blockchain_doc_hash);
-          
+
           if (laporan) {
             console.log('[Verifikasi] ✅ Data fetched from Polygon Blockchain successfully');
             setLaporanDetail(laporan);
@@ -451,14 +451,14 @@ export default function Verifikasi() {
       // ✅ 2. Fallback: Try public endpoint (with short timeout for public page)
       try {
         console.log(`[Verifikasi] Step 2: Trying public endpoint: /perencanaan/${laporanId}/public`);
-        
+
         // Create request with short timeout for public endpoint
         const response = await api.get(`/perencanaan/${laporanId}/public`, {
           timeout: 5000,
         }); // 5 second timeout for public page
-        
+
         laporan = response.data?.data || response.data;
-        
+
         if (laporan) {
           console.log('[Verifikasi] ✅ Data fetched from API successfully');
           console.log('[Verifikasi] API Response structure:', {
@@ -466,7 +466,7 @@ export default function Verifikasi() {
             hasBlockchainDocHash: !!laporan.blockchain_doc_hash,
             blockchainObj: laporan.blockchain
           });
-          
+
           // ✅ Extract blockchain data from API response structure
           if (laporan.blockchain && typeof laporan.blockchain === 'object') {
             laporan.blockchain_doc_hash = laporan.blockchain.doc_hash || laporan.blockchain_doc_hash;
@@ -478,7 +478,7 @@ export default function Verifikasi() {
               verified: laporan.blockchain_verified
             });
           }
-          
+
           // ✅ ALSO apply blockchain data from state if it exists
           if (blockchainData) {
             laporan.blockchain_doc_hash = blockchainData.blockchain_doc_hash || laporan.blockchain_doc_hash;
@@ -486,7 +486,7 @@ export default function Verifikasi() {
             laporan.blockchain_verified = blockchainData.blockchain_verified !== undefined ? blockchainData.blockchain_verified : laporan.blockchain_verified;
             console.log('[Verifikasi] ✅ Applied blockchain data from state:', blockchainData);
           }
-          
+
           setLaporanDetail(laporan);
           toast.success("📊 Detail laporan berhasil dimuat dari server!");
           setLoadingLaporan(false);
@@ -501,7 +501,7 @@ export default function Verifikasi() {
           url: publicErr.config?.url,
           data: publicErr.response?.data
         });
-        
+
         // ✅ If 404, show user-friendly error
         if (publicErr.response?.status === 404) {
           console.log(`[Verifikasi] ID ${laporanId} not found on server, using fallback`);
@@ -515,24 +515,24 @@ export default function Verifikasi() {
           console.log(`[Verifikasi] Step 3: Trying authenticated endpoint: /perencanaan/${laporanId}`);
           const response = await api.get(`/perencanaan/${laporanId}`);
           laporan = response.data?.data || response.data;
-          
+
           if (laporan) {
             console.log('[Verifikasi] ✅ Data fetched from authenticated endpoint');
-            
+
             // ✅ Extract blockchain data from API response structure
             if (laporan.blockchain && typeof laporan.blockchain === 'object') {
               laporan.blockchain_doc_hash = laporan.blockchain.doc_hash || laporan.blockchain_doc_hash;
               laporan.blockchain_tx_hash = laporan.blockchain.tx_hash || laporan.blockchain_tx_hash;
               laporan.blockchain_verified = laporan.blockchain.verified !== undefined ? laporan.blockchain.verified : true;
             }
-            
+
             // ✅ ALSO apply blockchain data from state if it exists
             if (blockchainData) {
               laporan.blockchain_doc_hash = blockchainData.blockchain_doc_hash || laporan.blockchain_doc_hash;
               laporan.blockchain_tx_hash = blockchainData.blockchain_tx_hash || laporan.blockchain_tx_hash;
               laporan.blockchain_verified = blockchainData.blockchain_verified !== undefined ? blockchainData.blockchain_verified : laporan.blockchain_verified;
             }
-            
+
             setLaporanDetail(laporan);
             toast.success("📊 Detail laporan berhasil dimuat!");
             setLoadingLaporan(false);
@@ -552,14 +552,14 @@ export default function Verifikasi() {
       // ✅ 4. Fallback: Use QR code data + blockchain info
       if (parsedData && typeof parsedData === 'object' && parsedData.id) {
         laporan = { ...parsedData };
-        
+
         // ✅ Always add blockchain data if available
         if (blockchainData) {
           laporan.blockchain_doc_hash = blockchainData.blockchain_doc_hash;
           laporan.blockchain_tx_hash = blockchainData.blockchain_tx_hash;
           laporan.blockchain_verified = blockchainData.blockchain_verified;
         }
-        
+
         console.log('[Verifikasi] Using data from QR code as fallback:', laporan);
         setLaporanDetail(laporan);
         toast.info("💡 Menampilkan data dari QR Code", { autoClose: 2000 });
@@ -586,7 +586,7 @@ export default function Verifikasi() {
         error: err.message,
         parsedDataAvailable: !!parsedData
       });
-      
+
       toast.warning("⚠️ Tidak dapat memuat detail lengkap - menampilkan data QR Code");
       if (parsedData) {
         setLaporanDetail(parsedData);
@@ -608,21 +608,21 @@ export default function Verifikasi() {
     try {
       // ✅ Show instant loading feedback
       toast.info("🔍 Verifying on Polygon blockchain...", { autoClose: 2000 });
-      
+
       if (blockchainContext?.isReady) {
         // ✅ Fast verification with timeout
         const blockchainVerified = await Promise.race([
           blockchainContext.verifyDocumentHash(qrDataParsed.verification.docHash),
-          new Promise((_, reject) => 
+          new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Verification timeout')), 8000)
           )
         ]);
-        
+
         if (blockchainVerified.verified) {
           console.log('[Verifikasi] ✅ Blockchain verification successful');
-          
+
           toast.success("🔗 ✅ Verified on Polygon blockchain!", { autoClose: 4000 });
-          
+
           // ✅ Update laporan dengan blockchain data
           setLaporanDetail({
             ...laporanDetail,
@@ -640,7 +640,7 @@ export default function Verifikasi() {
       }
     } catch (err) {
       console.error('[Verifikasi] Verification failed:', err);
-      
+
       if (err.message.includes('timeout')) {
         toast.error("❌ Verification timeout - blockchain slow, showing QR data");
       } else {
@@ -661,7 +661,7 @@ export default function Verifikasi() {
 
       const trimmedData = qrData.trim();
       console.log('[Verifikasi] Processing QR data:', trimmedData.substring(0, 100));
-      
+
       // ✅ Try to parse as JSON first
       let parsed = null;
       try {
@@ -684,7 +684,7 @@ export default function Verifikasi() {
           setScanResult(qrData);
           setScanning(false);
           setError(null);
-          
+
           // ✅ ALWAYS save blockchain data to state
           if (parsed.verification?.docHash) {
             setBlockchainData({
@@ -693,7 +693,7 @@ export default function Verifikasi() {
               blockchain_verified: true
             });
           }
-          
+
           if (parsed.data && Object.keys(parsed.data).length > 0) {
             setParsedData(parsed.data);
             setLaporanDetail(parsed.data);
@@ -710,7 +710,7 @@ export default function Verifikasi() {
             setParsedData(minimalData);
             setLaporanDetail(minimalData);
           }
-          
+
           if (parsed.verification?.docHash && blockchainContext?.isReady) {
             setTimeout(() => {
               verifyBlockchainData();
@@ -718,7 +718,7 @@ export default function Verifikasi() {
           }
           return;
         }
-        
+
         // Format 2: Minimal format dengan id, docHash, verified
         if (parsed.id || parsed.docHash || parsed.verified !== undefined) {
           console.log('[Verifikasi] Format 2: Minimal blockchain format detected');
@@ -727,7 +727,7 @@ export default function Verifikasi() {
           setScanResult(qrData);
           setScanning(false);
           setError(null);
-          
+
           const bcData = {
             id: parsed.id || 'unknown',
             blockchain_doc_hash: parsed.docHash || parsed.blockchain_doc_hash,
@@ -735,24 +735,24 @@ export default function Verifikasi() {
             blockchain_verified: parsed.verified || false,
             source: 'QR_CODE'
           };
-          
+
           // ✅ SET BLOCKCHAIN DATA TO STATE
           setBlockchainData(bcData);
-          
+
           setParsedData(bcData);
           setLaporanDetail(bcData);
           setQrDataParsed(parsed);
-          
+
           console.log('[Verifikasi] ✅ Blockchain data set:', bcData);
           toast.info("📊 Blockchain data from QR code", { autoClose: 2000 });
-          
+
           // Fetch full detail if we have ID
           if (parsed.id) {
             await fetchLaporanDetail(parsed.id);
           }
           return;
         }
-        
+
         // Format 3: Any other object format - treat as data
         if (Object.keys(parsed).length > 0) {
           console.log('[Verifikasi] Format 3: Generic JSON object detected');
@@ -761,7 +761,7 @@ export default function Verifikasi() {
           setScanResult(qrData);
           setScanning(false);
           setError(null);
-          
+
           // ✅ SAVE blockchain data if present in Format 3
           if (parsed.blockchain_doc_hash || parsed.docHash) {
             const bcData = {
@@ -772,10 +772,10 @@ export default function Verifikasi() {
             setBlockchainData(bcData);
             console.log('[Verifikasi] ✅ Format 3 blockchain data set:', bcData);
           }
-          
+
           setParsedData(parsed);
           setLaporanDetail(parsed);
-          
+
           // If has ID, try to fetch full detail
           if (parsed.id) {
             await fetchLaporanDetail(parsed.id);
@@ -783,7 +783,7 @@ export default function Verifikasi() {
           return;
         }
       }
-      
+
       // ✅ URL-based QR (monitoring access flow)
       if (/^https?:\/\//i.test(trimmedData)) {
         try {
@@ -843,14 +843,14 @@ export default function Verifikasi() {
         await fetchLaporanDetail(numericId);
         return;
       }
-      
+
       // ✅ BLOCKCHAIN HASH (0x...)
       if (trimmedData.startsWith('0x') && (trimmedData.length === 66 || trimmedData.length === 130)) {
         console.log('[Verifikasi] Blockchain hash detected');
         playBeepSound('success');
         toast.info("🔗 Blockchain hash detected, verifying...");
         setScanResult(qrData);
-        
+
         // ✅ SET blockchain data immediately
         const bcData = {
           blockchain_doc_hash: trimmedData,
@@ -858,12 +858,12 @@ export default function Verifikasi() {
         };
         setBlockchainData(bcData);
         setParsedData(bcData);
-        
+
         setScanning(false);
         setError(null);
-        
+
         console.log('[Verifikasi] ✅ Blockchain hash set:', bcData);
-        
+
         if (blockchainContext?.isReady) {
           try {
             const blockchainResponse = await blockchainContext.verifyDocumentHash(trimmedData);
@@ -888,7 +888,7 @@ export default function Verifikasi() {
         }
         return;
       }
-      
+
       // ✅ RAW TEXT
       console.log('[Verifikasi] Raw text detected');
       playBeepSound('warning');
@@ -897,7 +897,7 @@ export default function Verifikasi() {
       setParsedData({ raw: trimmedData, type: 'TEXT' });
       setScanning(false);
       setError(null);
-      
+
     } catch (err) {
       console.error('[Verifikasi] Error in processQRData:', err);
       toast.error('❌ Error processing QR data: ' + err.message);
@@ -945,7 +945,7 @@ export default function Verifikasi() {
       console.log('[Verifikasi] Processing file upload:', file.name);
       setScanning(false); // Stop camera
       const reader = new FileReader();
-      
+
       reader.onload = async (event) => {
         const img = new Image();
         img.onload = async () => {
@@ -956,7 +956,7 @@ export default function Verifikasi() {
             canvas.height = img.height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0);
-            
+
             let qrContent = null;
 
             // ✅ Approach 1: Try jsQR
@@ -965,7 +965,7 @@ export default function Verifikasi() {
               const { default: jsQR } = await import('jsqr');
               const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
               const code = jsQR(imageData.data, imageData.width, imageData.height);
-              
+
               if (code) {
                 qrContent = code.data;
                 console.log('[Verifikasi] jsQR decode successful:', qrContent);
@@ -1016,7 +1016,7 @@ export default function Verifikasi() {
               toast.success('✅ QR Code dari gambar berhasil dibaca!');
               await processQRData(qrContent);
             }
-            
+
           } catch (decodeErr) {
             console.error('[Verifikasi] Error decoding QR from image:', decodeErr);
             toast.warning('⚠️ Tidak dapat membaca QR dari gambar.');
@@ -1040,19 +1040,19 @@ export default function Verifikasi() {
     }
   };
 
-  const containerClass = isAuthenticated 
-    ? "" 
+  const containerClass = isAuthenticated
+    ? ""
     : "min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-28 pb-12 px-3 sm:px-6 lg:px-8 transition-colors";
 
-  const innerContainerClass = isAuthenticated 
-    ? "" 
+  const innerContainerClass = isAuthenticated
+    ? ""
     : "max-w-7xl mx-auto";
 
   return (
     <div className={containerClass}>
       <div className={innerContainerClass}>
         {/* Header Card */}
-        <motion.div 
+        <motion.div
           className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden border border-green-100 dark:border-gray-700 mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1060,7 +1060,7 @@ export default function Verifikasi() {
         >
           <div className="bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 px-6 py-6 sm:px-8 sm:py-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3 mb-2">
-              <motion.div 
+              <motion.div
                 className="p-2 bg-white/20 rounded-xl"
                 whileHover={{ rotate: 10, scale: 1.1 }}
               >
@@ -1077,7 +1077,7 @@ export default function Verifikasi() {
         {/* Main Grid */}
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Scanner Section */}
-          <motion.div 
+          <motion.div
             className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 sm:p-8 border border-green-100 dark:border-gray-700"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -1091,7 +1091,7 @@ export default function Verifikasi() {
             {/* Error Alert */}
             <AnimatePresence>
               {error && (
-                <motion.div 
+                <motion.div
                   className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-center gap-3"
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1126,7 +1126,7 @@ export default function Verifikasi() {
             {/* Scanner atau Manual Input */}
             <AnimatePresence mode="wait">
               {!useManualInput && scannerReady && scanning && !scanResult ? (
-                <motion.div 
+                <motion.div
                   key="scanner"
                   className="relative rounded-2xl overflow-hidden border-4 border-green-500 shadow-2xl bg-gray-900 mb-6"
                   style={{ aspectRatio: '1/1' }}
@@ -1145,7 +1145,7 @@ export default function Verifikasi() {
                       console.log('[Verifikasi] Video loaded');
                     }}
                   />
-                  
+
                   {/* Scanning Frame */}
                   <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                     <div className="absolute inset-8 border-2 border-green-400 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]"></div>
@@ -1172,9 +1172,9 @@ export default function Verifikasi() {
               <label className="flex flex-col items-center justify-center w-full p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                 <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-600 dark:text-gray-400">Klik untuk upload gambar</span>
-                <input 
-                  type="file" 
-                  accept="image/*" 
+                <input
+                  type="file"
+                  accept="image/*"
                   onChange={handleFileUpload}
                   className="sr-only"
                 />
@@ -1183,7 +1183,7 @@ export default function Verifikasi() {
 
             {/* Success State */}
             {scanResult && !laporanDetail && (
-              <motion.div 
+              <motion.div
                 className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-2xl p-8 text-center aspect-square flex flex-col items-center justify-center"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -1211,7 +1211,7 @@ export default function Verifikasi() {
 
             {/* Success State - Show Detail */}
             {scanResult && laporanDetail && (
-              <motion.div 
+              <motion.div
                 className="bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700 rounded-2xl p-8 text-center aspect-square flex flex-col items-center justify-center"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -1275,218 +1275,194 @@ export default function Verifikasi() {
 
                   {/* Modal Content */}
                   <div className="p-6 overflow-y-auto scrollbar-premium flex-1">
-                  
-                  {/* ⚠️ Warning if data is from QR fallback */}
-                  {!laporanDetail.nama_perusahaan && laporanDetail.blockchain_doc_hash && (
-                    <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                      <p className="text-xs text-yellow-700 dark:text-yellow-300 font-semibold">⚠️ Data Terbatas</p>
-                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        Server tidak merespons, menampilkan data dari blockchain. Detail lengkap mungkin tidak tersedia.
-                      </p>
-                    </div>
-                  )}
-                  
-                  {/* Header Info */}
-                  <div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg flex-shrink-0">
-                        <FiCheckCircle className="w-6 h-6" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">
-                          {laporanDetail.nama_perusahaan || (laporanDetail.blockchain_doc_hash ? '🔗 Data dari Blockchain' : 'Detail Laporan')}
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          ID: <span className="font-mono">{laporanDetail.id}</span>
+
+                    {/* ⚠️ Warning if data is from QR fallback */}
+                    {!laporanDetail.nama_perusahaan && laporanDetail.blockchain_doc_hash && (
+                      <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                        <p className="text-xs text-yellow-700 dark:text-yellow-300 font-semibold">⚠️ Data Terbatas</p>
+                        <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                          Server tidak merespons, menampilkan data dari blockchain. Detail lengkap mungkin tidak tersedia.
                         </p>
                       </div>
-                    </div>
+                    )}
 
-                    {/* Status Badges */}
-                    <div className="flex gap-2 flex-wrap">
-                      {laporanDetail.is_implemented && (
-                        <span className="px-3 py-1 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold flex items-center gap-1">
-                          <FiCheckCircle className="w-3 h-3" />
-                          Sudah Implementasi
-                        </span>
-                      )}
-                      {laporanDetail.blockchain_doc_hash && (
-                        <span className="px-3 py-1 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold flex items-center gap-1">
-                          🔗 Verified Blockchain
-                        </span>
-                      )}
-                      <span className="px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
-                        {laporanDetail.jenis_kegiatan}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Detail Fields */}
-                  {loadingLaporan ? (
-                    <div className="space-y-4">
-                      {[1, 2, 3, 4].map((i) => (
-                        <motion.div
-                          key={i}
-                          className="h-12 bg-gradient-to-r from-gray-200 to-gray-100 dark:from-gray-700 dark:to-gray-600 rounded-lg"
-                          animate={{ opacity: [0.5, 1, 0.5] }}
-                          transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {laporanDetail.nama_pic && (
-                        <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-                          <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Nama PIC</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {laporanDetail.nama_pic}
+                    {/* Header Info */}
+                    <div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg flex-shrink-0">
+                          <FiCheckCircle className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">
+                            {laporanDetail.nama_perusahaan || (laporanDetail.blockchain_doc_hash ? '🔗 Data dari Blockchain' : 'Detail Laporan')}
+                          </h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            ID: <span className="font-mono">{laporanDetail.id}</span>
                           </p>
                         </div>
-                      )}
+                      </div>
 
-                      {laporanDetail.narahubung && (
-                        <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-                          <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Narahubung</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {laporanDetail.narahubung}
-                          </p>
-                        </div>
-                      )}
-
-                      {laporanDetail.jenis_bibit && (
-                        <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-                          <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Jenis Bibit</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {laporanDetail.jenis_bibit}
-                          </p>
-                        </div>
-                      )}
-
-                      {laporanDetail.jumlah_bibit && (
-                        <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-                          <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Jumlah Bibit</p>
-                          <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                            {laporanDetail.jumlah_bibit} unit
-                          </p>
-                        </div>
-                      )}
-
-                      {laporanDetail.tanggal_pelaksanaan && (
-                        <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-                          <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Tanggal Pelaksanaan</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {new Date(laporanDetail.tanggal_pelaksanaan).toLocaleDateString("id-ID", {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                            })}
-                          </p>
-                        </div>
-                      )}
-
-                      {laporanDetail.lokasi && (
-                        <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-                          <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Lokasi</p>
-                          <p className="text-sm font-mono text-gray-900 dark:text-gray-100 break-all">
-                            {laporanDetail.lokasi}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Blockchain Info */}
-                  {laporanDetail?.blockchain_doc_hash || blockchainData?.blockchain_doc_hash ? (
-                    <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-2 flex items-center gap-2">
-                        <FiShield className="w-4 h-4" /> Blockchain
-                        {loadingLaporan && (
-                          <motion.span
-                            className="w-2 h-2 bg-blue-500 rounded-full"
-                            animate={{ opacity: [1, 0.3, 1] }}
-                            transition={{ duration: 1, repeat: Infinity }}
-                          />
+                      {/* Status Badges */}
+                      <div className="flex gap-2 flex-wrap">
+                        {laporanDetail.is_implemented && (
+                          <span className="px-3 py-1 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold flex items-center gap-1">
+                            <FiCheckCircle className="w-3 h-3" />
+                            Sudah Implementasi
+                          </span>
                         )}
-                      </p>
-                      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 space-y-2">
-                        <div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">Doc Hash:</p>
-                          <code className="text-xs font-mono text-blue-700 dark:text-blue-300 break-all">
-                            {laporanDetail?.blockchain_doc_hash || blockchainData?.blockchain_doc_hash}
-                          </code>
-                        </div>
-                        {(laporanDetail?.blockchain_tx_hash || blockchainData?.blockchain_tx_hash) && (
-                          <div>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">TX Hash:</p>
-                            <a
-                              href={`${EXPLORER_BASE_URL}/tx/${laporanDetail?.blockchain_tx_hash || blockchainData?.blockchain_tx_hash}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs font-mono text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 break-all flex items-center gap-1"
-                            >
-                              {laporanDetail?.blockchain_tx_hash || blockchainData?.blockchain_tx_hash}
-                              <FiExternalLink className="w-3 h-3" />
-                            </a>
+                        {laporanDetail.blockchain_doc_hash && (
+                          <span className="px-3 py-1 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold flex items-center gap-1">
+                            🔗 Verified Blockchain
+                          </span>
+                        )}
+                        <span className="px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                          {laporanDetail.jenis_kegiatan}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Detail Fields */}
+                    {loadingLaporan ? (
+                      <div className="space-y-4">
+                        {[1, 2, 3, 4].map((i) => (
+                          <motion.div
+                            key={i}
+                            className="h-12 bg-gradient-to-r from-gray-200 to-gray-100 dark:from-gray-700 dark:to-gray-600 rounded-lg"
+                            animate={{ opacity: [0.5, 1, 0.5] }}
+                            transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {laporanDetail.nama_pic && (
+                          <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Nama PIC</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {laporanDetail.nama_pic}
+                            </p>
+                          </div>
+                        )}
+
+                        {laporanDetail.narahubung && (
+                          <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Narahubung</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {laporanDetail.narahubung}
+                            </p>
+                          </div>
+                        )}
+
+                        {laporanDetail.jenis_bibit && (
+                          <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Jenis Bibit</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {laporanDetail.jenis_bibit}
+                            </p>
+                          </div>
+                        )}
+
+                        {laporanDetail.jumlah_bibit && (
+                          <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Jumlah Bibit</p>
+                            <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                              {laporanDetail.jumlah_bibit} unit
+                            </p>
+                          </div>
+                        )}
+
+                        {laporanDetail.tanggal_pelaksanaan && (
+                          <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Tanggal Pelaksanaan</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {new Date(laporanDetail.tanggal_pelaksanaan).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })}
+                            </p>
+                          </div>
+                        )}
+
+                        {laporanDetail.lokasi && (
+                          <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Lokasi</p>
+                            <p className="text-sm font-mono text-gray-900 dark:text-gray-100 break-all">
+                              {laporanDetail.lokasi}
+                            </p>
                           </div>
                         )}
                       </div>
-                    </div>
-                  ) : null}
-
-                  {/* Dibuat Tanggal */}
-                  <div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">
-                      Dibuat pada
-                    </p>
-                    <p className="text-xs text-gray-700 dark:text-gray-300">
-                      {new Date(laporanDetail.created_at).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit"
-                      })}
-                    </p>
-                  </div>
-
-                  {/* Scan Ulang Button */}
-                  <motion.button
-                    onClick={resetScan}
-                    className="w-full mt-6 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white rounded-xl font-medium transition-all shadow-md"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <FiRefreshCw className="w-4 h-4" />
-                    Scan QR Lain
-                  </motion.button>
-                  </div>
-
-                  {/* Modal Footer - Action Buttons */}
-                  <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between gap-3">
-                    {/* Lakukan Monitoring Button - Untuk semua user */}
-                    {laporanDetail?.id && (
-                      <motion.button
-                        onClick={() => {
-                          if (isAuthenticated && user?.role === 'user') {
-                            // Sudah login sebagai user - langsung ke monitoring
-                            navigate(`/user/monitoring?perencanaan_id=${laporanDetail.id}`);
-                          } else {
-                            // Belum login - simpan perencanaan_id dan redirect ke login
-                            sessionStorage.setItem('monitoring_perencanaan_id', laporanDetail.id);
-                            navigate('/login?redirect=monitoring');
-                          }
-                          setLaporanDetail(null);
-                        }}
-                        className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium transition-all shadow-md flex items-center justify-center gap-2"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <span>Lakukan Monitoring</span>
-                        <FiArrowRight className="w-4 h-4" />
-                      </motion.button>
                     )}
-                    
-                    {/* Tutup Button */}
+
+                    {/* Blockchain Info */}
+                    {laporanDetail?.blockchain_doc_hash || blockchainData?.blockchain_doc_hash ? (
+                      <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-2 flex items-center gap-2">
+                          <FiShield className="w-4 h-4" /> Blockchain
+                          {loadingLaporan && (
+                            <motion.span
+                              className="w-2 h-2 bg-blue-500 rounded-full"
+                              animate={{ opacity: [1, 0.3, 1] }}
+                              transition={{ duration: 1, repeat: Infinity }}
+                            />
+                          )}
+                        </p>
+                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 space-y-2">
+                          <div>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">Doc Hash:</p>
+                            <code className="text-xs font-mono text-blue-700 dark:text-blue-300 break-all">
+                              {laporanDetail?.blockchain_doc_hash || blockchainData?.blockchain_doc_hash}
+                            </code>
+                          </div>
+                          {(laporanDetail?.blockchain_tx_hash || blockchainData?.blockchain_tx_hash) && (
+                            <div>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">TX Hash:</p>
+                              <a
+                                href={`${EXPLORER_BASE_URL}/tx/${laporanDetail?.blockchain_tx_hash || blockchainData?.blockchain_tx_hash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs font-mono text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 break-all flex items-center gap-1"
+                              >
+                                {laporanDetail?.blockchain_tx_hash || blockchainData?.blockchain_tx_hash}
+                                <FiExternalLink className="w-3 h-3" />
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {/* Dibuat Tanggal */}
+                    <div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">
+                        Dibuat pada
+                      </p>
+                      <p className="text-xs text-gray-700 dark:text-gray-300">
+                        {new Date(laporanDetail.created_at).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Scan Ulang Button */}
+                    <motion.button
+                      onClick={resetScan}
+                      className="w-full mt-6 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white rounded-xl font-medium transition-all shadow-md"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <FiRefreshCw className="w-4 h-4" />
+                      Scan QR Lain
+                    </motion.button>
+                  </div>
+
+                  {/* Modal Footer - Close Button */}
+                  <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-end gap-3">
                     <motion.button
                       onClick={() => setLaporanDetail(null)}
                       className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
@@ -1503,7 +1479,7 @@ export default function Verifikasi() {
 
           {/* Instructions (jika belum scan) */}
           {!laporanDetail && (
-            <motion.div 
+            <motion.div
               className="lg:col-span-1 space-y-6"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}

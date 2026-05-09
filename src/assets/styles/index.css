@@ -193,14 +193,14 @@
 
 /* Focus visible for accessibility */
 *:focus-visible {
-  @apply outline-none ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-gray-900;
+  @apply outline-none ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-900;
 }
 
 /* Selection styles */
 ::selection {
-  @apply bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100;
+  @apply bg-primary dark:bg-primary-dark text-primary-foreground dark:text-primary-foreground;
 }
 
 ::-moz-selection {
-  @apply bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100;
+  @apply bg-primary dark:bg-primary-dark text-primary-foreground dark:text-primary-foreground;
 }

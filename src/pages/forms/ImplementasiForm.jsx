@@ -8,6 +8,7 @@ import L from "leaflet";
 import { FiCheck, FiX, FiUpload, FiCheckCircle, FiMapPin, FiAlertCircle, FiCamera, FiFolder } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
+import PageHeader from "../../components/shared/PageHeader";
 
 // ✅ Blue marker for existing planned locations
 const existingMarkerIcon = new L.Icon({
@@ -291,62 +292,45 @@ const ImplementasiForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-emerald-50 to-green-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-12 px-4">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+    <div className="py-12">
+      {/* Header */}
+      <PageHeader
+        badge="Formulir Implementasi"
+        badgeIcon={FiCheckCircle}
+        title="Form Implementasi Kegiatan"
+        description="Dokumentasi pelaksanaan kegiatan konservasi"
+      />
+
+      {/* Success Animation */}
+      <AnimatePresence>
+        {success && (
           <motion.div
-            className="inline-flex items-center gap-2 bg-teal-100 dark:bg-teal-900/20 px-4 py-2 rounded-full mb-4"
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2 }}
+            className="mb-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl p-6 text-white text-center"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
           >
-            <FiCheckCircle className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-            <span className="text-sm font-semibold text-teal-700 dark:text-teal-300">Formulir Implementasi</span>
-          </motion.div>
-          <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
-            Form Implementasi Kegiatan
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
-            Dokumentasi pelaksanaan kegiatan konservasi
-          </p>
-        </motion.div>
-
-        {/* Success Animation */}
-        <AnimatePresence>
-          {success && (
             <motion.div
-              className="mb-8 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-2xl p-6 text-white text-center"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200 }}
             >
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200 }}
-              >
-                <FiCheckCircle className="w-16 h-16 mx-auto mb-4" />
-              </motion.div>
-              <h3 className="text-2xl font-bold mb-2">Data Tersimpan!</h3>
-              <p>Implementasi kegiatan berhasil didokumentasikan</p>
+              <FiCheckCircle className="w-16 h-16 mx-auto mb-4" />
             </motion.div>
-          )}
-        </AnimatePresence>
+            <h3 className="text-2xl font-bold mb-2">Data Tersimpan!</h3>
+            <p>Implementasi kegiatan berhasil didokumentasikan</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        {/* Form Card */}
-        <motion.div
-          className="glass bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 dark:border-gray-700/50 overflow-hidden"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <form onSubmit={formik.handleSubmit} className="p-8 md:p-12">
+      {/* Form Card */}
+      <motion.div
+        className="glass bg-white/90 dark:bg-gray-900 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 dark:border-gray-700/50 overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        <form onSubmit={formik.handleSubmit} className="p-8 md:p-12">
             
             {/* ✅ SELECT LOCATION FROM MAP - PERTAMA */}
             <motion.div
@@ -356,20 +340,20 @@ const ImplementasiForm = () => {
               transition={{ delay: 0.1 }}
             >
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
-                <FiMapPin className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                <FiMapPin className="w-5 h-5 text-green-600 dark:text-green-400" />
                 Pilih Lokasi Implementasi
                 <span className="text-red-500">*</span>
               </label>
 
               {/* Info Box */}
-              <div className="mb-4 bg-teal-50 dark:bg-teal-900/20 border-2 border-teal-200 dark:border-teal-700 rounded-xl p-4">
+              <div className="mb-4 bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-700 rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <FiMapPin className="w-5 h-5 text-teal-600 dark:text-teal-400 flex-shrink-0 mt-0.5" />
+                  <FiMapPin className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <h4 className="font-bold text-teal-900 dark:text-teal-200 mb-2">
+                    <h4 className="font-bold text-green-900 dark:text-green-200 mb-2">
                       📍 Pilih dari Lokasi yang Sudah Direncanakan
                     </h4>
-                    <p className="text-sm text-teal-800 dark:text-teal-300">
+                    <p className="text-sm text-green-800 dark:text-green-300">
                       Klik pada marker biru di peta untuk memilih lokasi implementasi. 
                       Lokasi ini berasal dari data perencanaan yang sudah dibuat sebelumnya.
                     </p>
@@ -381,7 +365,7 @@ const ImplementasiForm = () => {
               {loading ? (
                 <div className="h-96 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
                     <p className="text-gray-600 dark:text-gray-400">Memuat lokasi perencanaan...</p>
                   </div>
                 </div>
@@ -399,7 +383,7 @@ const ImplementasiForm = () => {
                 </div>
               ) : (
                 <motion.div
-                  className="rounded-2xl overflow-hidden border-2 border-teal-200 dark:border-teal-700 shadow-xl"
+                  className="rounded-2xl overflow-hidden border-2 border-green-200 dark:border-green-700 shadow-xl"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                 >
@@ -434,13 +418,13 @@ const ImplementasiForm = () => {
                         >
                           <Popup>
                             <div className="text-center">
-                              <p className="font-bold text-teal-700">{location.nama_perusahaan}</p>
+                              <p className="font-bold text-green-700">{location.nama_perusahaan}</p>
                               <p className="text-xs text-gray-600 mb-2">
                                 {location.jenis_kegiatan}
                               </p>
                               <button
                                 onClick={() => handleLocationSelect(location)}
-                                className="px-3 py-1 bg-teal-500 hover:bg-teal-600 text-white text-xs rounded-lg transition-colors"
+                                className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded-lg transition-colors"
                               >
                                 Pilih Lokasi Ini
                               </button>
@@ -456,23 +440,23 @@ const ImplementasiForm = () => {
               {/* ✅ DETAIL LOKASI TERPILIH - DITAMPILKAN DI BAWAH MAPS */}
               {selectedLocation && (
                 <motion.div
-                  className="mt-6 bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 border-2 border-teal-300 dark:border-teal-700 rounded-2xl p-6"
+                  className="mt-6 bg-gradient-to-br from-green-50 to-lime-50 dark:from-green-900/20 dark:to-lime-900/20 border-2 border-green-300 dark:border-green-700 rounded-2xl p-6"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                 >
                   <div className="flex items-start gap-4 mb-6">
                     <motion.div
-                      className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center flex-shrink-0 shadow-lg"
+                      className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0 shadow-lg"
                       whileHover={{ scale: 1.1, rotate: 10 }}
                     >
                       <FiCheckCircle className="w-6 h-6 text-white" />
                     </motion.div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-teal-900 dark:text-teal-200 mb-1">
+                      <h3 className="text-lg font-bold text-green-900 dark:text-green-200 mb-1">
                         Lokasi Terpilih
                       </h3>
-                      <p className="text-sm text-teal-700 dark:text-teal-300">
+                      <p className="text-sm text-green-700 dark:text-green-300">
                         Berikut adalah detail lokasi implementasi yang dipilih
                       </p>
                     </div>
@@ -482,10 +466,10 @@ const ImplementasiForm = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Perusahaan */}
                     <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-teal-100 dark:border-teal-800"
+                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700"
                       whileHover={{ translateY: -2 }}
                     >
-                      <p className="text-xs font-semibold text-teal-600 dark:text-teal-400 mb-1">
+                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
                         Perusahaan
                       </p>
                       <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
@@ -495,10 +479,10 @@ const ImplementasiForm = () => {
 
                     {/* Kegiatan */}
                     <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-teal-100 dark:border-teal-800"
+                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700"
                       whileHover={{ translateY: -2 }}
                     >
-                      <p className="text-xs font-semibold text-teal-600 dark:text-teal-400 mb-1">
+                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
                         Jenis Kegiatan
                       </p>
                       <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
@@ -508,10 +492,10 @@ const ImplementasiForm = () => {
 
                     {/* Bibit */}
                     <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-teal-100 dark:border-teal-800"
+                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700"
                       whileHover={{ translateY: -2 }}
                     >
-                      <p className="text-xs font-semibold text-teal-600 dark:text-teal-400 mb-1">
+                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
                         Jenis Bibit
                       </p>
                       <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
@@ -521,10 +505,10 @@ const ImplementasiForm = () => {
 
                     {/* Jumlah Bibit */}
                     <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-teal-100 dark:border-teal-800"
+                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700"
                       whileHover={{ translateY: -2 }}
                     >
-                      <p className="text-xs font-semibold text-teal-600 dark:text-teal-400 mb-1">
+                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
                         Jumlah Bibit
                       </p>
                       <p className="text-base font-bold text-gray-900 dark:text-gray-100">
@@ -534,10 +518,10 @@ const ImplementasiForm = () => {
 
                     {/* Tanggal */}
                     <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-teal-100 dark:border-teal-800"
+                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700"
                       whileHover={{ translateY: -2 }}
                     >
-                      <p className="text-xs font-semibold text-teal-600 dark:text-teal-400 mb-1">
+                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
                         Tanggal Pelaksanaan
                       </p>
                       <p className="text-base font-bold text-gray-900 dark:text-gray-100">
@@ -551,20 +535,20 @@ const ImplementasiForm = () => {
 
                     {/* Koordinat */}
                     <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-teal-100 dark:border-teal-800 md:col-span-2"
+                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700 md:col-span-2"
                       whileHover={{ translateY: -2 }}
                     >
-                      <p className="text-xs font-semibold text-teal-600 dark:text-teal-400 mb-1">
+                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
                         Koordinat Lokasi
                       </p>
-                      <p className="text-sm font-mono text-gray-900 dark:text-gray-100 bg-teal-50 dark:bg-teal-900/30 px-3 py-2 rounded-lg">
+                      <p className="text-sm font-mono text-gray-900 dark:text-gray-100 bg-green-50 dark:bg-green-900/30 px-3 py-2 rounded-lg">
                         Latitude: {selectedLocation.lat} | Longitude: {selectedLocation.long}
                       </p>
                     </motion.div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-3 mt-6 pt-6 border-t border-teal-200 dark:border-teal-700">
+                  <div className="flex gap-3 mt-6 pt-6 border-t border-green-200 dark:border-green-700">
                     <motion.button
                       type="button"
                       onClick={() => setSelectedLocation(null)}
@@ -576,7 +560,7 @@ const ImplementasiForm = () => {
                     </motion.button>
                     <motion.button
                       type="button"
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-medium transition-all shadow-md"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-medium transition-all shadow-md"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -608,7 +592,7 @@ const ImplementasiForm = () => {
               transition={{ delay: 0.2 }}
             >
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
-                <FiCheckCircle className="w-6 h-6 text-teal-600" />
+                <FiCheckCircle className="w-6 h-6 text-green-600" />
                 Checklist Kesesuaian Perencanaan
               </h3>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -623,8 +607,8 @@ const ImplementasiForm = () => {
                   >
                     <div className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
                       formik.values.kesesuaian[field]
-                        ? "border-teal-500 bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-900/30 dark:to-emerald-900/30"
-                        : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-teal-300"
+                        ? "border-green-500 bg-gradient-to-br from-green-50 to-lime-50 dark:from-green-900/30 dark:to-lime-900/30"
+                        : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-green-300"
                     }`}>
                       <input
                         type="checkbox"
@@ -634,7 +618,7 @@ const ImplementasiForm = () => {
                       />
                       <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
                         formik.values.kesesuaian[field]
-                          ? "border-teal-500 bg-teal-500"
+                          ? "border-green-500 bg-green-500"
                           : "border-gray-300 dark:border-gray-500"
                       }`}>
                         {formik.values.kesesuaian[field] && (
@@ -643,7 +627,7 @@ const ImplementasiForm = () => {
                       </div>
                       <span className={`text-sm font-medium capitalize ${
                         formik.values.kesesuaian[field]
-                          ? "text-teal-700 dark:text-teal-300"
+                          ? "text-green-700 dark:text-green-300"
                           : "text-gray-700 dark:text-gray-300"
                       }`}>
                         {field.replace("_", " ")}
@@ -673,7 +657,7 @@ const ImplementasiForm = () => {
                 className={`w-full px-4 py-3.5 rounded-xl border-2 bg-white dark:bg-gray-700 dark:text-gray-100 transition-all ${
                   formik.touched.pic_koorlap && formik.errors.pic_koorlap
                     ? "border-red-400 focus:ring-4 focus:ring-red-200"
-                    : "border-gray-200 dark:border-gray-600 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
+                    : "border-gray-200 dark:border-gray-600 focus:border-green-500 focus:ring-4 focus:ring-green-100"
                 }`}
               />
               {formik.touched.pic_koorlap && formik.errors.pic_koorlap && (
@@ -681,7 +665,7 @@ const ImplementasiForm = () => {
               )}
             </motion.div>
 
-            {/* Upload Dokumentasi */}
+            {/* Upload Dokumentasi dengan Drag-Drop */}
             <motion.div
               className="mb-10"
               initial={{ opacity: 0, y: 20 }}
@@ -700,8 +684,8 @@ const ImplementasiForm = () => {
                 onDrop={handleDrop}
                 className={`relative p-8 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 ${
                   dragActive
-                    ? "border-teal-500 bg-teal-50 dark:bg-teal-900/20 scale-105"
-                    : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 hover:border-teal-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                    ? "border-green-500 bg-green-50 dark:bg-green-900/20 scale-105"
+                    : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 hover:border-primary hover:bg-primary/10 dark:hover:bg-primary/20"
                 }`}
               >
                 {/* Hidden File Inputs */}
@@ -715,15 +699,15 @@ const ImplementasiForm = () => {
                   id="file-input"
                 />
                 
-                      <input
-                        ref={cameraInputRef}
-                        type="file"
-                        accept="image/*,video/*"
-                        capture="environment"
-                        onChange={handleCameraCapture}
-                        className="sr-only"
-                        id="camera-input"
-                      />
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  capture="environment"
+                  onChange={handleCameraCapture}
+                  className="sr-only"
+                  id="camera-input"
+                />
 
                 {/* Content */}
                 <motion.div
@@ -740,11 +724,15 @@ const ImplementasiForm = () => {
                         <motion.button
                           type="button"
                           onClick={() => setShowUploadModal(true)}
-                          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white text-xs font-medium shadow-md transition-all"
+                          className="relative group px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-medium shadow-md overflow-hidden transition-all duration-300"
                           whileHover={{ scale: 1.03 }}
                           whileTap={{ scale: 0.97 }}
                         >
-                          Tambah Foto
+                          {/* hover overlay */}
+                          <span className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          
+                          {/* content */}
+                          <span className="relative z-10">Tambah Foto</span>
                         </motion.button>
                       </div>
 
@@ -763,11 +751,19 @@ const ImplementasiForm = () => {
                             whileHover={{ scale: 1.03 }}
                           >
                             <div className="relative w-full h-32 rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-600 shadow-md bg-white dark:bg-gray-800">
-                              <img
-                                src={URL.createObjectURL(file)}
-                                alt={`Preview ${index}`}
-                                className="w-full h-full object-cover"
-                              />
+                              {/\.(mp4|mov|webm|ogg)$/i.test(file.name) ? (
+                                <video
+                                  src={URL.createObjectURL(file)}
+                                  className="w-full h-full object-cover"
+                                  preload="metadata"
+                                />
+                              ) : (
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt={`Preview ${index}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              )}
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-all" />
                               <motion.button
                                 type="button"
@@ -793,11 +789,11 @@ const ImplementasiForm = () => {
                   ) : (
                     <>
                       <motion.div
-                        className="w-16 h-16 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mb-4"
+                        className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4"
                         animate={dragActive ? { rotate: 360 } : { rotate: 0 }}
                         transition={{ duration: 0.5 }}
                       >
-                        <FiUpload className={`w-8 h-8 ${dragActive ? 'text-teal-600' : 'text-teal-600 dark:text-teal-400'}`} />
+                        <FiUpload className={`w-8 h-8 ${dragActive ? 'text-green-600' : 'text-green-600 dark:text-green-400'}`} />
                       </motion.div>
 
                       <p className="text-center mb-2">
@@ -814,11 +810,15 @@ const ImplementasiForm = () => {
                         <motion.button
                           type="button"
                           onClick={() => setShowUploadModal(true)}
-                          className="mt-4 px-6 py-2 rounded-lg bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-medium shadow-lg transition-all"
+                          className="relative group mt-4 px-6 py-2 rounded-lg bg-primary text-primary-foreground font-medium shadow-lg overflow-hidden transition-all duration-300"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
-                          Pilih Gambar
+                          {/* hover overlay */}
+                          <span className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          
+                          {/* content */}
+                          <span className="relative z-10">Pilih Gambar</span>
                         </motion.button>
                       )}
                     </>
@@ -829,26 +829,42 @@ const ImplementasiForm = () => {
               {formik.touched.dokumentasi && formik.errors.dokumentasi && (
                 <p className="text-red-500 text-sm mt-2">{formik.errors.dokumentasi}</p>
               )}
-
             </motion.div>
-
+                        
             {/* Submit Button */}
             <motion.button
               type="submit"
               disabled={submitting}
-              className={`w-full py-4 rounded-xl font-bold text-lg shadow-xl transition-all ${
+              className={`relative group w-full py-4 rounded-xl font-bold text-lg shadow-xl overflow-hidden transition-all duration-300 ${
                 submitting
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-teal-500 via-emerald-500 to-green-500 hover:from-teal-600 hover:via-emerald-600 hover:to-green-600 text-white"
+                  : "bg-primary text-primary-foreground"
               }`}
-              whileHover={!submitting ? { scale: 1.02, boxShadow: "0 20px 60px -10px rgba(20, 184, 166, 0.5)" } : {}}
+              whileHover={!submitting ? { scale: 1.02, boxShadow: "0 20px 60px -10px rgba(var(--primary), 0.5)" } : {}}
               whileTap={!submitting ? { scale: 0.98 } : {}}
             >
-              {submitting ? "Menyimpan..." : "Simpan Data Implementasi"}
+              {/* hover overlay */}
+              {!submitting && (
+                <span className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              )}
+              
+              {/* content */}
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {submitting ? (
+                  <>
+                    <motion.div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
+                    Menyimpan...
+                  </>
+                ) : (
+                  <>
+                    <FiCheckCircle className="w-6 h-6" />
+                    Simpan Data Implementasi
+                  </>
+                )}
+              </span>
             </motion.button>
           </form>
         </motion.div>
-      </div>
 
       {/* ✅ MODAL UPLOAD OPTIONS */}
       <AnimatePresence>
@@ -870,14 +886,14 @@ const ImplementasiForm = () => {
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
                 <button
                   onClick={() => setShowUploadModal(false)}
-                  className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="absolute top-4 right-4 p-2 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/20 transition-colors"
                 >
                   <FiX className="w-5 h-5" />
                 </button>
 
                 <div className="text-center mb-6">
                   <motion.div
-                    className="w-14 h-14 rounded-full bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center mx-auto mb-4"
+                    className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mx-auto mb-4"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 200 }}
@@ -897,12 +913,12 @@ const ImplementasiForm = () => {
                   <motion.button
                     type="button"
                     onClick={openCamera}
-                    className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl border-2 border-teal-200 dark:border-teal-700 bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 text-teal-700 dark:text-teal-300 font-semibold transition-all"
+                    className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl border-2 border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 text-green-700 dark:text-green-300 font-semibold transition-all"
                     whileHover={{ scale: 1.02, translateY: -2 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <motion.div
-                      className="w-10 h-10 rounded-full bg-teal-500 flex items-center justify-center"
+                      className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center"
                       whileHover={{ rotate: 10 }}
                     >
                       <FiCamera className="w-5 h-5 text-white" />
@@ -917,12 +933,12 @@ const ImplementasiForm = () => {
                   <motion.button
                     type="button"
                     onClick={openFilePicker}
-                    className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl border-2 border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-semibold transition-all"
+                    className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl border-2 border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 text-green-700 dark:text-green-300 font-semibold transition-all"
                     whileHover={{ scale: 1.02, translateY: -2 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <motion.div
-                      className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center"
+                      className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center"
                       whileHover={{ rotate: -10 }}
                     >
                       <FiFolder className="w-5 h-5 text-white" />

@@ -1,16 +1,21 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import Sidebar from "../components/common/Sidebar";
 import { FiMenu } from "react-icons/fi";
 
-export default function DashboardLayout({ isUser = false }) {
+export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useAuth();
+
+  // Determine if user is admin based on role
+  const isAdmin = user?.role === 'admin';
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+    <div className="min-h-screen flex">
       {/* Sidebar Desktop - Fixed */}
       <div className="hidden md:block md:fixed md:inset-y-0 md:left-0 md:w-64 md:z-30">
-        <Sidebar isUser={isUser} onClose={() => setSidebarOpen(false)} />
+        <Sidebar isUser={!isAdmin} onClose={() => setSidebarOpen(false)} />
       </div>
 
       {/* Sidebar Mobile - Overlay */}
@@ -35,19 +40,21 @@ export default function DashboardLayout({ isUser = false }) {
         <div className="md:hidden sticky top-0 z-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center shadow-sm">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all"
+            className="p-2 rounded-xl bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light hover:bg-primary/20 dark:hover:bg-primary/40 transition-all"
             aria-label="Buka menu sidebar"
           >
             <FiMenu size={24} />
           </button>
-          <h1 className="ml-4 text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-            3TREESIFY Admin
+          <h1 className="ml-4 text-lg font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+            Peluk Bumi Admin
           </h1>
         </div>
 
-        {/* Content Container - Direct Outlet */}
-        <div className="w-full h-full overflow-hidden">
-          <Outlet />
+        {/* Content Container - With max-width and consistent padding */}
+        <div className="w-full h-full overflow-hidden bg-gradient-to-br from-light via-primary-light/10 to-primary/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+            <Outlet />
+          </div>
         </div>
       </div>
     </div>

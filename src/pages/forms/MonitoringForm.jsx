@@ -2,13 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import api from "../../api/axios";
-import { FiCheckCircle, FiUpload, FiX, FiMapPin, FiAlertCircle, FiCamera, FiFolder, FiBarChart2, FiHash, FiTrendingUp, FiActivity } from "react-icons/fi";
+import { FiCheckCircle, FiUpload, FiX, FiMapPin, FiAlertCircle, FiCamera, FiFolder, FiBarChart2, FiHash, FiTrendingUp, FiActivity, FiNavigation } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
+import PageHeader from "../../components/shared/PageHeader";
 
 // ✅ Blue marker untuk lokasi implementasi (URL stabil)
 const implementationMarkerIcon = new L.Icon({
@@ -449,31 +450,14 @@ const MonitoringForm = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-lime-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-12 px-4">
-      <div className="max-w-5xl mx-auto">
+    <div className="py-12">
         {/* Header */}
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <motion.div
-            className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/20 px-4 py-2 rounded-full mb-4"
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <FiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-            <span className="text-sm font-semibold text-green-700 dark:text-green-300">Formulir Monitoring</span>
-          </motion.div>
-          <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-green-600 via-emerald-600 to-lime-600 bg-clip-text text-transparent mb-4">
-            Form Monitoring Kegiatan
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
-            Monitoring kesehatan bibit dari hasil implementasi yang telah dilakukan
-          </p>
-        </motion.div>
+        <PageHeader
+          badge="Formulir Monitoring"
+          badgeIcon={FiCheckCircle}
+          title="Form Monitoring Kegiatan"
+          description="Monitoring kesehatan bibit dari hasil implementasi yang telah dilakukan"
+        />
 
         {/* Success Animation */}
         <AnimatePresence>
@@ -499,7 +483,7 @@ const MonitoringForm = () => {
 
         {/* Form Card */}
         <motion.div
-          className="glass bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 dark:border-gray-700/50 overflow-hidden"
+          className="glass bg-white/90 dark:bg-gray-900 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 dark:border-gray-700/50 overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -865,7 +849,7 @@ const MonitoringForm = () => {
                     transition={{ delay: 0.1 * index }}
                   >
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                      <field.icon className="w-4 h-4 inline mr-2 text-green-600 dark:text-green-400" />
+                      <field.icon className="w-4 h-4 inline mr-2 text-primary dark:text-primary-light" />
                       {field.label}
                     </label>
                     <input
@@ -879,8 +863,8 @@ const MonitoringForm = () => {
                       tabIndex={(field.readOnly || field.name === "survival_rate") ? -1 : 0}
                       className={`w-full px-4 py-3.5 rounded-xl border-2 dark:text-gray-100 focus:ring-4 transition-all ${
                         field.readOnly || field.name === "survival_rate"
-                          ? "border-green-200 bg-green-50 text-green-900 dark:border-green-800 dark:bg-green-900/20 dark:text-green-100 cursor-not-allowed"
-                          : "border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-700 focus:border-green-500 focus:ring-green-100 dark:focus:ring-green-900/50"
+                          ? "border-primary/20 bg-primary/5 text-primary/80 dark:border-primary/30 dark:bg-primary/10 dark:text-primary/70 cursor-not-allowed"
+                          : "border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-700 focus:border-primary focus:ring-primary/20 dark:focus:ring-primary/30"
                       }`}
                     />
                       {(field.name === "jumlah_bibit_ditanam" || field.name === "survival_rate") && (
@@ -938,7 +922,7 @@ const MonitoringForm = () => {
                 className={`relative p-8 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 ${
                   dragActive
                     ? "border-green-500 bg-green-50 dark:bg-green-900/20 scale-105"
-                    : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 hover:border-green-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                    : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 hover:border-primary hover:bg-primary/10 dark:hover:bg-primary/20"
                 }`}
               >
                 {/* Hidden File Inputs */}
@@ -977,11 +961,15 @@ const MonitoringForm = () => {
                         <motion.button
                           type="button"
                           onClick={() => setShowUploadModal(true)}
-                          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-xs font-medium shadow-md transition-all"
+                          className="relative group px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-medium shadow-md overflow-hidden transition-all duration-300"
                           whileHover={{ scale: 1.03 }}
                           whileTap={{ scale: 0.97 }}
                         >
-                          Tambah Foto
+                          {/* hover overlay */}
+                          <span className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          
+                          {/* content */}
+                          <span className="relative z-10">Tambah Foto</span>
                         </motion.button>
                       </div>
 
@@ -1059,11 +1047,15 @@ const MonitoringForm = () => {
                         <motion.button
                           type="button"
                           onClick={() => setShowUploadModal(true)}
-                          className="mt-4 px-6 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-medium shadow-lg transition-all"
+                          className="relative group mt-4 px-6 py-2 rounded-lg bg-primary text-primary-foreground font-medium shadow-lg overflow-hidden transition-all duration-300"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
-                          Pilih Gambar
+                          {/* hover overlay */}
+                          <span className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          
+                          {/* content */}
+                          <span className="relative z-10">Pilih Gambar</span>
                         </motion.button>
                       )}
                     </>
@@ -1080,19 +1072,36 @@ const MonitoringForm = () => {
             <motion.button
               type="submit"
               disabled={submitting}
-              className={`w-full py-4 rounded-xl font-bold text-lg shadow-xl transition-all ${
+              className={`relative group w-full py-4 rounded-xl font-bold text-lg shadow-xl overflow-hidden transition-all duration-300 ${
                 submitting
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-green-500 via-emerald-500 to-lime-500 hover:from-green-600 hover:via-emerald-600 hover:to-lime-600 text-white"
+                  : "bg-primary text-primary-foreground"
               }`}
-              whileHover={!submitting ? { scale: 1.02, boxShadow: "0 20px 60px -10px rgba(34, 197, 94, 0.5)" } : {}}
+              whileHover={!submitting ? { scale: 1.02, boxShadow: "0 20px 60px -10px rgba(var(--primary), 0.5)" } : {}}
               whileTap={!submitting ? { scale: 0.98 } : {}}
             >
-              {submitting ? "Menyimpan..." : "Simpan Data Monitoring"}
+              {/* hover overlay */}
+              {!submitting && (
+                <span className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              )}
+              
+              {/* content */}
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {submitting ? (
+                  <>
+                    <motion.div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
+                    Menyimpan...
+                  </>
+                ) : (
+                  <>
+                    <FiCheckCircle className="w-6 h-6" />
+                    Simpan Data Monitoring
+                  </>
+                )}
+              </span>
             </motion.button>
           </form>
         </motion.div>
-      </div>
 
       {/* ✅ MODAL UPLOAD OPTIONS */}
       <AnimatePresence>
@@ -1114,7 +1123,7 @@ const MonitoringForm = () => {
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
                 <button
                   onClick={() => setShowUploadModal(false)}
-                  className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="absolute top-4 right-4 p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
                 >
                   <FiX className="w-5 h-5" />
                 </button>

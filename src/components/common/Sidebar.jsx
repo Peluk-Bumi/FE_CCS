@@ -60,29 +60,36 @@ export default function Sidebar({ isUser = false, onClose }) {
   return (
     <aside className="h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col shadow-xl transition-colors">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800">
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+        className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800"
+      >
         <div className="flex items-center space-x-3">
           <motion.img
-            src="/images/icon.png"
+            src="/logo/Logotype with Icon.png"
             alt="Logo"
-            className="h-10 w-10 object-contain"
-            whileHover={{ rotate: 360 }}
-            transition={{ duration: 0.6 }}
+            className="h-12 w-12 object-contain"
+            whileHover={{ scale: 1.03 }}
+            transition={{ duration: 0.2 }}
           />
           <div>
-            <h2 className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            <h2 className="text-lg leading-snug font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
               {isUser ? "User Panel" : "Admin Panel"}
             </h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400">3TREESIFY-System</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Peluk Bumi System</p>
           </div>
         </div>
-        <button
+        <motion.button
           onClick={onClose}
-          className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          className="md:hidden p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.94 }}
         >
           <FiX size={20} className="text-gray-600 dark:text-gray-400" />
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       {/* Menu Navigation */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-hide">
@@ -94,13 +101,13 @@ export default function Sidebar({ isUser = false, onClose }) {
               onClick={() => handleNavigation(item.path)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
                 isActive
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
+                  : "text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20"
               }`}
               whileHover={{ x: isActive ? 0 : 5 }}
               whileTap={{ scale: 0.98 }}
             >
-              <span className={isActive ? "text-white" : "text-emerald-600 dark:text-emerald-400"}>
+              <span className={isActive ? "text-white" : "text-primary dark:text-primary-light"}>
                 {item.icon}
               </span>
               <span className="font-medium">{item.label}</span>
@@ -116,8 +123,8 @@ export default function Sidebar({ isUser = false, onClose }) {
           onClick={() => handleNavigation(isUser ? "/user/verifikasi" : "/admin/verifikasi")}
           className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all border ${
             location.pathname.endsWith('/verifikasi')
-              ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md border-emerald-500"
-              : "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border-emerald-200 dark:border-emerald-800"
+              ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md border-primary"
+              : "text-primary dark:text-primary-light bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/40 border-primary/20 dark:border-primary/80"
           }`}
           whileHover={{ x: 5 }}
           whileTap={{ scale: 0.98 }}
@@ -129,19 +136,19 @@ export default function Sidebar({ isUser = false, onClose }) {
           )}
         </motion.button>
 
-        {/* ✅ Laporan Button - Dipindah di bawah Verifikasi (hanya untuk admin) */}
+        {/* Laporan Button - Dipindah di bawah Verifikasi (hanya untuk admin) */}
         {!isUser && (
           <motion.button
             onClick={() => handleNavigation("/admin/laporan")}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
               location.pathname === "/admin/laporan"
-                ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md"
+                ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
                 : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             }`}
             whileHover={{ x: 5 }}
             whileTap={{ scale: 0.98 }}
           >
-            <FiFileText className={location.pathname === "/admin/laporan" ? "text-white" : "text-emerald-600 dark:text-emerald-400"} />
+            <FiFileText className={location.pathname === "/admin/laporan" ? "text-white" : "text-primary dark:text-primary-light"} />
             <span className="font-medium">Log Transaksi</span>
             {location.pathname === "/admin/laporan" && (
               <span className="ml-auto h-2 w-2 rounded-full bg-white/80 animate-pulse" />
@@ -155,13 +162,13 @@ export default function Sidebar({ isUser = false, onClose }) {
         <div className="relative" ref={dropdownRef}>
           <motion.button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+            className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-primary/10 dark:hover:bg-primary/20 transition-all"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             <div className="relative">
               <motion.div 
-                className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold shadow-lg"
+                className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white text-sm font-bold shadow-lg"
                 whileHover={{ scale: 1.1 }}
                 animate={{ 
                   boxShadow: dropdownOpen 
@@ -177,7 +184,7 @@ export default function Sidebar({ isUser = false, onClose }) {
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                 {user?.username || user?.name || "User"}
               </p>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+              <p className="text-xs text-primary dark:text-primary-light font-medium">
                 {user?.role || "User"}
               </p>
             </div>
@@ -194,9 +201,9 @@ export default function Sidebar({ isUser = false, onClose }) {
                 className="absolute bottom-full mb-2 left-0 right-0 bg-white dark:bg-gray-800 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden"
               >
                 {/* Header */}
-                <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-b border-gray-200/50 dark:border-gray-700/50">
+                <div className="p-3 bg-gradient-to-r from-primary/10 to-primary-dark/10 dark:from-primary/20 dark:to-primary-dark/20 border-b border-gray-200/50 dark:border-gray-700/50">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white text-sm font-bold">
                       {(user?.username || user?.name || "U")[0].toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -218,7 +225,7 @@ export default function Sidebar({ isUser = false, onClose }) {
                 
                 {/* Menu Items */}
                 <div className="p-2">
-                  {/* ✅ Theme Toggle - Moved to Dropdown */}
+                  {/* Theme Toggle - Moved to Dropdown */}
                   <motion.button
                     onClick={() => {
                       toggleTheme();
@@ -228,7 +235,7 @@ export default function Sidebar({ isUser = false, onClose }) {
                   >
                     {theme === "dark" ? (
                       <>
-                        <FiSun className="w-4 h-4 text-yellow-500" />
+                        <FiSun className="w-4 h-4 text-peach" />
                         <span className="font-medium">Mode Terang</span>
                       </>
                     ) : (
@@ -271,7 +278,7 @@ export default function Sidebar({ isUser = false, onClose }) {
       {/* Footer */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 text-center">
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          3TREESIFY v1.0
+          Peluk Bumi v1.0
         </p>
         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
           {isUser ? "User Access" : "Admin Access"}

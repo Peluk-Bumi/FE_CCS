@@ -122,7 +122,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 transition-colors duration-300">
+    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-primary/10 via-white to-primary-dark/10 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 transition-colors duration-300">
       {/* Left Side - Desktop Only */}
       <motion.div 
         className="hidden md:flex md:w-1/2 items-center justify-center p-10 relative overflow-hidden"
@@ -130,7 +130,7 @@ export default function Login() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-600/10 dark:from-emerald-500/5 dark:to-teal-600/5 z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-primary-dark/10 dark:from-primary/5 dark:to-primary-dark/5 z-10"></div>
         <motion.img
           src="/images/login-bg.jpg"
           alt="Login background"
@@ -143,7 +143,7 @@ export default function Login() {
         {floatingShapes.map((shape, index) => (
           <motion.div
             key={index}
-            className={`absolute ${shape.position} ${shape.size} text-emerald-600/30 dark:text-emerald-400/20 z-20`}
+            className={`absolute ${shape.position} ${shape.size} text-primary/30 dark:text-primary/20 z-20`}
             animate={{
               y: [0, (Math.random() - 0.5) * 40],
               x: [0, (Math.random() - 0.5) * 40],
@@ -167,7 +167,7 @@ export default function Login() {
           transition={{ delay: 0.3, duration: 0.8 }}
         >
           <motion.h1 
-            className="text-3xl font-bold text-emerald-800 dark:text-emerald-200 mb-2"
+            className="text-3xl font-bold text-primary dark:text-primary-light mb-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
@@ -175,7 +175,7 @@ export default function Login() {
             Selamat Datang Kembali
           </motion.h1>
           <motion.p 
-            className="text-emerald-700/90 dark:text-emerald-300/90 mb-6"
+            className="text-primary/90 dark:text-primary-light/90 mb-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
@@ -196,13 +196,13 @@ export default function Login() {
                 transition={{ delay: 0.6 + index * 0.1 }}
               >
                 <motion.div
-                  className="w-8 h-8 rounded-full bg-emerald-100/80 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-700 dark:text-emerald-300"
+                  className="w-8 h-8 rounded-full bg-primary/20 dark:bg-primary/40 flex items-center justify-center text-primary dark:text-primary-light"
                   whileHover={{ scale: 1.2 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <item.icon className="w-4 h-4" />
                 </motion.div>
-                <span className="text-emerald-800/90 dark:text-emerald-200/90">{item.text}</span>
+                <span className="text-primary/90 dark:text-primary-light/90">{item.text}</span>
               </motion.div>
             ))}
           </div>
@@ -218,7 +218,7 @@ export default function Login() {
           title="Kembali ke Beranda"
         >
           <motion.div
-            className="flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-full shadow-lg border border-emerald-200 dark:border-emerald-700/50 hover:shadow-xl transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-full shadow-lg border border-primary/20 dark:border-primary/50 hover:shadow-xl transition-all"
             whileHover={{ scale: 1.05, x: -3 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -226,9 +226,9 @@ export default function Login() {
               animate={{ x: [-2, 0, -2] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             >
-              <HomeIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <HomeIcon className="h-5 w-5 text-primary dark:text-primary-light" />
             </motion.div>
-            <span className="hidden sm:inline text-sm font-medium text-emerald-700 dark:text-emerald-300">
+            <span className="hidden sm:inline text-sm font-medium text-primary dark:text-primary-light">
               Beranda
             </span>
           </motion.div>
@@ -242,7 +242,7 @@ export default function Login() {
         >
           {/* Form Header */}
           <motion.div 
-            className="bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-700 dark:to-teal-600 p-6 text-center transition-all"
+            className="bg-gradient-to-r from-primary to-primary-dark dark:from-primary dark:to-primary-dark p-6 text-center transition-all"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -390,7 +390,7 @@ export default function Login() {
                   }
                   required
                   placeholder="email@example.com"
-                  className="block w-full px-4 py-2.5 text-sm md:text-base border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all bg-white dark:bg-gray-700 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                  className="block w-full px-4 py-2.5 text-sm md:text-base border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all bg-white dark:bg-gray-700 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                   whileFocus={{ 
                     borderColor: "#10B981",
                     boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.2)"
@@ -420,7 +420,7 @@ export default function Login() {
                     }
                     required
                     placeholder="••••••••"
-                    className="block w-full px-4 py-2.5 text-sm md:text-base border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none pr-12 transition-all bg-white dark:bg-gray-700 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                    className="block w-full px-4 py-2.5 text-sm md:text-base border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none pr-12 transition-all bg-white dark:bg-gray-700 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                     whileFocus={{ 
                       borderColor: "#10B981",
                       boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.2)"
@@ -429,7 +429,7 @@ export default function Login() {
                   <motion.button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors p-1"
+                    className="absolute right-3 top-2.5 text-gray-500 hover:text-primary dark:hover:text-primary-light transition-colors p-1"
                     whileHover={{ scale: 1.2 }}
                     whileTap={{ scale: 0.9 }}
                   >
@@ -448,7 +448,7 @@ export default function Login() {
                 >
                   <Link
                     to="/forgot-password"
-                    className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:underline"
+                    className="text-xs text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary hover:underline"
                   >
                     Lupa password?
                   </Link>
@@ -459,7 +459,7 @@ export default function Login() {
                             <motion.button
                               type="submit"
                               disabled={loading}
-                              className="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 dark:from-emerald-700 dark:to-teal-600 dark:hover:from-emerald-800 dark:hover:to-teal-700 text-white font-semibold py-2.5 rounded-lg transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="w-full bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white font-semibold py-2.5 rounded-lg transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: 0.7 }}
@@ -488,7 +488,7 @@ export default function Login() {
                               Belum punya akun?{" "}
                               <Link
                                 to="/register"
-                                className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-semibold hover:underline"
+                                className="text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary font-semibold hover:underline"
                               >
                                 Daftar di sini
                               </Link>

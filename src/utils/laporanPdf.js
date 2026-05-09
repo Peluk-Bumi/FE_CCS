@@ -294,7 +294,7 @@ export const buildLaporanPdfBlob = async (item) => {
     }
 
     const headerX = logoImage ? margin + 42 : margin;
-    drawText("3TREESIFY CCS", headerX, headerTopY, { size: 13, bold: true, color: rgb(0.1, 0.32, 0.25) });
+    drawText("PELUK BUMI CCS", headerX, headerTopY, { size: 13, bold: true, color: rgb(0.1, 0.32, 0.25) });
     drawText("Sistem Konservasi Berbasis Blockchain", headerX, headerTopY - 13, { size: 9, color: rgb(0.33, 0.33, 0.33) });
     drawText("Pelaporan Perencanaan, Implementasi, dan Monitoring", headerX, headerTopY - 25, { size: 8, color: rgb(0.4, 0.4, 0.4) });
 
@@ -453,7 +453,7 @@ export const buildLaporanPdfBlob = async (item) => {
   }
 
   page.drawLine({ start: { x: margin, y: 46 }, end: { x: margin + contentWidth, y: 46 }, thickness: 0.6, color: rgb(0.76, 0.76, 0.76) });
-  drawText("Dokumen ini dihasilkan otomatis oleh 3TREESIFY CCS. QR code di atas dapat digunakan untuk memverifikasi keaslian dokumen.", margin, 33, { size: 8.5, color: rgb(0.45, 0.45, 0.45) });
+  drawText("Dokumen ini dihasilkan otomatis oleh PELUK BUMI. QR code di atas dapat digunakan untuk memverifikasi keaslian dokumen.", margin, 33, { size: 8.5, color: rgb(0.45, 0.45, 0.45) });
 
   const pdfBytes = await pdfDoc.save();
   return new Blob([pdfBytes], { type: "application/pdf" });

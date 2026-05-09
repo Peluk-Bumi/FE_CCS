@@ -39,7 +39,7 @@ const LoadingSpinner = ({ show = true, message = "Memuat data, mohon tunggu...",
             <div className="relative">
               {/* Outer Glow Ring */}
               <motion.div
-                className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 opacity-20 blur-2xl"
+                className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-primary-dark to-primary opacity-20 blur-2xl"
                 animate={{
                   scale: [1, 1.5, 1],
                   opacity: [0.2, 0.4, 0.2],
@@ -53,7 +53,7 @@ const LoadingSpinner = ({ show = true, message = "Memuat data, mohon tunggu...",
 
               {/* Middle Ring */}
               <motion.div
-                className={`relative ${sizeClasses[size]} rounded-full border-4 border-transparent bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-padding`}
+                className={`relative ${sizeClasses[size]} rounded-full border-4 border-transparent bg-gradient-to-r from-primary to-primary-dark bg-clip-padding`}
                 animate={{ rotate: 360 }}
                 transition={{
                   duration: 1.5,
@@ -74,7 +74,7 @@ const LoadingSpinner = ({ show = true, message = "Memuat data, mohon tunggu...",
                   ease: "linear",
                 }}
               >
-                <div className={`${sizeClasses[size]} rounded-full border-t-4 border-emerald-500`} />
+                <div className={`${sizeClasses[size]} rounded-full border-t-4 border-primary`} />
               </motion.div>
 
               {/* Center Icon */}
@@ -90,7 +90,7 @@ const LoadingSpinner = ({ show = true, message = "Memuat data, mohon tunggu...",
                 }}
               >
                 <svg
-                  className={`${size === 'small' ? 'w-4 h-4' : size === 'large' ? 'w-12 h-12' : 'w-8 h-8'} text-emerald-600`}
+                  className={`${size === 'small' ? 'w-4 h-4' : size === 'large' ? 'w-12 h-12' : 'w-8 h-8'} text-primary`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -108,7 +108,7 @@ const LoadingSpinner = ({ show = true, message = "Memuat data, mohon tunggu...",
             {/* Loading Text with Typing Animation */}
             <div className="text-center space-y-2">
               <motion.p
-                className="text-lg font-semibold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent"
+                className="text-lg font-semibold bg-gradient-to-r from-primary via-primary-dark to-primary bg-clip-text text-transparent"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
@@ -121,7 +121,7 @@ const LoadingSpinner = ({ show = true, message = "Memuat data, mohon tunggu...",
                 {[0, 1, 2].map((index) => (
                   <motion.div
                     key={index}
-                    className={`${dotSizes[size]} rounded-full bg-gradient-to-r from-emerald-500 to-teal-500`}
+                    className={`${dotSizes[size]} rounded-full bg-gradient-to-r from-primary to-primary-dark`}
                     animate={{
                       scale: [1, 1.5, 1],
                       opacity: [0.5, 1, 0.5],
@@ -140,7 +140,7 @@ const LoadingSpinner = ({ show = true, message = "Memuat data, mohon tunggu...",
             {/* Progress Bar */}
             <div className="w-48 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full"
+                className="h-full bg-gradient-to-r from-primary via-primary-dark to-primary rounded-full"
                 animate={{
                   x: ["-100%", "100%"],
                 }}
@@ -157,7 +157,7 @@ const LoadingSpinner = ({ show = true, message = "Memuat data, mohon tunggu...",
               {[...Array(6)].map((_, i) => (
                 <motion.div
                   key={i}
-                  className="absolute w-2 h-2 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full opacity-40"
+                  className="absolute w-2 h-2 bg-gradient-to-r from-primary to-primary-dark rounded-full opacity-40"
                   style={{
                     left: `${Math.random() * 100}%`,
                     top: `${Math.random() * 100}%`,

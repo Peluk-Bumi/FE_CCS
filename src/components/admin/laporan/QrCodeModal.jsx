@@ -24,7 +24,7 @@ export default function QrCodeModal({ open, qrCodeData, onClose, onDownload }) {
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 relative">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="absolute top-4 right-4 p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
           >
             <FiX className="w-5 h-5" />
           </button>

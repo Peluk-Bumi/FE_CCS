@@ -2,13 +2,13 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 // Layouts
 import DashboardLayout from "../layouts/DashboardLayout";
-import UserLayout from "../layouts/UserLayout";
 
 // Admin pages
 import Dashboard from "../pages/admin/Dashboard";
 import UserPage from "../pages/admin/UserPage";
 import LaporanPage from "../pages/admin/LaporanPage";
 import ActivityPage from "../pages/admin/ActivityPage";
+import VerifikasiDashboardPage from "../pages/admin/VerifikasiDashboardPage";
 
 // Forms
 import PerencanaanForm from "../pages/forms/PerencanaanForm";
@@ -23,7 +23,7 @@ import DashboardUser from "../pages/user/DashboardUser";
 import LandingPage from "../pages/public/LandingPage";
 import About from "../pages/public/About";
 import Contact from "../pages/public/Contact";
-import Verifikasi from "../pages/public/Verifikasi";
+import VerifikasiPublicPage from "../pages/public/VerifikasiPublicPage";
 import MonitoringAccess from "../pages/public/MonitoringAccess";
 import NotFound from "../pages/public/NotFound";
 
@@ -43,30 +43,16 @@ function VerifikasiRouter() {
   const { isAuthenticated, user } = useAuth();
 
   if (isAuthenticated) {
-    // ✅ User sudah login - arahkan ke role-specific verifikasi
-    if (user?.role === "admin") {
-      return (
-        <ProtectedRoute role="admin">
-          <DashboardLayout>
-            <Verifikasi />
-          </DashboardLayout>
-        </ProtectedRoute>
-      );
-    }
-
-    if (user?.role === "user") {
-      return (
-        <ProtectedRoute role="user">
-          <UserLayout>
-            <Verifikasi />
-          </UserLayout>
-        </ProtectedRoute>
-      );
-    }
+    // ✅ User sudah login - arahkan ke dashboard verifikasi
+    return (
+      <ProtectedRoute>
+        <VerifikasiDashboardPage />
+      </ProtectedRoute>
+    );
   }
 
   // ✅ Public - tanpa layout dan authentication
-  return <Verifikasi />;
+  return <VerifikasiPublicPage />;
 }
 
 export default function AppRoutes() {
@@ -99,17 +85,17 @@ export default function AppRoutes() {
         <Route path="laporan" element={<LaporanPage />} />
         <Route path="monitoring" element={<MonitoringForm />} />
         <Route path="evaluasi" element={<EvaluasiPage />} />
-        <Route path="verifikasi" element={<Verifikasi />} />
+        <Route path="verifikasi" element={<VerifikasiDashboardPage />} />
         <Route path="settings" element={<Settings />} />
         <Route index element={<Navigate to="dashboard" replace />} />
       </Route>
 
-      {/* ✅ User Routes - Fixed */}
+      {/* User Routes - Fixed */}
       <Route
         path="/user/*"
         element={
           <ProtectedRoute role="user">
-            <UserLayout />
+            <DashboardLayout />
           </ProtectedRoute>
         }
       >
@@ -118,7 +104,7 @@ export default function AppRoutes() {
         <Route path="implementasi" element={<ImplementasiForm />} />
         <Route path="monitoring" element={<MonitoringForm />} />
         <Route path="evaluasi" element={<EvaluasiPage />} />
-        <Route path="verifikasi" element={<Verifikasi />} />
+        <Route path="verifikasi" element={<VerifikasiDashboardPage />} />
         <Route path="settings" element={<Settings />} />
         <Route index element={<Navigate to="dashboard" replace />} />
       </Route>

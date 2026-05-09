@@ -1,6 +1,6 @@
 {
-  "name": "3TREESIFY CCS - Sistem Konservasi Berbasis Blockchain",
-  "short_name": "3TREESIFY CCS",
+  "name": "PELUK BUMI CCS - Sistem Konservasi Berbasis Blockchain",
+  "short_name": "PELUK BUMI CCS",
   "description": "Platform manajemen kegiatan konservasi lingkungan dengan verifikasi blockchain",
   "start_url": "/",
   "display": "standalone",
@@ -9,28 +9,14 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/vite.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
+        "src": "/favicon/android-chrome-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
     },
     {
-      "src": "/vite.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/vite.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/vite.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+        "src": "/favicon/android-chrome-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
     }
   ],
   "categories": ["environment", "conservation", "blockchain"],
@@ -40,9 +26,10 @@
   "prefer_related_applications": false,
   "screenshots": [
     {
-      "src": "/vite.png",
+      "src": "/favicon/favicon.ico",
       "sizes": "540x720",
-      "type": "image/png"
+      "type": "image/x-icon"
     }
   ]
 }
+

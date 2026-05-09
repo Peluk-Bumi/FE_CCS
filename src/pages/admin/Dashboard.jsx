@@ -66,7 +66,7 @@ export default function Dashboard() {
 
     const fetchStats = async () => {
       try {
-        // ✅ FIXED: Use correct localStorage method
+        // FIXED: Use correct localStorage method
         const token = localStorage.getItem('token');
         if (!token) {
           console.warn('[Dashboard] No token found, user not authenticated');
@@ -80,7 +80,7 @@ export default function Dashboard() {
 
         const { data } = await api.get("/dashboard/stats", { timeout: DASHBOARD_REQUEST_TIMEOUT });
         if (isMounted) {
-          // ✅ Extract stats from nested response structure
+          // Extract stats from nested response structure
           const statsData = data?.stats || {};
           const chartsData = data?.charts || {};
           const breakdownsData = data?.breakdowns || {};
@@ -88,7 +88,7 @@ export default function Dashboard() {
           
           console.log('[Dashboard] API Response:', { statsData, chartsData, breakdownsData, recentActivities });
           
-          // ✅ FIXED: Transform kegiatan_stats untuk PieChart
+          // FIXED: Transform kegiatan_stats untuk PieChart
           let kegiatanStats = [];
           if (breakdownsData?.jenis_kegiatan && Array.isArray(breakdownsData.jenis_kegiatan)) {
             kegiatanStats = breakdownsData.jenis_kegiatan.map(item => ({
@@ -97,7 +97,7 @@ export default function Dashboard() {
             }));
           }
           
-          // ✅ Fallback dengan data demo
+          // Fallback dengan data demo
           if (kegiatanStats.length === 0) {
             kegiatanStats = [
               { label: "Planting Mangrove", value: statsData.total_perencanaan || 8 },
@@ -105,7 +105,7 @@ export default function Dashboard() {
             ];
           }
           
-          // ✅ FIXED: Transform monthly data untuk BarChart
+          // FIXED: Transform monthly data untuk BarChart
           let monthlyStats = [];
           if (chartsData?.perencanaan_per_hari && Array.isArray(chartsData.perencanaan_per_hari)) {
             // Group daily data by month
@@ -123,7 +123,7 @@ export default function Dashboard() {
             }));
           }
           
-          // ✅ Fallback monthly data dengan demo yang realistis
+          // Fallback monthly data dengan demo yang realistis
           if (monthlyStats.length === 0) {
             monthlyStats = [
               { label: "Jan", value: 2 },
@@ -135,7 +135,7 @@ export default function Dashboard() {
             ];
           }
           
-          // ✅ Properly merge nested data dengan format yang benar
+          // Properly merge nested data dengan format yang benar
           setStats({
             ...defaultStats,
             ...statsData,
@@ -173,7 +173,7 @@ export default function Dashboard() {
         if (isMounted) {
           console.error("Error fetching dashboard stats:", error);
           
-          // ✅ Handle different error types
+          // Handle different error types
           if (error.response?.status === 401) {
             console.log('[Dashboard] Unauthorized - redirecting to login');
             setError('Sesi anda telah berakhir, silakan login kembali');
@@ -196,7 +196,7 @@ export default function Dashboard() {
             return;
           }
 
-          // ✅ Use demo data ketika error
+          // Use demo data ketika error
           const demoStats = {
             ...defaultStats,
             total_perencanaan: 12,
@@ -238,7 +238,7 @@ export default function Dashboard() {
     // Initial fetch
     fetchStats();
 
-    // ✅ FIXED: Setup polling interval for real-time updates
+    // FIXED: Setup polling interval for real-time updates
     const intervalId = setInterval(() => {
       if (isMounted) {
         fetchStats();
@@ -354,45 +354,29 @@ export default function Dashboard() {
       title: "Total Perencanaan",
       value: stats.total_perencanaan || 0,
       icon: <FiFileText className="w-7 h-7" />,
-      gradient: "from-emerald-400 via-emerald-500 to-emerald-600",
-      bgGradient: "from-emerald-50/50 to-emerald-100/30 dark:from-emerald-900/10 dark:to-emerald-800/5",
-      iconBg: "bg-emerald-500",
       trend: "+12%",
-      trendUp: true,
-      subtitle: "vs last month"
+      trendUp: true
     },
     {
-      title: "Implementasi",
+      title: "Total Implementasi",
       value: stats.total_implementasi || 0,
       icon: <FiCheckCircle className="w-7 h-7" />,
-      gradient: "from-teal-400 via-teal-500 to-teal-600",
-      bgGradient: "from-teal-50/50 to-teal-100/30 dark:from-teal-900/10 dark:to-teal-800/5",
-      iconBg: "bg-teal-500",
       trend: "+8%",
-      trendUp: true,
-      subtitle: "completion rate"
+      trendUp: true
     },
     {
-      title: "Monitoring",
+      title: "Monitoring Aktif",
       value: stats.total_monitoring || 0,
       icon: <FiMonitor className="w-7 h-7" />,
-      gradient: "from-green-400 via-green-500 to-green-600",
-      bgGradient: "from-green-50/50 to-green-100/30 dark:from-green-900/10 dark:to-green-800/5",
-      iconBg: "bg-green-500",
       trend: "+5%",
-      trendUp: true,
-      subtitle: "active monitoring"
+      trendUp: true
     },
     {
       title: "Evaluasi",
       value: stats.total_evaluasi || 0,
       icon: <FiCheckCircle className="w-7 h-7" />,
-      gradient: "from-lime-400 via-lime-500 to-lime-600",
-      bgGradient: "from-lime-50/50 to-lime-100/30 dark:from-lime-900/10 dark:to-lime-800/5",
-      iconBg: "bg-lime-500",
       trend: "+3",
-      trendUp: true,
-      subtitle: "evaluasi selesai"
+      trendUp: true
     },
   ];
 
@@ -405,37 +389,35 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="h-dvh flex flex-col overflow-hidden bg-gradient-to-br from-gray-50 via-emerald-50/30 to-teal-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="py-6 md:py-12 min-h-screen flex flex-col space-y-6 md:space-y-12">
       {/* Compact Header Section */}
       <motion.div 
-        className="flex-shrink-0 px-4 sm:px-6 lg:px-8 py-3 md:py-4"
+        className="flex-shrink-0"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="glass bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl p-4 md:p-5 shadow-xl border border-emerald-100/50 dark:border-gray-700/30">
+        <div className="glass bg-background/70 dark:bg-background/70 backdrop-blur-xl rounded-2xl p-4 md:p-5 shadow-xl border border-border">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             {/* Welcome Section */}
             <div className="flex items-center gap-3">
               <motion.div
-                className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-gray-200 to-white-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 p-1.5 flex-shrink-0"
-                whileHover={{ scale: 1.05, rotate: 5 }}
+                className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-muted to-background flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden flex-shrink-0"
+                whileHover={{ scale: 1.02, y: -2 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                <motion.img
-                  src="/images/icon.png"
+                <img
+                  src="/logo/full_logosystem-green.png"
                   alt="Logo"
                   className="w-full h-full object-contain"
-                  whileHover={{ rotate: [0, -10, 10, 0] }}
-                  transition={{ duration: 0.5 }}
                 />
               </motion.div>
               <div className="min-w-0">
-                <h1 className="text-lg md:text-xl font-black bg-gradient-to-r from-emerald-700 via-teal-600 to-green-600 bg-clip-text text-transparent truncate">
+                <h1 className="text-lg md:text-xl font-black bg-gradient-to-r from-primary via-primary-dark to-primary bg-clip-text text-transparent truncate">
                   Selamat Datang, {user?.name?.split(' ')[0] || "Admin"}!
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400 flex items-center gap-2 mt-0.5 text-xs">
-                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse flex-shrink-0"></span>
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse flex-shrink-0"></span>
                   <span className="font-medium">{user?.role || "Administrator"}</span>
                   <span className="text-gray-400">•</span>
                   <FiClock className="w-3 h-3 flex-shrink-0" />
@@ -489,106 +471,76 @@ export default function Dashboard() {
 
       {/* Main Content - Scrollable */}
       <div className="flex-1 overflow-hidden min-h-0">
-        <div className="h-full px-4 sm:px-6 lg:px-8 py-1 flex flex-col gap-4 min-h-0">
+        <div className="h-full flex flex-col gap-6 min-h-0">
           {/* Stats Cards - User Friendly Large Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 flex-shrink-0">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 flex-shrink-0">
             {statCards.map((card, index) => (
               <motion.div
                 key={index}
-                className="group relative"
+                className="bg-white group dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 transition-all hover:shadow-xl"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -4 }}
               >
-                {/* Subtle Background Gradient */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${card.bgGradient} rounded-lg opacity-60 group-hover:opacity-100 transition-opacity duration-300`}></div>
-                
-                {/* Card Content - Large & User Friendly */}
-                <div className="relative glass bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-lg p-4 border border-white/50 dark:border-gray-700/50 shadow-sm group-hover:shadow-lg transition-all">
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 truncate">
-                        {card.title}
-                      </p>
-                      <h3 className="text-2xl font-black text-gray-900 dark:text-gray-100 leading-none">
-                        {card.value}
-                      </h3>
-                    </div>
-                    <motion.div
-                      className={`w-11 h-11 rounded-lg bg-gradient-to-br ${card.gradient} flex items-center justify-center text-white shadow-md flex-shrink-0`}
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                    >
-                      <span className="text-base">{React.cloneElement(card.icon, { className: "w-5 h-5" })}</span>
-                    </motion.div>
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 truncate">
+                      {card.title}
+                    </p>
+                    <h3 className="text-3xl font-black text-gray-900 dark:text-gray-100 leading-none">
+                      {card.value}
+                    </h3>
                   </div>
+                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground flex-shrink-0 group-hover:bg-primary-dark dark:group-hover:bg-primary-light group-hover:scale-105 transition-all duration-300">
+                    <span className="text-base">{React.cloneElement(card.icon, { className: "w-5 h-5" })}</span>
+                  </div>
+                </div>
 
-                  {/* Trend Indicator */}
-                  <div className="flex items-center justify-between gap-1">
-                    <div className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold ${
-                      card.trendUp 
-                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' 
-                        : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                    }`}>
-                      {card.trendUp ? (
-                        <FiTrendingUp className="w-2.5 h-2.5" />
-                      ) : (
-                        <FiTrendingDown className="w-2.5 h-2.5" />
-                      )}
-                      <span>{card.trend}</span>
-                    </div>
+                {/* Trend Indicator */}
+                <div className="flex items-center justify-between gap-1">
+                  <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold ${
+                    card.trendUp 
+                      ? 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light group-hover:bg-primary/20 dark:group-hover:bg-primary/30' 
+                      : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 group-hover:bg-red-200 dark:group-hover:bg-red-800/40'
+                  }`}>
+                    {card.trendUp ? (
+                      <FiTrendingUp className="w-3 h-3" />
+                    ) : (
+                      <FiTrendingDown className="w-3 h-3" />
+                    )}
+                    <span>{card.trend}</span>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          {/* Charts Section - Side by Side, Compact */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 flex-none min-h-0">
+          {/* Charts Section - Side by Side */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Pie Chart */}
-            <motion.div
-              className="glass bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-lg border border-white/50 dark:border-gray-700/50 shadow-lg overflow-hidden flex flex-col min-h-0 h-[220px] lg:h-[230px]"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <div className="p-1 border-b border-gray-200/50 dark:border-gray-700/50 flex-shrink-0">
-                <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                  Jenis Kegiatan
-                </h3>
-                <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+              <div className="mb-4">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Jenis Kegiatan</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   ({(stats.kegiatan_stats || []).reduce((sum, item) => sum + (item.value || 0), 0)} total)
                 </p>
               </div>
-              <div className="p-0.5 flex-1 flex items-center justify-center min-h-0 overflow-hidden">
-                <div className="w-full h-full flex items-center justify-center">
-                  <PieChart data={stats.kegiatan_stats || []} compact />
-                </div>
+              <div className="h-64 flex items-center justify-center">
+                <PieChart data={stats.kegiatan_stats || []} compact />
               </div>
-            </motion.div>
+            </div>
 
             {/* Bar Chart */}
-            <motion.div
-              className="glass bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-lg border border-white/50 dark:border-gray-700/50 shadow-lg overflow-hidden flex flex-col min-h-0 h-[220px] lg:h-[230px]"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-            >
-              <div className="p-1 border-b border-gray-200/50 dark:border-gray-700/50 flex-shrink-0">
-                <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                  Progress Bulan Ini
-                </h3>
-                <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+              <div className="mb-4">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Progress Bulanan</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   ({(stats.monthly_stats || []).reduce((sum, item) => sum + (item.value || 0), 0)} total)
                 </p>
               </div>
-              <div className="p-0.5 flex-1 flex items-center justify-center min-h-0 overflow-hidden">
-                <div className="w-full h-full flex items-center justify-center">
-                  <BarChart data={stats.monthly_stats || []} compact />
-                </div>
+              <div className="h-64 flex items-center justify-center">
+                <BarChart data={stats.monthly_stats || []} compact />
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>

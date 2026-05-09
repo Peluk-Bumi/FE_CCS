@@ -58,8 +58,27 @@ export default function Navbar({ isUser = false }) {
   };
 
   const navItems = [
-    { name: "Beranda", path: "/", icon: FiHome, color: "emerald" },
+    { name: "Beranda", path: "/", icon: FiHome, color: "primary" },
     { name: "Tentang", path: "/about", icon: FiInfo, color: "blue" },
+  ];
+
+  const profileMenuItems = [
+    {
+      label: "Dashboard",
+      icon: FiGrid,
+      onClick: () => {
+        setDropdownOpen(false);
+        navigate(user?.role === "admin" ? "/admin/dashboard" : "/user/dashboard");
+      },
+    },
+    {
+      label: "Pengaturan",
+      icon: FiSettings,
+      onClick: () => {
+        setDropdownOpen(false);
+        navigate(user?.role === "admin" ? "/admin/settings" : "/user/settings");
+      },
+    },
   ];
 
   const handleNavigation = (path) => {
@@ -80,7 +99,7 @@ export default function Navbar({ isUser = false }) {
     }, 150);
   };
 
-  // ✅ Smart navigation ke verifikasi
+  // Smart navigation ke verifikasi
   const handleVerifikasiNav = () => {
     if (isAuthenticated) {
       if (user?.role === "admin") {
@@ -101,7 +120,7 @@ export default function Navbar({ isUser = false }) {
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div className="h-16 flex items-center justify-between rounded-full px-6 lg:px-8 backdrop-blur-2xl border border-green-600/60 dark:border-green-700/50 bg-gradient-to-r from-green-700/90 to-green-800/90 dark:from-green-800/85 dark:to-green-900/85 shadow-[0_12px_30px_-12px_rgba(21,128,61,0.75)]">
+        <div className="h-16 flex items-center justify-between rounded-full px-6 lg:px-8 backdrop-blur-2xl border border-primary-light  bg-gradient-to-r from-primary via-primary/85 to-primary-dark shadow-[0_12px_30px_-12px_rgba(81,118,64,0.75)]">
           {/* Logo Section */}
           <motion.div 
             className="flex items-center space-x-2.5 group cursor-pointer flex-shrink-0"
@@ -112,26 +131,26 @@ export default function Navbar({ isUser = false }) {
             <div className="relative flex items-center gap-2.5">
               <div className="relative">
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-emerald-300 via-green-300 to-cyan-300 rounded-full blur-lg opacity-40 group-hover:opacity-60"
+                  className="absolute inset-0 rounded-full blur-lg opacity-40 group-hover:opacity-60"
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ duration: 3, repeat: Infinity }}
                 />
                 <motion.img
-                  src="/images/icon.png"
+                  src="/logo/full_logosystem-transparent-peach.png"
                   alt="CCS-System Logo"
-                  className="h-10 w-10 relative z-10 object-contain drop-shadow-lg"
-                  whileHover={{ rotate: [0, -10, 10, 0] }}
-                  transition={{ duration: 0.5 }}
+                  className="size-9 relative z-10 object-contain drop-shadow-lg"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ duration: 0.2 }}
                 />
               </div>
               <div className="flex flex-col">
                 <motion.h1 
-                  className="text-lg font-bold text-white leading-tight"
+                  className="text-lg font-bold text-white/90 leading-tight"
                   whileHover={{ scale: 1.05 }}
                 >
                   PELUK BUMI
                 </motion.h1>
-                <p className="text-xs text-emerald-100 font-medium leading-tight hidden sm:block">
+                <p className="text-xs text-white/75 font-medium leading-tight hidden sm:block">
                   Traceability System
                 </p>
               </div>
@@ -139,14 +158,14 @@ export default function Navbar({ isUser = false }) {
           </motion.div>
 
           {/* Desktop Navigation - Centered */}
-          <div className="hidden lg:flex items-center space-x-1 absolute left-1/2 transform -translate-x-1/2">
+          <div className="hidden lg:flex items-center space-x-4 absolute left-1/2 transform -translate-x-1/2">
             {navItems.map((item, index) => (
               <motion.button
                 key={item.name}
                 onClick={() => handleNavigation(item.path)}
-                className={`relative px-4 py-2 rounded-lg text-sm font-semibold transition-all group ${
+                className={`relative h-10 px-4 inline-flex items-center rounded-xl text-sm font-semibold transition-all group overflow-hidden ${
                   location.pathname === item.path
-                    ? "text-white bg-white/20 shadow-lg shadow-emerald-400/50"
+                    ? "text-white bg-white/20 shadow-lg shadow-primary/50"
                     : "text-white/80 hover:text-white hover:bg-white/10"
                 }`}
                 whileHover={{ scale: 1.05 }}
@@ -158,7 +177,7 @@ export default function Navbar({ isUser = false }) {
                 <span>{item.name}</span>
                 {location.pathname === item.path && (
                   <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-300 via-green-300 to-emerald-300 rounded-full shadow-md shadow-emerald-300/50"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 w-full justify-self-center bg-gradient-to-r from-peach-dark/50 via-peach-light to-peach-dark/50 rounded-full shadow-md shadow-primary/50"
                     layoutId="activeNav"
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
@@ -171,7 +190,7 @@ export default function Navbar({ isUser = false }) {
             {/* Verifikasi Button */}
             <motion.button
               onClick={handleVerifikasiNav}
-              className="mx-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-white/10 hover:bg-white/20 transition-all border border-white/20 hover:border-white/40"
+              className="mx-2 relative h-10 px-4 inline-flex items-center rounded-xl text-sm font-semibold text-white bg-white/10 hover:bg-white/20 transition-all border border-white/20 hover:border-white/40"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -184,46 +203,45 @@ export default function Navbar({ isUser = false }) {
             {isAuthenticated ? (
               <>
                 {/* Theme Toggle - Hidden on mobile */}
-                <motion.button
+                {/* <motion.button
                   onClick={toggleTheme}
-                  className="hidden sm:block p-2.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all"
+                  className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 transition-all"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
                   {theme === "dark" ? (
-                    <FiSun className="w-5 h-5 text-yellow-300" />
+                    <FiSun className="w-5 h-5 text-slate-100" />
                   ) : (
                     <FiMoon className="w-5 h-5 text-slate-100" />
                   )}
-                </motion.button>
+                </motion.button> */}
 
                 {/* Profile Button - Desktop */}
                 <div className="hidden lg:block relative" ref={dropdownRef}>
                   <motion.button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-white/10 transition-all"
+                    className="inline-flex h-10 items-center space-x-2 px-3 py-2 rounded-xl group transition-all"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <div className="relative">
                       <motion.div 
-                        className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-300 to-green-400 flex items-center justify-center text-green-900 font-bold shadow-lg text-sm"
-                        whileHover={{ scale: 1.1 }}
+                        className="h-9 w-9 rounded-full bg-gradient-to-br from-peach to-peach-dark flex items-center justify-center text-primary transition-all group-hover:shadow-[0_0_20px_rgba(225,240,216,0.5)] shadow-lg font-bold text-sm"
                         animate={{ 
                           boxShadow: dropdownOpen 
-                            ? "0 0 20px rgba(16, 185, 129, 0.6)" 
-                            : "0 0 0px rgba(16, 185, 129, 0)" 
+                            ? "0 0 20px rgba(225, 240, 216, 0.7)" 
+                            : "" 
                         }}
                       >
                         {(user?.username || user?.name || "U")[0].toUpperCase()}
                       </motion.div>
-                      <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-200 rounded-full border-2 border-green-800"></div>
+                      <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-green-300"></div>
                     </div>
                     <div className="text-left hidden xl:block">
                       <p className="text-sm font-semibold text-white truncate max-w-[120px]">
                         {user?.username || user?.name || "User"}
                       </p>
-                      <p className="text-xs text-emerald-100 font-medium">
+                      <p className="text-xs text-white/75 font-medium">
                         {user?.role || "User"}
                       </p>
                     </div>
@@ -237,12 +255,12 @@ export default function Navbar({ isUser = false }) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="absolute right-0 top-full mt-3 w-80 bg-green-50/90 dark:bg-green-950/80 backdrop-blur-2xl rounded-2xl shadow-2xl border border-green-200/70 dark:border-green-800/60 overflow-hidden"
+                        className="absolute right-0 top-full mt-6 w-80 bg-white dark:bg-dark backdrop-blur-2xl rounded-2xl shadow-2xl border border-primary/20 dark:border-primary/60 overflow-hidden"
                       >
                         {/* Header */}
-                        <div className="p-4 bg-gradient-to-r from-green-100/50 to-emerald-100/50 dark:from-green-900/30 dark:to-green-900/20 border-b border-green-200/50 dark:border-green-800/50">
+                        <div className="p-4 bg-gradient-to-r from-primary/10 to-primary-dark/10 dark:from-primary/20 dark:to-primary-dark/20 border-b border-primary/20 dark:border-primary/50">
                           <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center text-green-900 text-lg font-bold">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-primary-foreground text-lg font-bold">
                               {(user?.username || user?.name || "U")[0].toUpperCase()}
                             </div>
                             <div className="space-y-0.5">
@@ -262,31 +280,19 @@ export default function Navbar({ isUser = false }) {
                           </div>
                         </div>
                         
-                        {/* Menu Items */}
+                        {/* Profile Menu Items */}
                         <div className="p-2">
-                          <motion.button
-                            onClick={() => {
-                              setDropdownOpen(false);
-                              navigate(user?.role === "admin" ? "/admin/dashboard" : "/user/dashboard");
-                            }}
-                            className="flex items-center gap-3 w-full px-4 py-3 text-left text-gray-700 dark:text-gray-200 hover:bg-green-100 dark:hover:bg-green-800/60 rounded-xl transition-all"
-                            whileHover={{ x: 4 }}
-                          >
-                            <FiGrid className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                            <span className="font-medium">Dashboard</span>
-                          </motion.button>
-
-                          <motion.button
-                            onClick={() => {
-                              setDropdownOpen(false);
-                              navigate(user?.role === "admin" ? "/admin/settings" : "/user/settings");
-                            }}
-                            className="flex items-center gap-3 w-full px-4 py-3 text-left text-gray-700 dark:text-gray-200 hover:bg-green-100 dark:hover:bg-green-800/60 rounded-xl transition-all"
-                            whileHover={{ x: 4 }}
-                          >
-                            <FiSettings className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                            <span className="font-medium">Pengaturan</span>
-                          </motion.button>
+                          {profileMenuItems.map((item, index) => (
+                            <motion.button
+                              key={index}
+                              onClick={item.onClick}
+                              className="flex items-center gap-3 w-full px-4 py-3 text-left text-gray-700 dark:text-gray-200 hover:bg-primary-light/20 dark:hover:bg-green-800/60 rounded-xl transition-all"
+                              whileHover={{ x: 4 }}
+                            >
+                              <item.icon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                              <span className="font-medium">{item.label}</span>
+                            </motion.button>
+                          ))}
                           
                           <motion.button
                             onClick={handleLogout}
@@ -307,7 +313,7 @@ export default function Navbar({ isUser = false }) {
                 {/* Login Button - Desktop Only */}
                 <motion.button
                   onClick={() => handleNavigation("/login")}
-                  className="hidden lg:flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-bold text-green-900 bg-white hover:bg-emerald-50 transition-all"
+                  className="hidden lg:inline-flex h-10 items-center space-x-2 px-4 rounded-xl text-sm font-bold text-primary-foreground hover:bg-white/10 transition-all"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -318,9 +324,9 @@ export default function Navbar({ isUser = false }) {
                 </motion.button>
 
                 {/* Theme Toggle - Mobile */}
-                <motion.button
+                {/* <motion.button
                   onClick={toggleTheme}
-                  className="p-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all"
+                  className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 transition-all"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -329,13 +335,13 @@ export default function Navbar({ isUser = false }) {
                   ) : (
                     <FiMoon className="w-5 h-5 text-slate-100" />
                   )}
-                </motion.button>
+                </motion.button> */}
               </>
             )}
 
             {/* Mobile Menu Button */}
             <motion.button 
-              className="lg:hidden p-2.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all"
+              className="lg:hidden h-10 w-10 inline-flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 transition-all"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -454,7 +460,7 @@ export default function Navbar({ isUser = false }) {
                         setMobileMenuOpen(false);
                         navigate(user?.role === "admin" ? "/admin/settings" : "/user/settings");
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl font-semibold bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+                      className="w-full flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl font-semibold bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-primary/10 dark:hover:bg-primary/20 transition-all"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.2 }}

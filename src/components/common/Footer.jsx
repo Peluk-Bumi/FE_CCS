@@ -28,56 +28,56 @@ export default function Footer() {
   ];
 
   const footerClass = isDark
-    ? "bg-gradient-to-b from-green-950 via-emerald-950 to-slate-950 text-emerald-100/85"
-    : "bg-gradient-to-b from-emerald-100 via-white to-emerald-50 text-emerald-900";
+    ? "bg-gradient-to-b from-dark via-primary to-slate-950 text-primary-light"
+    : "bg-gradient-to-b from-primary/10 via-white to-primary/20 text-primary";
   const ambientClass = isDark ? "absolute inset-0 opacity-35 pointer-events-none" : "absolute inset-0 opacity-70 pointer-events-none";
   const glowLeftClass = isDark
-    ? "absolute -top-24 -left-16 w-[30rem] h-[30rem] bg-emerald-400/35 rounded-full blur-3xl"
-    : "absolute -top-24 -left-16 w-[30rem] h-[30rem] bg-emerald-300/55 rounded-full blur-3xl";
+    ? "absolute -top-24 -left-16 w-[30rem] h-[30rem] bg-primary/35 rounded-full blur-3xl"
+    : "absolute -top-24 -left-16 w-[30rem] h-[30rem] bg-primary/55 rounded-full blur-3xl";
   const glowRightClass = isDark
-    ? "absolute -bottom-24 -right-10 w-[28rem] h-[28rem] bg-teal-400/30 rounded-full blur-3xl"
-    : "absolute -bottom-24 -right-10 w-[28rem] h-[28rem] bg-teal-300/50 rounded-full blur-3xl";
+    ? "absolute -bottom-24 -right-10 w-[28rem] h-[28rem] bg-primary-dark/30 rounded-full blur-3xl"
+    : "absolute -bottom-24 -right-10 w-[28rem] h-[28rem] bg-primary-dark/50 rounded-full blur-3xl";
   const radialClass = isDark
-    ? "absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(16,185,129,0.16),transparent_42%)]"
-    : "absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.95),transparent_45%),radial-gradient(circle_at_80%_80%,rgba(16,185,129,0.20),transparent_44%)]";
+    ? "absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(81,118,64,0.16),transparent_42%)]"
+    : "absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.95),transparent_45%),radial-gradient(circle_at_80%_80%,rgba(81,118,64,0.20),transparent_44%)]";
   const panelClass = isDark
     ? "rounded-3xl border border-white/15 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_24px_70px_-30px_rgba(0,0,0,0.8)] px-6 sm:px-8 lg:px-10 pt-10 sm:pt-12 pb-8"
-    : "rounded-3xl border border-emerald-300/40 bg-white/60 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_20px_55px_-28px_rgba(5,150,105,0.35)] px-6 sm:px-8 lg:px-10 pt-10 sm:pt-12 pb-8";
+    : "rounded-3xl border border-primary/40 bg-white/60 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_20px_55px_-28px_rgba(81,118,64,0.35)] px-6 sm:px-8 lg:px-10 pt-10 sm:pt-12 pb-8";
   const brandTitleClass = isDark
-    ? "text-2xl font-bold bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text text-transparent"
-    : "text-2xl font-bold bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-700 bg-clip-text text-transparent";
-  const brandSubClass = isDark ? "text-xs text-emerald-100/55" : "text-xs text-emerald-900/65";
-  const descClass = isDark ? "text-emerald-100/70 mb-6 leading-relaxed text-sm" : "text-emerald-900/75 mb-6 leading-relaxed text-sm";
+    ? "text-2xl font-bold bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent"
+    : "text-2xl font-bold bg-gradient-to-r from-primary via-primary-dark to-primary bg-clip-text text-transparent";
+  const brandSubClass = isDark ? "text-xs text-primary-light/55" : "text-xs text-primary/65";
+  const descClass = isDark ? "text-primary-light/70 mb-6 leading-relaxed text-sm" : "text-primary/75 mb-6 leading-relaxed text-sm";
   const socialBtnClass = isDark
-    ? "w-10 h-10 rounded-xl border border-white/20 bg-white/10 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-teal-500 backdrop-blur-xl flex items-center justify-center transition-all duration-300 group"
-    : "w-10 h-10 rounded-xl border border-emerald-300/45 bg-white/65 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-teal-500 backdrop-blur-xl flex items-center justify-center transition-all duration-300 group";
-  const socialIconClass = isDark ? "w-5 h-5 text-emerald-100/75 group-hover:text-white transition-colors" : "w-5 h-5 text-emerald-700 group-hover:text-white transition-colors";
-  const sectionTitleClass = isDark ? "text-emerald-50 font-semibold mb-4 text-sm uppercase tracking-wider" : "text-emerald-900 font-semibold mb-4 text-sm uppercase tracking-wider";
+    ? "w-10 h-10 rounded-xl border border-white/20 bg-white/10 hover:bg-gradient-to-r hover:from-primary hover:to-primary-dark backdrop-blur-xl flex items-center justify-center transition-all duration-300 group"
+    : "w-10 h-10 rounded-xl border border-primary/45 bg-white/65 hover:bg-gradient-to-r hover:from-primary hover:to-primary-dark backdrop-blur-xl flex items-center justify-center transition-all duration-300 group";
+  const socialIconClass = isDark ? "w-5 h-5 text-primary-light/75 group-hover:text-white transition-colors" : "w-5 h-5 text-primary group-hover:text-white transition-colors";
+  const sectionTitleClass = isDark ? "text-primary-light font-semibold mb-4 text-sm uppercase tracking-wider" : "text-primary font-semibold mb-4 text-sm uppercase tracking-wider";
   const linkClass = isDark
-    ? "text-emerald-100/70 hover:text-emerald-200 transition-colors text-sm flex items-center group"
-    : "text-emerald-800/80 hover:text-emerald-600 transition-colors text-sm flex items-center group";
+    ? "text-primary-light/70 hover:text-primary transition-colors text-sm flex items-center group"
+    : "text-primary/80 hover:text-primary-dark transition-colors text-sm flex items-center group";
   const linkAccentClass = isDark
-    ? "w-0 group-hover:w-2 h-0.5 bg-emerald-300 mr-0 group-hover:mr-2 transition-all duration-300"
-    : "w-0 group-hover:w-2 h-0.5 bg-emerald-600 mr-0 group-hover:mr-2 transition-all duration-300";
+    ? "w-0 group-hover:w-2 h-0.5 bg-primary mr-0 group-hover:mr-2 transition-all duration-300"
+    : "w-0 group-hover:w-2 h-0.5 bg-primary mr-0 group-hover:mr-2 transition-all duration-300";
   const contactItemClass = isDark
     ? "flex items-center space-x-3 text-sm rounded-xl border border-white/10 bg-white/5 backdrop-blur-lg px-3 py-2"
-    : "flex items-center space-x-3 text-sm rounded-xl border border-emerald-300/35 bg-white/55 backdrop-blur-lg px-3 py-2";
+    : "flex items-center space-x-3 text-sm rounded-xl border border-primary/35 bg-white/55 backdrop-blur-lg px-3 py-2";
   const contactIconWrapClass = isDark
-    ? "w-8 h-8 rounded-lg bg-emerald-400/15 border border-emerald-200/20 flex items-center justify-center flex-shrink-0"
-    : "w-8 h-8 rounded-lg bg-emerald-100 border border-emerald-300/45 flex items-center justify-center flex-shrink-0";
-  const contactIconClass = isDark ? "w-4 h-4 text-emerald-200" : "w-4 h-4 text-emerald-700";
-  const contactTextClass = isDark ? "text-emerald-100/75" : "text-emerald-900/80";
+    ? "w-8 h-8 rounded-lg bg-primary/15 border border-primary/20 flex items-center justify-center flex-shrink-0"
+    : "w-8 h-8 rounded-lg bg-primary/10 border border-primary/45 flex items-center justify-center flex-shrink-0";
+  const contactIconClass = isDark ? "w-4 h-4 text-primary-light" : "w-4 h-4 text-primary";
+  const contactTextClass = isDark ? "text-primary-light/75" : "text-primary/80";
   const bottomClass = isDark
     ? "flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-white/15"
-    : "flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-emerald-300/45";
-  const copyClass = isDark ? "text-emerald-100/60 text-sm" : "text-emerald-900/65 text-sm";
-  const copyBrandClass = isDark ? "text-emerald-200 font-semibold" : "text-emerald-700 font-semibold";
+    : "flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-primary/45";
+  const copyClass = isDark ? "text-primary-light/60 text-sm" : "text-primary/65 text-sm";
+  const copyBrandClass = isDark ? "text-primary-light font-semibold" : "text-primary font-semibold";
   const legalClass = isDark
-    ? "text-emerald-100/60 hover:text-emerald-200 transition-colors relative group"
-    : "text-emerald-900/65 hover:text-emerald-700 transition-colors relative group";
+    ? "text-primary-light/60 hover:text-primary transition-colors relative group"
+    : "text-primary/65 hover:text-primary-dark transition-colors relative group";
   const legalUnderlineClass = isDark
-    ? "absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-300 group-hover:w-full transition-all duration-300"
-    : "absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-600 group-hover:w-full transition-all duration-300";
+    ? "absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"
+    : "absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300";
 
   return (
     <footer className={`${footerClass} relative overflow-hidden`}>

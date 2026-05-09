@@ -54,7 +54,7 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-green-200 via-emerald-100 to-lime-100">
+    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-primary/10 via-white to-primary-dark/10">
       {/* Left Side Image - Desktop Only */}
       <motion.div 
       className="hidden md:flex md:w-1/2 items-center justify-center p-10 relative overflow-hidden"
@@ -78,7 +78,7 @@ export default function Register() {
       {floatingShapes.map((shape, index) => (
         <motion.div
           key={index}
-          className={`absolute ${shape.position} ${shape.size} text-green-700/30 z-10`}
+          className={`absolute ${shape.position} ${shape.size} text-primary z-10`}
           animate={{
             y: [0, (Math.random() - 0.5) * 40],
             x: [0, (Math.random() - 0.5) * 40],
@@ -96,15 +96,15 @@ export default function Register() {
       ))}
 
       <motion.div 
-        className="absolute bottom-10 left-10 bg-white/70 backdrop-blur-md px-6 py-3 rounded-xl shadow-lg border border-green-100"
+        className="absolute bottom-10 left-10 bg-white/70 backdrop-blur-md px-6 py-3 rounded-xl shadow-lg border border-primary-light/20"
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.8 }}
       >
-        <h2 className="text-xl font-bold text-green-800">
+        <h2 className="text-xl font-bold text-primary-dark">
           Daftar & Bergabung
         </h2>
-        <p className="text-green-700 text-sm">
+        <p className="text-primary text-sm">
           Bersama memajukan argopariwisata 
           <motion.span 
             className="inline-flex items-center align-middle"
@@ -127,7 +127,7 @@ export default function Register() {
           title="Kembali ke Beranda"
         >
           <motion.div
-            className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md rounded-full shadow-lg border border-green-200 hover:shadow-xl transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md rounded-full shadow-lg border border-primary-light/20 hover:shadow-xl transition-all"
             whileHover={{ scale: 1.05, x: -3 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -135,16 +135,16 @@ export default function Register() {
               animate={{ x: [-2, 0, -2] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             >
-              <HomeIcon className="h-5 w-5 text-green-600" />
+              <HomeIcon className="h-5 w-5 text-primary" />
             </motion.div>
-            <span className="hidden sm:inline text-sm font-medium text-green-700">
+            <span className="hidden sm:inline text-sm font-medium text-primary">
               Beranda
             </span>
           </motion.div>
         </Link>
 
         <motion.div 
-          className="max-w-md w-full bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-8 space-y-6 relative border border-green-100"
+          className="max-w-md w-full bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-8 space-y-6 relative border border-primary-light/20"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
@@ -157,7 +157,7 @@ export default function Register() {
             transition={{ delay: 0.3 }}
           >
             <motion.h2 
-              className="text-4xl font-extrabold text-green-900 tracking-tight"
+              className="text-4xl font-extrabold text-primary-dark tracking-tight"
               animate={{
                 scale: [1, 1.02, 1],
               }}
@@ -174,7 +174,7 @@ export default function Register() {
               >✨</motion.span>
             </motion.h2>
             <motion.p 
-              className="text-green-800 text-sm mt-2"
+              className="text-primary-dark text-sm mt-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
@@ -204,7 +204,7 @@ export default function Register() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <label className="block text-sm font-medium text-green-900 mb-1">
+              <label className="block text-sm font-medium text-primary-dark mb-1">
                 Nama Lengkap
               </label>
               <motion.input
@@ -213,7 +213,7 @@ export default function Register() {
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 required
                 placeholder="Masukkan nama lengkap"
-                className="block w-full px-4 py-2 border border-green-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none bg-white/90"
+                className="block w-full px-4 py-2 border border-primary-light rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none bg-white/90"
                 whileFocus={{ 
                   borderColor: "#10B981",
                   boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.2)"
@@ -227,7 +227,7 @@ export default function Register() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <label className="block text-sm font-medium text-green-900 mb-1">
+              <label className="block text-sm font-medium text-primary-dark mb-1">
                 Email
               </label>
               <motion.input
@@ -236,7 +236,7 @@ export default function Register() {
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 required
                 placeholder="Masukkan email Anda"
-                className="block w-full px-4 py-2 border border-green-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none bg-white/90"
+                className="block w-full px-4 py-2 border border-primary-light rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none bg-white/90"
                 whileFocus={{ 
                   borderColor: "#10B981",
                   boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.2)"
@@ -250,7 +250,7 @@ export default function Register() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <label className="block text-sm font-medium text-green-900 mb-1">
+              <label className="block text-sm font-medium text-primary-dark mb-1">
                 Password
               </label>
               <div className="relative">
@@ -260,7 +260,7 @@ export default function Register() {
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required
                   placeholder="Masukkan password"
-                  className="block w-full px-4 py-2 border border-green-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none pr-10 bg-white/90"
+                  className="block w-full px-4 py-2 border border-primary-light rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none pr-10 bg-white/90"
                   whileFocus={{ 
                     borderColor: "#10B981",
                     boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.2)"
@@ -269,7 +269,7 @@ export default function Register() {
                 <motion.button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-green-700 hover:text-green-900 transition-colors"
+                  className="absolute right-3 top-2.5 text-primary hover:text-primary-dark transition-colors"
                   whileHover={{ scale: 1.2 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -288,7 +288,7 @@ export default function Register() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
             >
-              <label className="block text-sm font-medium text-green-900 mb-1">
+              <label className="block text-sm font-medium text-primary-dark mb-1">
                 Konfirmasi Password
               </label>
               <div className="relative">
@@ -300,7 +300,7 @@ export default function Register() {
                   }
                   required
                   placeholder="Ulangi password"
-                  className="block w-full px-4 py-2 border border-green-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none pr-10 bg-white/90"
+                  className="block w-full px-4 py-2 border border-primary-light rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none pr-10 bg-white/90"
                   whileFocus={{ 
                     borderColor: "#10B981",
                     boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.2)"
@@ -309,7 +309,7 @@ export default function Register() {
                 <motion.button
                   type="button"
                   onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute right-3 top-2.5 text-green-700 hover:text-green-900 transition-colors"
+                  className="absolute right-3 top-2.5 text-primary hover:text-primary-dark transition-colors"
                   whileHover={{ scale: 1.2 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -333,7 +333,7 @@ export default function Register() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-3 rounded-lg font-semibold tracking-wide transition-all duration-200 shadow-md hover:shadow-lg relative overflow-hidden"
+                className="w-full bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white py-3 rounded-lg font-semibold tracking-wide transition-all duration-200 shadow-md hover:shadow-lg relative overflow-hidden"
               >
                 <motion.span 
                   className="absolute inset-0 bg-white/20"
@@ -354,7 +354,7 @@ export default function Register() {
           </form>
 
           <motion.p 
-            className="text-center text-sm text-green-800"
+            className="text-center text-sm text-primary-dark"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.9 }}
@@ -363,7 +363,7 @@ export default function Register() {
             <motion.span className="inline-block">
               <Link
                 to="/login"
-                className="text-green-900 hover:underline font-medium"
+                className="text-primary-dark hover:underline font-medium"
                 whileHover={{ scale: 1.05 }}
               >
                 Login disini
