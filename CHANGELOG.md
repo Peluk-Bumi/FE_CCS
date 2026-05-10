@@ -4,6 +4,41 @@ Semua perubahan penting pada aplikasi frontend FE_CCS.
 
 ## [Unreleased]
 
+---
+
+## [v1.3.0] - 2026-05-10
+
+### Ditambahkan
+- Restrukturisasi arsitektur frontend dengan pola berbasis fitur (feature-based)
+- Sistem dokumentasi komprehensif (API, Architecture, Deployment, Folder Structure)
+- Aset partnership dan logo mitra
+- Halaman legal baru (License, Privacy Policy, Terms & Conditions)
+- Komponen modular dengan organisasi yang lebih baik
+- Layout system baru dengan partials dan common components
+
+### Diubah
+- Migrasi dari struktur berbasis komponen ke berbasis fitur
+- Reorganisasi folder pages menjadi domain logis (auth, dashboard, evaluation, reporting)
+- Pembaruan routing dan konfigurasi untuk struktur baru
+- Peningkatan modularitas komponen untuk mengurangi kompleksitas kode
+- Standardisasi struktur file dan naming convention
+- Update versi aplikasi ke v1.3.0 di seluruh komponen
+
+### Direfaktor
+- Ekstrak komponen ke dalam folder fitur yang sesuai
+- Pemisahan concerns antara layout, features, dan shared utilities
+- Optimasi struktur untuk skalabilitas dan maintainability
+
+### Dokumentasi
+- Penambahan dokumentasi arsitektur lengkap
+- Panduan struktur folder untuk pengembang
+- Dokumentasi API endpoint
+- Panduan deployment dan konfigurasi
+
+---
+
+## [v1.2.0] - 2026-05-09
+
 ### Ditambahkan
 - Sistem evaluasi dan verifikasi komprehensif dengan UI/UX yang ditingkatkan
 - Dukungan file HEIC dan video dengan preview media yang lebih baik

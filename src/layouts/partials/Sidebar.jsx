@@ -291,7 +291,7 @@ export default function Sidebar({ isUser = false, onClose }) {
           Peluk Bumi
         </p>
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          Environmental Monitoring System v1.0
+          Environmental Monitoring System v{import.meta.env.VITE_APP_VERSION || '1.3.0'}
         </p>
       </div>
     </aside>
