@@ -2,9 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { FiUser, FiMail, FiLock, FiSave, FiShield, FiCamera, FiSettings } from "react-icons/fi";
-import api from "../../api/axios";
-import { useAuth } from "../../contexts/AuthContext";
-import PageHeader from "../../components/shared/PageHeader";
+import api from "@/shared/services/api";
+import { useAuth } from "@/app/context/AuthContext";
+import PageTitle from "@/shared/components/PageTitle";
 
 export default function Settings() {
   const { user, refreshUserProfile } = useAuth();
@@ -148,7 +148,8 @@ export default function Settings() {
 
   return (
     <div className="py-12">
-      <PageHeader
+      <PageTitle
+        type="page"
         badge="Pengaturan"
         badgeIcon={FiSettings}
         title="Pengaturan Profil"

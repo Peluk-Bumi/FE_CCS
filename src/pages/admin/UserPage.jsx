@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import api from "../../api/axios";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
+import api from "@/shared/services/api";
+import LoadingSpinner from "@/layouts/common/LoadingSpinner";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -8,7 +8,7 @@ import {
   FiUser, FiX, FiCheck, FiAlertCircle, FiChevronLeft, FiChevronRight,
   FiFilter, FiDownload, FiRefreshCw
 } from "react-icons/fi";
-import PageHeader from "../../components/shared/PageHeader";
+import PageTitle from "@/shared/components/PageTitle";
 export default function UserPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -229,7 +229,8 @@ export default function UserPage() {
   return (
     <>
       <div className="py-12">
-      <PageHeader
+      <PageTitle
+        type="page"
         badge="User Management"
         badgeIcon={FiUser}
         title="User Management"

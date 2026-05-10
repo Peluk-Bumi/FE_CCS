@@ -1,8 +1,26 @@
 {
-  "name": "fe-ccs",
+  "name": "pelukbumi-ccs-frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "description": "Frontend aplikasi Peluk Bumi untuk sistem Carbon Capture and Storage (CCS) - Platform monitoring transparansi data konservasi lingkungan",
+  "homepage": "https://pelukbumi.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pelukbumi/ccs-frontend.git"
+  },
+  "keywords": [
+    "pelukbumi",
+    "carbon-capture-storage",
+    "ccs",
+    "environmental-conservation",
+    "blockchain",
+    "transparency",
+    "react",
+    "laravel"
+  ],
+  "author": "Peluk Bumi Team",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "npm exec --yes vite build",

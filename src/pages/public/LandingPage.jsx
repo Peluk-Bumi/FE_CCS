@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import Footer from "../../components/common/Footer";
-import { useAuth } from "../../contexts/AuthContext";
-import { useTheme } from "../../contexts/ThemeContext";
+import Navbar from "@/layouts/partials/Navbar";
+import Footer from "@/layouts/partials/Footer";
+import { useAuth } from "@/app/context/AuthContext";
+import { useTheme } from "@/app/context/ThemeContext";
 
 // Import modular components
-import HeroSection from "../../components/landing/HeroSection";
-import StatsSection from "../../components/landing/StatsSection";
-import FeaturesSection from "../../components/landing/FeaturesSection";
-import TestimonialsSection from "../../components/landing/TestimonialsSection";
-import CTASection from "../../components/landing/CTASection";
+import HeroSection from "@/features/landing/components/HeroSection";
+import StatsSection from "@/features/landing/components/StatsSection";
+import FeaturesSection from "@/features/landing/components/FeaturesSection";
+import TestimonialsSection from "@/features/landing/components/TestimonialsSection";
+import CTASection from "@/features/landing/components/CTASection";
+import PartnershipSection from "@/features/landing/components/PartnershipSection";
+import TimelineSection from "@/features/landing/components/TimelineSection";
+import HowItWorksSection from "@/features/landing/components/HowItWorksSection";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -20,8 +24,11 @@ const LandingPage = () => {
 
   // Section visibility controls
   const showHero = true;
-  const showStats = false;
+  const showStats = true;
   const showFeatures = true;
+  const showHowItWorks = true;
+  const showTimeline = false;
+  const showPartnership = true;
   const showTestimonials = false;
   const showCTA = true;
 
@@ -52,7 +59,10 @@ const LandingPage = () => {
       {/* Render sections based on boolean switches */}
       {showHero && <HeroSection theme={theme} scrollToSection={scrollToSection} />}
       {showStats && <StatsSection theme={theme} />}
+      {showHowItWorks && <HowItWorksSection theme={theme} />}
       {showFeatures && <FeaturesSection theme={theme} />}
+      {showTimeline && <TimelineSection theme={theme} />}
+      {showPartnership && <PartnershipSection theme={theme} />}
       {showTestimonials && (
         <TestimonialsSection 
           theme={theme} 

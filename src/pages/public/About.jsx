@@ -2,8 +2,8 @@ import React from "react";
 import { FaTree, FaWater, FaChartLine, FaUsers, FaCalendarAlt, FaRuler, FaClipboardCheck, FaLeaf } from "react-icons/fa";
 import { GiGrowth } from "react-icons/gi";
 import { RiHealthBookFill } from "react-icons/ri";
-import Footer from "../../components/common/Footer"; // ✅ Import Footer
-import { useTheme } from "../../contexts/ThemeContext";
+import Footer from "@/layouts/partials/Footer"; // Import Footer
+import { useTheme } from "@/app/context/ThemeContext";
 
 const About = () => {
   const { theme } = useTheme();

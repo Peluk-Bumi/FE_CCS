@@ -1,17 +1,16 @@
 // src/App.jsx
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import AppRoutes from "./routes/AppRoutes";
-import Navbar from "./components/common/Navbar";
-import ScrollToTop from "./components/common/ScrollToTop";
-import LoadingSpinner from "./components/common/LoadingSpinner";
+import { AuthProvider, useAuth } from "@/app/context/AuthContext";
+import AppRoutes from "@/app/routes/AppRoutes";
+import Navbar from "@/layouts/partials/Navbar";
+import ScrollToTop from "@/layouts/common/ScrollToTop";
+import LoadingSpinner from "@/layouts/common/LoadingSpinner";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./assets/styles/index.css";
-import { BlockchainProvider } from "./contexts/BlockchainContext";
-import BlockchainDebug from "./components/BlockchainDebug";
-import { ThemeProvider } from "./contexts/ThemeContext";
+import { BlockchainProvider } from "@/app/context/BlockchainContext";
+import BlockchainDebug from "@/features/blockchain/components/BlockchainDebug";
+import { ThemeProvider } from "@/app/context/ThemeContext";
 
 // ✅ Komponen terpisah yang menggunakan useAuth - harus di dalam AuthProvider
 function AppContent() {

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import Sidebar from "../components/common/Sidebar";
+import { useAuth } from "@/app/context/AuthContext";
+import Footer from "@/layouts/partials/Footer";
+import Sidebar from "@/layouts/partials/Sidebar";
 import { FiMenu } from "react-icons/fi";
 
 export default function DashboardLayout() {
