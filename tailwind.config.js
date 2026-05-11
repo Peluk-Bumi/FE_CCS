@@ -21,7 +21,7 @@ export default {
           dark: '#f2dcc0',
           foreground: '#5c4630',
         },
-          light: {
+        light: {
           DEFAULT: '#F8F6F1',
           soft: '#FFFDF9',
           muted: '#EDE8DF',

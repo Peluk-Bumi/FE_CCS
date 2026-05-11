@@ -1,80 +1,333 @@
 import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
+import blockchainConfig from '@/config/blockchainConfig';
+import SecurityGuard from '@/shared/guards/securityGuard';
+import ProviderFactory from '@/shared/factories/providerFactory';
+import { validateContractAddress, validateDocumentHash, validateDocumentType, validateMetadata } from '@/shared/utils/validation';
 
-// ✅ IMPROVED: Enhanced Smart Contract ABI dengan error handling
+// Smart Contract ABI
 const CONTRACT_ABI = [
-  // Read functions (view/pure)
   "function getDocumentCount() public view returns (uint256)",
   "function getDocument(uint256 _docId) public view returns (string memory docType, string memory docHash, string memory metadata, address uploader, uint256 timestamp)",
-
-  // Write functions
   "function storeDocument(string memory _docType, string memory _docHash, string memory _metadata) public returns (uint256)",
-
-  // Events
   "event DocumentStored(uint256 indexed docId, string docType, string docHash, address indexed uploader, uint256 timestamp)"
 ];
 
-const POLYGON_AMOY_CHAIN_ID = 80002n;
-const TARGET_CHAIN_ID = BigInt(import.meta.env.VITE_POLYGON_CHAIN_ID || "137");
-
-const MAINNET_RPC_URLS = [
-  import.meta.env.VITE_POLYGON_MAINNET_RPC_URL,
-  import.meta.env.VITE_POLYGON_RPC_URL,
-  "https://polygon-rpc.com",
-  "https://rpc-mainnet.maticvigil.com",
-  "https://rpc.ankr.com/polygon",
-  "https://polygon-mainnet.public.blastapi.io",
-  "https://polygon.drpc.org",
-  "https://1rpc.io/matic"
-].filter(Boolean);
-
-const AMOY_RPC_URLS = [
-  import.meta.env.VITE_POLYGON_AMOY_RPC_URL,
-  import.meta.env.VITE_POLYGON_RPC_URL,
-  "https://rpc-amoy.polygon.technology",
-  "https://polygon-amoy-bor-rpc.publicnode.com",
-  "https://rpc.ankr.com/polygon_amoy"
-].filter(Boolean);
-
-const ACTIVE_NETWORK_RPC_URLS = TARGET_CHAIN_ID === POLYGON_AMOY_CHAIN_ID ? AMOY_RPC_URLS : MAINNET_RPC_URLS;
-
-const PRIMARY_RPC_URL = ACTIVE_NETWORK_RPC_URLS[0] || "https://polygon-rpc.com";
-const FALLBACK_RPC_URLS = ACTIVE_NETWORK_RPC_URLS.filter((url, index, allUrls) => {
-  return url !== PRIMARY_RPC_URL && allUrls.indexOf(url) === index;
-});
-
-const EXPLORER_BASE_URL = import.meta.env.VITE_BLOCKCHAIN_EXPLORER_BASE_URL || "https://polygonscan.com";
-
-// ✅ RATE LIMITING CONTROLS
+// Rate limiting controls
 let lastRequestTime = 0;
-const MIN_REQUEST_INTERVAL = 1000; // 1 second between requests
 const requestQueue = [];
 let processingQueue = false;
 
-// ✅ RPC ROTATION STATE
-let currentRpcIndex = 0;
-let rpcFailureCount = {};
-
-// ✅ Private Key dari environment
-const PRIVATE_KEY = import.meta.env.VITE_WALLET_PRIVATE_KEY || "";
-
-// ✅ Contract Address dari environment
-const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || "0x5C5F6CE61647600bB8c04F59c0F2B493EBE78DDF";
-
-const warnStore = globalThis.__ccsBlockchainWarned || new Set();
-globalThis.__ccsBlockchainWarned = warnStore;
-
-function warnOnce(key, message, details) {
-  if (warnStore.has(key)) return;
-  warnStore.add(key);
-  if (details !== undefined) {
-    console.warn(message, details);
-    return;
+class BlockchainService {
+  constructor() {
+    this.config = blockchainConfig;
+    this.provider = null;
+    this.contract = null;
+    this.signer = null;
+    this.walletAddress = import.meta.env.VITE_BLOCKCHAIN_WALLET_ADDRESS || null;
+    this.lastError = null;
+    this.isInitialized = false;
   }
-  console.warn(message);
+
+  async initialize() {
+    try {
+      // Security validation
+      SecurityGuard.validateEnvironment();
+      SecurityGuard.validateBlockchainConfig(this.config);
+      
+      // Initialize providers using factory
+      this.primaryProvider = ProviderFactory.createPrimaryProvider(
+        this.config.rpcUrl, 
+        this.config.chainId
+      );
+      
+      this.fallbackProviders = ProviderFactory.createFallbackProviders(
+        this.config.fallbackRpcUrls, 
+        this.config.chainId
+      );
+      
+      // Find working provider
+      this.provider = await ProviderFactory.findWorkingProvider(
+        this.primaryProvider, 
+        this.fallbackProviders
+      );
+      
+      // Validate provider matches expected chain
+      await ProviderFactory.validateProvider(this.provider, this.config.chainId);
+      
+      // Check balance of hardcoded address
+      if (this.walletAddress) {
+        const balance = await this.provider.getBalance(this.walletAddress);
+        console.log(`Balance of ${this.walletAddress}: ${ethers.formatEther(balance)} ETH`);
+      }
+      
+      // Initialize contract
+      await this.initializeContract();
+      
+      this.isInitialized = true;
+      console.log('Blockchain service initialized successfully');
+      return true;
+    } catch (error) {
+      this.lastError = error.message;
+      console.error('Blockchain service initialization failed:', error);
+      throw error;
+    }
+  }
+
+  async initializeContract() {
+    // Verify contract exists on network
+    const code = await this.provider.getCode(this.config.contractAddress);
+    if (code === '0x') {
+      throw new Error(`No contract deployed at ${this.config.contractAddress}`);
+    }
+
+    // Create contract instance
+    this.contract = new ethers.Contract(
+      this.config.contractAddress,
+      CONTRACT_ABI,
+      this.signer || this.provider
+    );
+  }
+
+  async connectWallet() {
+    if (!window.ethereum) {
+      throw new Error('MetaMask not installed');
+    }
+
+    try {
+      // Create browser provider
+      const browserProvider = ProviderFactory.createBrowserProvider(window.ethereum);
+      
+      // Switch to correct network if needed
+      await ProviderFactory.switchNetwork(browserProvider, this.config.chainId, {
+        name: this.config.networkLabel,
+        rpcUrl: this.config.rpcUrl,
+        explorerUrl: this.config.explorerUrl
+      });
+      
+      // Get signer
+      this.signer = await browserProvider.getSigner();
+      this.walletAddress = await this.signer.getAddress();
+      
+      // Reinitialize contract with signer
+      await this.initializeContract();
+      
+      return this.walletAddress;
+    } catch (error) {
+      throw new Error(`Wallet connection failed: ${error.message}`);
+    }
+  }
+
+  async getDocumentCount() {
+    if (!this.isInitialized) throw new Error('Blockchain service not initialized');
+    if (!this.contract) throw new Error('Contract not initialized');
+    
+    try {
+      const count = await this.contract.getDocumentCount();
+      return Number(count);
+    } catch (error) {
+      throw new Error(`Failed to get document count: ${error.message}`);
+    }
+  }
+
+  async getDocument(docId) {
+    if (!this.isInitialized) throw new Error('Blockchain service not initialized');
+    if (!this.contract) throw new Error('Contract not initialized');
+    
+    try {
+      const [docType, docHash, metadata, uploader, timestamp] = await this.contract.getDocument(docId);
+      
+      return {
+        docId: Number(docId),
+        docType,
+        docHash,
+        metadata: metadata ? JSON.parse(metadata) : {},
+        uploader,
+        timestamp: Number(timestamp),
+        timestampISO: new Date(Number(timestamp) * 1000).toISOString()
+      };
+    } catch (error) {
+      throw new Error(`Failed to get document ${docId}: ${error.message}`);
+    }
+  }
+
+  async storeDocument(documentType, docHash, metadata) {
+    if (!this.isInitialized) throw new Error('Blockchain service not initialized');
+    if (!this.contract) throw new Error('Contract not initialized');
+    if (!this.signer) throw new Error('Wallet not connected');
+    
+    // Validate inputs
+    if (!validateDocumentType(documentType)) {
+      throw new Error('Invalid document type');
+    }
+    
+    if (!validateDocumentHash(docHash)) {
+      throw new Error('Invalid document hash');
+    }
+    
+    if (!validateMetadata(metadata)) {
+      throw new Error('Invalid metadata format');
+    }
+    
+    try {
+      const metadataPayload = typeof metadata === 'string' ? metadata : JSON.stringify(metadata);
+      
+      const tx = await this.contract.storeDocument(documentType, docHash, metadataPayload);
+      const receipt = await tx.wait();
+      
+      return {
+        success: true,
+        txHash: receipt.hash,
+        blockNumber: receipt.blockNumber,
+        gasUsed: receipt.gasUsed.toString(),
+        contractAddress: this.config.contractAddress,
+        explorerUrl: `${this.config.explorerUrl}/tx/${receipt.hash}`,
+        walletAddress: this.walletAddress,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      throw new Error(`Failed to store document: ${error.message}`);
+    }
+  }
+
+  async getTransactionDetails(txHash) {
+    if (!this.isInitialized) throw new Error('Blockchain service not initialized');
+    
+    try {
+      const tx = await this.provider.getTransaction(txHash);
+      const receipt = await this.provider.getTransactionReceipt(txHash);
+      
+      return {
+        success: true,
+        txHash,
+        transaction: tx,
+        receipt,
+        explorerUrl: `${this.config.explorerUrl}/tx/${txHash}`
+      };
+    } catch (error) {
+      throw new Error(`Failed to get transaction details: ${error.message}`);
+    }
+  }
+
+  async searchDocumentByHash(docHash) {
+    if (!this.isInitialized) throw new Error('Blockchain service not initialized');
+    
+    try {
+      const totalDocs = await this.getDocumentCount();
+      
+      for (let i = 1; i <= totalDocs; i++) {
+        try {
+          const doc = await this.getDocument(i);
+          if (doc.docHash.toLowerCase() === docHash.toLowerCase()) {
+            return {
+              success: true,
+              ...doc,
+              explorerUrl: `${this.config.explorerUrl}/tx/${doc.txHash}`
+            };
+          }
+        } catch (error) {
+          continue; // Skip invalid documents
+        }
+      }
+      
+      throw new Error(`Document with hash ${docHash} not found`);
+    } catch (error) {
+      throw new Error(`Failed to search document: ${error.message}`);
+    }
+  }
+
+  getStatus() {
+    if (!this.isInitialized) {
+      return {
+        status: 'not_initialized',
+        error: this.lastError
+      };
+    }
+    
+    return {
+      status: 'ready',
+      network: this.config.networkLabel,
+      chainId: this.config.chainId.toString(),
+      contractAddress: this.config.contractAddress,
+      walletAddress: this.walletAddress || 'READ_ONLY',
+      explorerUrl: this.config.explorerUrl
+    };
+  }
+
+  async getWalletStatus() {
+    console.log('Debug - getWalletStatus called');
+    console.log('Debug - isInitialized:', this.isInitialized);
+    console.log('Debug - walletAddress:', this.walletAddress);
+    console.log('Debug - lastError:', this.lastError);
+    
+    if (!this.isInitialized) {
+      return {
+        status: 'not_initialized',
+        address: null,
+        connected: false,
+        balance: 0,
+        error: this.lastError
+      };
+    }
+    
+    let balance = 0;
+    if (this.walletAddress && this.provider) {
+      try {
+        const balanceWei = await this.provider.getBalance(this.walletAddress);
+        balance = parseFloat(ethers.formatEther(balanceWei));
+      } catch (error) {
+        console.warn('Failed to get balance:', error);
+      }
+    }
+    
+    return {
+      status: this.walletAddress ? 'connected' : 'disconnected',
+      address: this.walletAddress,
+      connected: Boolean(this.walletAddress),
+      balance: balance
+    };
+  }
+
+  async getBalance() {
+    if (!this.isInitialized || !this.walletAddress || !this.provider) {
+      return 0;
+    }
+    
+    try {
+      const balanceWei = await this.provider.getBalance(this.walletAddress);
+      return parseFloat(ethers.formatEther(balanceWei));
+    } catch (error) {
+      console.error('Failed to get balance:', error);
+      return 0;
+    }
+  }
+
+  getWalletAddress() {
+    return this.walletAddress;
+  }
+
+  calculateDocumentHash(data) {
+    // Simple hash calculation for demonstration
+    // In production, use proper hashing like SHA-256
+    const stringData = JSON.stringify(data);
+    let hash = 0;
+    for (let i = 0; i < stringData.length; i++) {
+      const char = stringData.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return '0x' + Math.abs(hash).toString(16).padStart(64, '0');
+  }
 }
 
-// ✅ RATE LIMITED REQUEST QUEUE PROCESSOR
+// Rate limiting helper
+async function queueRequest(fn) {
+  return new Promise((resolve, reject) => {
+    requestQueue.push({ resolve, reject, fn });
+    processRequestQueue();
+  });
+}
+
 async function processRequestQueue() {
   if (processingQueue || requestQueue.length === 0) return;
   
@@ -84,13 +337,11 @@ async function processRequestQueue() {
     const { resolve, reject, fn } = requestQueue.shift();
     
     try {
-      // ✅ Enforce minimum interval between requests
       const now = Date.now();
       const timeSinceLastRequest = now - lastRequestTime;
       
-      if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
-        const delay = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
-        console.log(`[Blockchain] Rate limiting: waiting ${delay}ms...`);
+      if (timeSinceLastRequest < blockchainConfig.minRequestInterval) {
+        const delay = blockchainConfig.minRequestInterval - timeSinceLastRequest;
         await new Promise(r => setTimeout(r, delay));
       }
       
@@ -105,1258 +356,6 @@ async function processRequestQueue() {
   processingQueue = false;
 }
 
-// ✅ QUEUE A RATE-LIMITED REQUEST
-function queueRequest(fn) {
-  return new Promise((resolve, reject) => {
-    requestQueue.push({ resolve, reject, fn });
-    processRequestQueue();
-  });
-}
-
-class BlockchainService {
-  constructor() {
-    this.provider = null;
-    this.signer = null;
-    this.contract = null;
-    this.walletAddress = null;
-    this.isReady = false;
-    this.currentRpcUrl = null;
-    this.lastError = null;
-    this.hasShownZeroBalanceWarning = false;
-  }
-
-  isNonRetryableError(error) {
-    const errorCode = error?.code;
-    const message = (error?.message || '').toLowerCase();
-
-    return (
-      errorCode === 'BAD_DATA' ||
-      errorCode === 'INVALID_ARGUMENT' ||
-      errorCode === 'UNSUPPORTED_OPERATION' ||
-      message.includes('could not decode result data') ||
-      message.includes('execution reverted') ||
-      message.includes('call revert exception')
-    );
-  }
-
-  // ✅ FIXED: Smart RPC provider selection with rotation and blacklisting
-  async findWorkingRpcProvider() {
-    const allRpcUrls = [PRIMARY_RPC_URL, ...FALLBACK_RPC_URLS];
-    const maxAttempts = allRpcUrls.length;
-    
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      // ✅ Rotate through providers instead of always starting with first
-      const rpcIndex = (currentRpcIndex + attempt) % allRpcUrls.length;
-      const rpcUrl = allRpcUrls[rpcIndex];
-      
-      // ✅ Skip providers that have failed recently
-      const failureKey = this.getRpcFailureKey(rpcUrl);
-      const failures = rpcFailureCount[failureKey] || 0;
-      
-      if (failures > 3) {
-        console.warn(`[Blockchain] Skipping ${rpcUrl} (${failures} recent failures)`);
-        continue;
-      }
-      
-      try {
-        console.log(`[Blockchain] Testing RPC ${attempt + 1}/${maxAttempts}: ${rpcUrl.substring(0, 50)}...`);
-        
-        // ✅ Use rate-limited request
-        const testResult = await queueRequest(async () => {
-          const testResponse = await Promise.race([
-            fetch(rpcUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                jsonrpc: '2.0',
-                method: 'eth_blockNumber',
-                params: [],
-                id: 1,
-              }),
-            }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('RPC timeout')), 8000))
-          ]);
-
-          if (!testResponse.ok) {
-            if (testResponse.status === 429) {
-              throw new Error(`Rate limited (429) on ${rpcUrl}`);
-            }
-            throw new Error(`HTTP ${testResponse.status}: ${testResponse.statusText}`);
-          }
-
-          return testResponse.json();
-        });
-
-        if (testResult.result && !testResult.error) {
-          const blockNumber = parseInt(testResult.result, 16);
-          console.log(`[Blockchain] ✅ RPC Working: ${rpcUrl.substring(0, 30)}... Block: ${blockNumber}`);
-          
-          // ✅ Clear failure count on success
-          delete rpcFailureCount[failureKey];
-          
-          // ✅ Update current index for next rotation
-          currentRpcIndex = rpcIndex;
-          this.currentRpcUrl = rpcUrl;
-          return rpcUrl;
-        } else {
-          throw new Error(`RPC Error: ${testResult.error?.message || 'Unknown error'}`);
-        }
-      } catch (rpcErr) {
-        console.warn(`[Blockchain] RPC Failed: ${rpcErr.message}`);
-        
-        // ✅ Track failures
-        const failureKey = this.getRpcFailureKey(rpcUrl);
-        rpcFailureCount[failureKey] = (rpcFailureCount[failureKey] || 0) + 1;
-        
-        // ✅ If rate limited, wait before trying next
-        if (rpcErr.message.includes('429') || rpcErr.message.includes('Rate limited')) {
-          console.log('[Blockchain] Rate limited, waiting 3 seconds before next provider...');
-          await new Promise(r => setTimeout(r, 3000));
-        }
-      }
-    }
-
-    throw new Error('All RPC providers failed or are rate limited');
-  }
-
-  // ✅ Helper to generate RPC failure tracking key
-  getRpcFailureKey(rpcUrl) {
-    // Use domain name as key to track failures per provider
-    try {
-      const url = new URL(rpcUrl);
-      return url.hostname;
-    } catch {
-      return rpcUrl.substring(0, 30);
-    }
-  }
-
-  // ✅ EXPONENTIAL BACKOFF RETRY WITH 429 HANDLING
-  async executeWithRetry(fn, maxRetries = 3, baseDelay = 2000) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await fn();
-      } catch (error) {
-        console.warn(`[Blockchain] Attempt ${attempt}/${maxRetries} failed:`, error.message);
-
-        if (this.isNonRetryableError(error)) {
-          throw error;
-        }
-        
-        // ✅ Handle 429 specifically
-        if (error.message.includes('429') || error.message.includes('Too Many Requests')) {
-          const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), 30000); // Max 30s delay
-          console.warn(`[Blockchain] Rate limited (429), waiting ${delay}ms before retry ${attempt}...`);
-          
-          // ✅ Try switching to different RPC provider
-          if (attempt < maxRetries) {
-            try {
-              console.log('[Blockchain] Attempting to switch RPC provider due to rate limit...');
-              const newRpcUrl = await this.findWorkingRpcProvider();
-              if (newRpcUrl !== this.currentRpcUrl) {
-                console.log('[Blockchain] ✅ Switched to new RPC provider');
-                await this.reinitializeProvider(newRpcUrl);
-              }
-            } catch (switchErr) {
-              console.warn('[Blockchain] Could not switch RPC provider:', switchErr.message);
-            }
-          }
-          
-          await new Promise(r => setTimeout(r, delay));
-          continue;
-        }
-        
-        // ✅ For other errors, use normal exponential backoff
-        if (attempt < maxRetries) {
-          const delay = baseDelay * Math.pow(2, attempt - 1);
-          console.log(`[Blockchain] Retrying in ${delay}ms...`);
-          await new Promise(r => setTimeout(r, delay));
-        } else {
-          throw error;
-        }
-      }
-    }
-  }
-
-  // ✅ REINITIALIZE PROVIDER WITH NEW RPC URL
-  async reinitializeProvider(newRpcUrl) {
-    try {
-      console.log('[Blockchain] Reinitializing provider with new RPC...');
-      
-      const provider = new ethers.JsonRpcProvider(newRpcUrl);
-      
-      // ✅ Test new provider
-      await provider.getNetwork();
-      
-      this.provider = provider;
-      this.currentRpcUrl = newRpcUrl;
-      
-      // ✅ Recreate contract instance
-      this.contract = new ethers.Contract(
-        CONTRACT_ADDRESS, 
-        CONTRACT_ABI, 
-        this.signer || this.provider
-      );
-      
-      console.log('[Blockchain] ✅ Provider reinitialized successfully');
-    } catch (error) {
-      console.error('[Blockchain] Failed to reinitialize provider:', error.message);
-      throw error;
-    }
-  }
-
-  // ✅ Initialize blockchain service dengan PRODUCTION FIXES
-  async initialize() {
-    try {
-      this.lastError = null;
-      if (this.isReady) {
-        console.log('[Blockchain] Service already initialized');
-        return true;
-      }
-
-      console.log('[Blockchain] Starting initialization with rate limiting...');
-
-      // ✅ STEP 1: Validate Contract Address Format
-      const hasValidContractAddress =
-        !!CONTRACT_ADDRESS &&
-        CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000" &&
-        /^0x[a-fA-F0-9]{40}$/.test(CONTRACT_ADDRESS);
-
-      if (!hasValidContractAddress) {
-        this.lastError = 'Contract address invalid or not configured for active network';
-        console.warn('[Blockchain] ⚠️ Contract address invalid. Continue in degraded wallet mode.', {
-          value: CONTRACT_ADDRESS,
-          env: import.meta.env.VITE_CONTRACT_ADDRESS,
-        });
-      }
-
-      // ✅ STEP 2: Validate Private Key (allow read-only mode if no key)
-      let hasPrivateKey = false;
-      let cleanKey = null;
-
-      if (PRIVATE_KEY && PRIVATE_KEY.trim() !== "") {
-        cleanKey = PRIVATE_KEY.startsWith('0x') ? PRIVATE_KEY : `0x${PRIVATE_KEY}`;
-        if (!/^0x[a-fA-F0-9]{64}$/.test(cleanKey)) {
-          console.warn('[Blockchain] ⚠️ PRIVATE KEY FORMAT INVALID - Running in READ-ONLY mode');
-        } else {
-          hasPrivateKey = true;
-        }
-      } else {
-        console.warn('[Blockchain] ⚠️ NO PRIVATE KEY - Running in READ-ONLY mode');
-      }
-
-      // ✅ STEP 3: Find working RPC provider with rate limiting
-      const workingRpcUrl = await this.executeWithRetry(
-        () => this.findWorkingRpcProvider(),
-        3, // max retries
-        5000 // 5 second base delay
-      );
-      
-      if (!workingRpcUrl) {
-        throw new Error('No working RPC provider found');
-      }
-
-      // ✅ STEP 4: Create provider with retry logic
-      let provider;
-      try {
-        provider = new ethers.JsonRpcProvider(workingRpcUrl);
-        
-        // ✅ Test provider connection with rate limiting
-        const network = await this.executeWithRetry(async () => {
-          return await Promise.race([
-            provider.getNetwork(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Network timeout')), 10000))
-          ]);
-        });
-        
-        console.log('[Blockchain] ✅ Provider created for network:', network.name, 'ChainID:', network.chainId);
-        
-        // ✅ Verify we're on configured polygon network
-        if (network.chainId !== TARGET_CHAIN_ID) {
-          console.warn(`[Blockchain] ⚠️ Chain mismatch. Expected: ${TARGET_CHAIN_ID}, Current: ${network.chainId}`);
-          console.warn('[Blockchain] Check your .env RPC and chain settings for the same network.');
-        }
-        
-        this.provider = provider;
-      } catch (providerErr) {
-        console.error('[Blockchain] ❌ Provider creation failed:', providerErr.message);
-        this.lastError = `Provider initialization failed: ${providerErr.message}`;
-        return false;
-      }
-
-      // ✅ STEP 5: Create wallet (or read-only mode)
-      if (hasPrivateKey) {
-        try {
-          const wallet = new ethers.Wallet(cleanKey, this.provider);
-          this.signer = wallet;
-          this.walletAddress = wallet.address;
-          console.log('[Blockchain] ✅ Wallet created:', this.walletAddress);
-          
-          // ✅ Check wallet balance with rate limiting
-          try {
-            const balance = await this.executeWithRetry(async () => {
-              return await this.provider.getBalance(this.walletAddress);
-            });
-            
-            console.log('[Blockchain] Wallet Balance:', ethers.formatEther(balance), 'ETH');
-            
-            if (balance === 0n && !this.hasShownZeroBalanceWarning) {
-              warnOnce(
-                `wallet-zero-balance:${this.walletAddress || 'unknown'}`,
-                '[Blockchain] ⚠️ Wallet has zero balance - transactions will fail'
-              );
-              this.hasShownZeroBalanceWarning = true;
-            }
-          } catch (balanceErr) {
-            console.warn('[Blockchain] Could not check balance:', balanceErr.message);
-          }
-        } catch (walletErr) {
-          console.error('[Blockchain] ❌ Wallet creation failed:', walletErr.message);
-          this.lastError = `Wallet initialization failed: ${walletErr.message}`;
-          return false;
-        }
-      } else {
-        console.log('[Blockchain] ✅ Read-only mode (no private key)');
-      }
-
-      // ✅ STEP 6: Connect to contract with enhanced validation and rate limiting
-      if (hasValidContractAddress) {
-        try {
-          // ✅ Verify contract bytecode exists on the active chain before making ABI calls
-          const deployedCode = await this.executeWithRetry(async () => {
-            return await Promise.race([
-              this.provider.getCode(CONTRACT_ADDRESS),
-              new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Contract bytecode check timeout')), 15000)
-              )
-            ]);
-          }, 2, 2000);
-
-          if (!deployedCode || deployedCode === '0x') {
-            this.contract = null;
-            this.lastError = `No contract deployed at ${CONTRACT_ADDRESS} on chain ${TARGET_CHAIN_ID.toString()}`;
-            warnOnce(
-              `no-bytecode:${TARGET_CHAIN_ID.toString()}:${CONTRACT_ADDRESS}`,
-              '[Blockchain] ⚠️ No contract bytecode found at configured address. Continue in degraded wallet mode.',
-              {
-                contractAddress: CONTRACT_ADDRESS,
-                chainId: TARGET_CHAIN_ID.toString(),
-              }
-            );
-          }
-
-          if (!deployedCode || deployedCode === '0x') {
-            throw new Error(this.lastError);
-          }
-
-          // ✅ Use provider for read-only operations, signer for write operations
-          this.contract = new ethers.Contract(
-            CONTRACT_ADDRESS,
-            CONTRACT_ABI,
-            this.signer || this.provider
-          );
-
-          console.log('[Blockchain] ✅ Contract instance created');
-
-          // ✅ FIXED: Enhanced contract testing with rate-limited retries
-          console.log('[Blockchain] Testing contract connection with rate limiting...');
-
-          const documentCount = await this.executeWithRetry(async () => {
-            return await Promise.race([
-              this.contract.getDocumentCount(),
-              new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Contract call timeout')), 15000)
-              )
-            ]);
-          });
-
-          console.log('[Blockchain] ✅ Contract test successful - Document count:', documentCount.toString());
-
-        } catch (contractErr) {
-          this.contract = null;
-          this.lastError = `Contract unreachable on active network: ${contractErr.message}`;
-          warnOnce(
-            `contract-failed:${TARGET_CHAIN_ID.toString()}:${CONTRACT_ADDRESS}`,
-            `[Blockchain] ⚠️ Contract connection failed. Continue in degraded wallet mode: ${contractErr.message}`
-          );
-        }
-      } else {
-        this.contract = null;
-        console.warn('[Blockchain] ⚠️ Contract disabled. Continue in degraded wallet mode.');
-      }
-
-      console.log('[Blockchain] ✅ Service initialized successfully with rate limiting:', {
-        address: this.walletAddress || 'READ_ONLY',
-        contractAddress: CONTRACT_ADDRESS,
-        rpcUrl: this.currentRpcUrl?.substring(0, 50) + '...',
-        mode: hasPrivateKey ? 'READ_WRITE' : 'READ_ONLY',
-        environment: import.meta.env.PROD ? 'PRODUCTION' : 'DEVELOPMENT',
-        rateLimiting: 'ENABLED'
-      });
-
-      this.isReady = true;
-      return true;
-
-    } catch (error) {
-      console.error('[Blockchain] ❌ Initialization failed:', {
-        message: error.message,
-        stack: error.stack?.substring(0, 500),
-        environment: import.meta.env.PROD ? 'PRODUCTION' : 'DEVELOPMENT'
-      });
-      this.lastError = `Initialization failed: ${error.message}`;
-      
-      // ✅ In production, try to recover gracefully
-      if (import.meta.env.PROD) {
-        console.warn('[Blockchain] Production: Attempting graceful degradation...');
-        this.isReady = false;
-        return false;
-      }
-      
-      this.isReady = false;
-      return false;
-    }
-  }
-
-  getLastError() {
-    return this.lastError;
-  }
-
-  // ✅ Get wallet address (untuk ditampilkan di UI)
-  getWalletAddress() {
-    return this.walletAddress;
-  }
-
-  // ✅ ENHANCED: Get wallet status with better error handling
-  async getWalletStatus() {
-    try {
-      if (!this.isReady) {
-        return { ready: false, message: 'Service not initialized' };
-      }
-
-      if (!this.provider) {
-        return { ready: false, message: 'No provider available' };
-      }
-
-      const network = await this.provider.getNetwork();
-      
-      if (!this.walletAddress) {
-        return {
-          ready: true,
-          mode: 'READ_ONLY',
-          network: network.name,
-          chainId: network.chainId,
-          contractAddress: CONTRACT_ADDRESS
-        };
-      }
-
-      const balance = await this.provider.getBalance(this.walletAddress);
-
-      return {
-        ready: true,
-        mode: 'READ_WRITE',
-        address: this.walletAddress,
-        balance: ethers.formatEther(balance),
-        network: network.name,
-        chainId: network.chainId,
-        contractAddress: CONTRACT_ADDRESS
-      };
-    } catch (error) {
-      console.error('[Blockchain] Status check error:', error);
-      return { ready: false, error: error.message };
-    }
-  }
-
-  // ✅ FIXED: Calculate hash yang compatible dengan backend
-  calculateDocumentHash(formData) {
-    // ✅ Gunakan struktur yang sama dengan backend
-    const metadata = {
-      perencanaan_id: formData.id || formData.perencanaan_id,
-      nama_perusahaan: formData.nama_perusahaan,
-      jenis_kegiatan: formData.jenis_kegiatan,
-      jumlah_bibit: parseInt(formData.jumlah_bibit),
-      lokasi: formData.lokasi,
-      tanggal_pelaksanaan: formData.tanggal_pelaksanaan,
-      timestamp: formData.timestamp || new Date().toISOString(),
-      source: 'FRONTEND_FORM'
-    };
-
-    // ✅ CRITICAL: JSON encoding yang sama dengan backend
-    const jsonString = JSON.stringify(metadata);
-    const hash = ethers.keccak256(ethers.toUtf8Bytes(jsonString));
-    
-    console.log('[Blockchain] Hash calculation:', {
-      metadata,
-      jsonString: jsonString.substring(0, 200) + '...',
-      hash
-    });
-    
-    return hash;
-  }
-
-  // ✅ Store document hash to blockchain
-  async storeDocumentHash(docType, formData, metadata = {}) {
-    try {
-      if (!this.isReady) {
-        throw new Error('Blockchain service not initialized');
-      }
-
-      // Calculate document hash
-      const docHash = this.calculateDocumentHash(formData);
-
-      // Prepare metadata
-      const metadataString = JSON.stringify({
-        ...metadata,
-        timestamp: new Date().toISOString(),
-      });
-
-      console.log('[Blockchain] Storing document:', {
-        docType,
-        docHash,
-        metadata: metadataString
-      });
-
-      // Send transaction
-      toast.info('📤 Mengirim transaksi ke blockchain...', { autoClose: false });
-      const tx = await this.contract.storeDocument(docType, docHash, metadataString);
-
-      toast.info('⏳ Menunggu konfirmasi transaksi...', { autoClose: false });
-      const receipt = await tx.wait();
-
-      // Get document ID from event
-      const event = receipt.logs.find(log => {
-        try {
-          const parsedLog = this.contract.interface.parseLog(log);
-          return parsedLog.name === 'DocumentStored';
-        } catch {
-          return false;
-        }
-      });
-
-      let docId = null;
-      if (event) {
-        const parsedLog = this.contract.interface.parseLog(event);
-        docId = parsedLog.args.docId.toString();
-      }
-
-      toast.dismiss();
-      toast.success('✅ Dokumen berhasil disimpan ke blockchain!');
-
-      return {
-        success: true,
-        docId,
-        docHash,
-        txHash: receipt.hash,
-        blockNumber: receipt.blockNumber,
-        gasUsed: receipt.gasUsed.toString(),
-        walletAddress: this.walletAddress
-      };
-    } catch (error) {
-      toast.dismiss();
-      console.error('[Blockchain] Store error:', error);
-
-      if (error.message.includes('insufficient funds')) {
-        toast.error('❌ Saldo wallet tidak cukup untuk gas fee!');
-      } else {
-        toast.error('❌ Gagal menyimpan ke blockchain: ' + error.message);
-      }
-
-      return null;
-    }
-  }
-
-  // ✅ Store perencanaan form data to blockchain
-  // ✅ UPDATED: Store perencanaan dengan better error handling
-  async storePerencanaanToBlockchain(formData, perencanaanId) {
-    try {
-      if (!this.isReady) {
-        throw new Error('Blockchain service not initialized');
-      }
-
-      console.log('[Blockchain] Storing perencanaan to contract:', CONTRACT_ADDRESS);
-      
-      // ✅ Calculate document hash
-      const docHash = this.calculateDocumentHash(formData);
-      
-      // ✅ Prepare metadata
-      const metadata = JSON.stringify({
-        perencanaan_id: perencanaanId,
-        nama_perusahaan: formData.nama_perusahaan,
-        jenis_kegiatan: formData.jenis_kegiatan,
-        timestamp: new Date().toISOString(),
-        source: 'FRONTEND_FORM'
-      });
-
-      console.log('[Blockchain] Calling storeDocument with:', {
-        docType: 'PERENCANAAN',
-        docHash,
-        metadata: metadata.substring(0, 100) + '...'
-      });
-
-      // ✅ Send transaction ke smart contract
-      toast.info('📤 Menyimpan ke blockchain...', { autoClose: false });
-      
-      const tx = await this.contract.storeDocument(
-        'PERENCANAAN',
-        docHash,
-        metadata
-      );
-
-      console.log('[Blockchain] Transaction sent:', tx.hash);
-      toast.info('⏳ Menunggu konfirmasi blockchain...', { autoClose: false });
-      
-      // ✅ Wait for confirmation
-      const receipt = await tx.wait();
-      console.log('[Blockchain] Transaction confirmed:', receipt);
-
-      // ✅ Extract document ID dari event logs
-      let blockchainDocId = null;
-      try {
-        const event = receipt.logs.find(log => {
-          try {
-            const parsedLog = this.contract.interface.parseLog(log);
-            return parsedLog.name === 'DocumentStored';
-          } catch {
-            return false;
-          }
-        });
-
-        if (event) {
-          const parsedLog = this.contract.interface.parseLog(event);
-          blockchainDocId = parsedLog.args.docId.toString();
-          console.log('[Blockchain] Document stored with ID:', blockchainDocId);
-        }
-      } catch (eventErr) {
-        console.warn('[Blockchain] Could not parse events:', eventErr.message);
-      }
-
-      toast.dismiss();
-      toast.success('✅ Data berhasil disimpan ke blockchain!');
-
-      return {
-        success: true,
-        docId: blockchainDocId,
-        docHash: docHash,
-        txHash: receipt.hash,
-        blockNumber: receipt.blockNumber,
-        gasUsed: receipt.gasUsed.toString(),
-        contractAddress: CONTRACT_ADDRESS,
-        explorerUrl: `${EXPLORER_BASE_URL}/tx/${receipt.hash}`,
-        walletAddress: this.walletAddress
-      };
-
-    } catch (error) {
-      toast.dismiss();
-      console.error('[Blockchain] Store error:', error);
-
-      // ✅ Better error categorization
-      let errorMessage = 'Gagal menyimpan ke blockchain';
-      
-      if (error.message.includes('insufficient funds')) {
-        errorMessage = '❌ Saldo wallet tidak cukup untuk gas fee!';
-      } else if (error.message.includes('user rejected')) {
-        errorMessage = '❌ Transaksi dibatalkan oleh user';
-      } else if (error.code === 'NETWORK_ERROR') {
-        errorMessage = '❌ Koneksi blockchain bermasalah';
-      } else if (error.code === 'TIMEOUT') {
-        errorMessage = '❌ Timeout: Blockchain network lambat';
-      }
-      
-      toast.error(errorMessage);
-
-      return {
-        success: false,
-        error: error.message,
-        docHash: this.calculateDocumentHash(formData), // Still return doc hash for database
-      };
-    }
-  }
-
-  // ✅ Get document from blockchain
-  async getDocument(docId) {
-    try {
-      if (!this.isReady) {
-        throw new Error('Blockchain service not initialized');
-      }
-
-      const doc = await this.contract.getDocument(docId);
-
-      return {
-        docType: doc[0],
-        docHash: doc[1],
-        metadata: JSON.parse(doc[2]),
-        uploader: doc[3],
-        timestamp: new Date(Number(doc[4]) * 1000)
-      };
-    } catch (error) {
-      console.error('[Blockchain] Get document error:', error);
-      toast.error('❌ Gagal mengambil data dari blockchain');
-      return null;
-    }
-  }
-
-  // ✅ OPTIMIZED: Verifikasi dengan rate limiting dan robust error handling
-  async verifyDocumentOnBlockchain(docHash) {
-    try {
-      if (!this.isReady) {
-        throw new Error("Blockchain service not ready");
-      }
-
-      if (!docHash || typeof docHash !== "string") {
-        throw new Error(`Invalid document hash: ${docHash}`);
-      }
-
-      console.log("[Blockchain] Verify with rate limiting:", docHash);
-
-      // ✅ Check cache first
-      const cacheKey = `verify_${docHash}`;
-      const cached = sessionStorage.getItem(cacheKey);
-
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          const age = Date.now() - parsed.timestamp;
-
-          if (age < 300000) { // 5 minutes
-            console.log("[Blockchain] ⚡ Cache hit");
-            return parsed.result;
-          }
-        } catch {
-          sessionStorage.removeItem(cacheKey);
-        }
-      }
-
-      // ✅ Get total document count with rate limiting
-      const totalDocs = await this.executeWithRetry(async () => {
-        return Number(await this.contract.getDocumentCount());
-      });
-
-      console.log("[Blockchain] Total documents =", totalDocs);
-
-      if (totalDocs === 0) {
-        const result = {
-          verified: false,
-          error: "No documents available on-chain",
-          docHash,
-        };
-
-        sessionStorage.setItem(
-          cacheKey,
-          JSON.stringify({ result, timestamp: Date.now() })
-        );
-
-        return result;
-      }
-
-      // ✅ Smart search with rate limiting
-      const maxSearch = Math.min(totalDocs, 20); // Reduced search scope to avoid rate limits
-      const batchSize = 2; // Smaller batches to reduce API load
-
-      console.log(`[Blockchain] Rate-limited search: last ${maxSearch} documents, batch size ${batchSize}...`);
-
-      for (
-        let i = totalDocs - 1;
-        i >= Math.max(0, totalDocs - maxSearch);
-        i -= batchSize
-      ) {
-        const startIdx = Math.max(0, i - batchSize + 1);
-        const endIdx = i;
-
-        console.log(`[Blockchain] Rate-limited batch ${startIdx} → ${endIdx}`);
-
-        // ✅ Process batch with rate limiting
-        const batch = [];
-        for (let j = startIdx; j <= endIdx; j++) {
-          if (j < 0 || j >= totalDocs) {
-            console.warn(`[Blockchain] Skipped invalid ID ${j}`);
-            continue;
-          }
-
-          // ✅ Queue each document request
-          batch.push(
-            queueRequest(async () => {
-              return await this.executeWithRetry(async () => {
-                return await this.contract.getDocument(j);
-              });
-            }).then((doc) => ({ success: true, index: j, doc }))
-              .catch((err) => {
-                const msg = err?.reason || err?.message || "Unknown error";
-                return { success: false, index: j, error: msg };
-              })
-          );
-        }
-
-        const results = await Promise.all(batch);
-
-        for (const r of results) {
-          if (!r.success) continue;
-
-          const doc = r.doc;
-          const hashOnChain = (doc[1] || "").toLowerCase();
-
-          if (hashOnChain === docHash.toLowerCase()) {
-            console.log(`[Blockchain] ✅ Match found at index ${r.index}`);
-
-            const verified = {
-              verified: true,
-              docId: r.index,
-              docType: doc[0],
-              docHash: doc[1],
-              metadata: JSON.parse(doc[2] || "{}"),
-              uploader: doc[3],
-              timestamp: Number(doc[4]),
-              timestampISO: new Date(Number(doc[4]) * 1000).toISOString(),
-            };
-
-            sessionStorage.setItem(
-              cacheKey,
-              JSON.stringify({ result: verified, timestamp: Date.now() })
-            );
-
-            return verified;
-          }
-        }
-
-        // ✅ Increased delay between batches to prevent rate limiting
-        await new Promise((r) => setTimeout(r, 1500));
-      }
-
-      // ✅ Not found
-      const result = {
-        verified: false,
-        error: `Document not found in last ${maxSearch} entries`,
-        docHash,
-        searchSummary: {
-          totalOnChain: totalDocs,
-          searched: maxSearch,
-          rateLimited: true
-        },
-      };
-
-      sessionStorage.setItem(
-        cacheKey,
-        JSON.stringify({ result, timestamp: Date.now() })
-      );
-
-      return result;
-    } catch (error) {
-      console.error("[Blockchain] Fatal error:", error);
-
-      return {
-        verified: false,
-        error: error.message,
-        docHash,
-        rateLimitError: error.message.includes('429')
-      };
-    }
-  }
-
-  // ✅ Enhanced document fetching with rate limiting
-  async getDocumentById(blockchainDocId) {
-    try {
-      if (!this.isReady) {
-        throw new Error('Blockchain service not initialized');
-      }
-
-      console.log('[Blockchain] Fetching document by ID with rate limiting:', blockchainDocId);
-      
-      const docId = Number(blockchainDocId);
-      if (isNaN(docId) || docId < 0) {
-        throw new Error(`Invalid document ID: ${blockchainDocId}`);
-      }
-      
-      // ✅ Check total count with rate limiting
-      const totalDocs = await this.executeWithRetry(async () => {
-        return Number(await this.contract.getDocumentCount());
-      });
-      
-      if (docId >= totalDocs) {
-        console.warn(`[Blockchain] Document ID ${docId} not found (total: ${totalDocs})`);
-        return {
-          verified: false,
-          error: `Document ID ${docId} not found. Total documents: ${totalDocs}`,
-          docId: docId
-        };
-      }
-      
-      // ✅ Fetch document with rate limiting
-      const doc = await this.executeWithRetry(async () => {
-        return await Promise.race([
-          this.contract.getDocument(docId),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Contract call timeout')), 15000)
-          )
-        ]);
-      });
-
-      console.log(`[Blockchain] ✅ Document ${docId} fetched successfully`);
-
-      return {
-        docId: docId,
-        docType: doc[0],
-        docHash: doc[1],
-        metadata: JSON.parse(doc[2] || '{}'),
-        uploader: doc[3],
-        timestamp: new Date(Number(doc[4]) * 1000),
-        timestampISO: new Date(Number(doc[4]) * 1000).toISOString(),
-        verified: true
-      };
-    } catch (error) {
-      console.error('[Blockchain] Get document by ID error:', error);
-      
-      if (error.message.includes('Invalid document ID')) {
-        return {
-          verified: false,
-          error: `Document ID ${blockchainDocId} is invalid or doesn't exist on blockchain`,
-          docId: blockchainDocId
-        };
-      }
-      
-      return {
-        verified: false,
-        error: error.message,
-        docId: blockchainDocId,
-        rateLimitError: error.message.includes('429')
-      };
-    }
-  }
-
-  // ✅ Get total document count
-  async getDocumentCount() {
-    if (!this.isReady) return 0;
-
-    try {
-      const count = await this.contract.getDocumentCount();
-      return Number(count);
-    } catch (error) {
-      console.error('[Blockchain] Get count error:', error);
-      return 0;
-    }
-  }
-
-  // ✅ Verify document hash
-  async verifyDocumentHash(docId, formData) {
-    const storedDoc = await this.getDocument(docId);
-    if (!storedDoc) return false;
-
-    const calculatedHash = this.calculateDocumentHash(formData);
-    return storedDoc.docHash === calculatedHash;
-  }
-
-  // ✅ Get blockchain explorer URL
-  getExplorerUrl(txHash) {
-    return `${EXPLORER_BASE_URL}/tx/${txHash}`;
-  }
-
-  // ✅ REAL-TIME: Fetch transaction data dari Polygon RPC dengan PROPER JSON
-  async fetchTransactionFromSepolia(txHash, retries = 3) {
-    try {
-      console.log('[Blockchain] ========== FETCH TX DEBUG ==========');
-      console.log('[Blockchain] TX Hash Input:', txHash);
-      console.log('[Blockchain] TX Hash Length:', txHash?.length);
-      console.log('[Blockchain] TX Hash Format Valid:', /^0x[a-fA-F0-9]{64}$/.test(txHash));
-      
-      // ✅ Validate TX hash format FIRST
-      if (!txHash || !/^0x[a-fA-F0-9]{64}$/.test(txHash)) {
-        console.error('[Blockchain] ❌ INVALID TX HASH FORMAT!', {
-          txHash,
-          length: txHash?.length,
-          shouldBe: 66
-        });
-        return null;
-      }
-
-      const rpcUrl = import.meta.env.VITE_POLYGON_MAINNET_RPC_URL || import.meta.env.VITE_POLYGON_RPC_URL || PRIMARY_RPC_URL;
-      
-      console.log('[Blockchain] RPC URL:', rpcUrl);
-      console.log('[Blockchain] RPC URL Valid:', !!rpcUrl);
-      
-      if (!rpcUrl) {
-        console.error('[Blockchain] ❌ RPC URL NOT CONFIGURED!');
-        return null;
-      }
-
-      console.log(`[Blockchain] Attempt 1/${retries}: Fetching TX from Polygon...`);
-
-      // ✅ Retry logic dengan proper JSON
-      for (let attempt = 1; attempt <= retries; attempt++) {
-        try {
-          console.log(`[Blockchain] ⏳ Attempt ${attempt}/${retries}...`);
-          
-          // ✅ BUILD REQUEST BODY PROPERLY
-          const requestBody = {
-            jsonrpc: '2.0',
-            method: 'eth_getTransactionByHash',
-            params: [txHash], // ✅ MUST BE ARRAY!
-            id: 1,
-          };
-          
-          // ✅ VALIDATE JSON BEFORE SENDING
-          const jsonString = JSON.stringify(requestBody);
-          console.log('[Blockchain] Request Body (validated):', jsonString);
-          
-          // ✅ Verify it's valid JSON
-          try {
-            JSON.parse(jsonString); // ✅ Parse check
-            console.log('[Blockchain] ✅ JSON is valid');
-          } catch (jsonErr) {
-            console.error('[Blockchain] ❌ INVALID JSON BODY!', jsonErr.message);
-            throw new Error('Invalid JSON in request body');
-          }
-
-          // ✅ SEND with proper headers
-          const response = await fetch(rpcUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json', // ✅ CRITICAL!
-              'Accept': 'application/json', // ✅ GOOD TO HAVE
-            },
-            body: jsonString, // ✅ Use pre-stringified version
-          });
-
-          console.log('[Blockchain] Response Status:', response.status);
-          console.log('[Blockchain] Response Headers:', {
-            contentType: response.headers.get('content-type'),
-            contentLength: response.headers.get('content-length'),
-          });
-          
-          // ✅ PARSE response carefully
-          let data;
-          try {
-            const responseText = await response.text();
-            console.log('[Blockchain] Raw Response Text:', responseText.substring(0, 200));
-            
-            if (!responseText) {
-              console.error('[Blockchain] ❌ Empty response body');
-              if (attempt < retries) {
-                console.log('[Blockchain] Retrying in 2 seconds...');
-                await new Promise(r => setTimeout(r, 2000));
-              }
-              continue;
-            }
-            
-            data = JSON.parse(responseText);
-            console.log('[Blockchain] Parsed Response:', data);
-          } catch (parseErr) {
-            console.error('[Blockchain] ❌ Failed to parse response:', parseErr.message);
-            if (attempt < retries) {
-              console.log('[Blockchain] Retrying in 2 seconds...');
-              await new Promise(r => setTimeout(r, 2000));
-            }
-            continue;
-          }
-
-          // ✅ CHECK FOR RPC ERRORS
-          if (data.error) {
-            console.error(`[Blockchain] ❌ RPC ERROR (attempt ${attempt}):`, data.error);
-            
-            if (attempt < retries) {
-              console.log('[Blockchain] Retrying in 2 seconds...');
-              await new Promise(r => setTimeout(r, 2000));
-            }
-            continue;
-          }
-
-          // ✅ SUCCESS: TX found
-          if (data.result) {
-            console.log(`[Blockchain] ✅ TX FOUND (attempt ${attempt}):`, data.result);
-            
-            const tx = data.result;
-            const blockNumber = tx.blockNumber ? parseInt(tx.blockNumber, 16) : null;
-            
-            // ... rest of parsing logic
-            return {
-              txHash: tx.hash,
-              from: tx.from,
-              to: tx.to,
-              blockNumber: blockNumber,
-              status: 'success',
-              verified: true,
-              explorerUrl: `${EXPLORER_BASE_URL}/tx/${txHash}`,
-              fetchedAt: new Date().toISOString()
-            };
-          } else {
-            console.warn(`[Blockchain] ⚠️ TX not found (attempt ${attempt})`);
-            
-            if (attempt < retries) {
-              console.log('[Blockchain] Retrying in 2 seconds...');
-              await new Promise(r => setTimeout(r, 2000));
-            }
-          }
-        } catch (err) {
-          console.error(`[Blockchain] ❌ Fetch error (attempt ${attempt}):`, err.message);
-          if (attempt < retries) {
-            await new Promise(r => setTimeout(r, 2000));
-          }
-        }
-      }
-
-      console.error(`[Blockchain] ❌ Could not fetch TX after ${retries} attempts:`, txHash);
-      console.log('[Blockchain] ========== FETCH TX DEBUG END ==========');
-      return null;
-      
-    } catch (err) {
-      console.error('[Blockchain] ❌ Fatal error in fetchTransactionFromSepolia:', err);
-      return null;
-    }
-  }
-
-  async fetchTransactionFromMainnet(txHash, retries = 3) {
-    return this.fetchTransactionFromSepolia(txHash, retries);
-  }
-
-  // ✅ ENHANCED: Direct smart contract interaction without backend
-  async storeDocumentToBlockchain(formData, metadata = {}) {
-    try {
-      if (!this.isReady) {
-        throw new Error('Blockchain service not initialized');
-      }
-
-      console.log('[Blockchain] Direct contract call - storing document...');
-      
-      // ✅ Calculate document hash
-      const docHash = this.calculateDocumentHash(formData);
-      
-      // ✅ Prepare metadata for smart contract
-      const contractMetadata = JSON.stringify({
-        ...metadata,
-        nama_perusahaan: formData.nama_perusahaan,
-        jenis_kegiatan: formData.jenis_kegiatan,
-        jumlah_bibit: formData.jumlah_bibit,
-        timestamp: new Date().toISOString(),
-        source: 'FRONTEND_DIRECT'
-      });
-
-      // ✅ Send transaction directly to smart contract
-      toast.info('📤 Sending to blockchain...', { autoClose: false });
-      
-      const tx = await this.contract.storeDocument(
-        'PERENCANAAN',
-        docHash,
-        contractMetadata
-      );
-
-      console.log('[Blockchain] Transaction sent:', tx.hash);
-      toast.info('⏳ Waiting for blockchain confirmation...', { autoClose: false });
-      
-      // ✅ Wait for confirmation
-      const receipt = await tx.wait();
-      console.log('[Blockchain] Transaction confirmed:', receipt);
-
-      // ✅ Parse events to get document ID
-      let blockchainDocId = null;
-      try {
-        const event = receipt.logs.find(log => {
-          try {
-            const parsedLog = this.contract.interface.parseLog(log);
-            return parsedLog.name === 'DocumentStored';
-          } catch {
-            return false;
-          }
-        });
-
-        if (event) {
-          const parsedLog = this.contract.interface.parseLog(event);
-          blockchainDocId = parsedLog.args.docId.toString();
-          console.log('[Blockchain] Document stored with ID:', blockchainDocId);
-        }
-      } catch (eventErr) {
-        console.warn('[Blockchain] Could not parse events:', eventErr.message);
-      }
-
-      toast.dismiss();
-      toast.success('✅ Successfully stored on blockchain!');
-
-      return {
-        success: true,
-        docId: blockchainDocId,
-        docHash: docHash,
-        txHash: receipt.hash,
-        blockNumber: receipt.blockNumber,
-        gasUsed: receipt.gasUsed.toString(),
-        contractAddress: CONTRACT_ADDRESS,
-        explorerUrl: `${EXPLORER_BASE_URL}/tx/${receipt.hash}`,
-        walletAddress: this.walletAddress,
-        timestamp: new Date().toISOString()
-      };
-
-    } catch (error) {
-      toast.dismiss();
-      console.error('[Blockchain] Store error:', error);
-
-      let errorMessage = 'Failed to store on blockchain';
-      
-      if (error.message.includes('insufficient funds')) {
-        errorMessage = '❌ Insufficient wallet balance for gas fees!';
-      } else if (error.message.includes('user rejected')) {
-        errorMessage = '❌ Transaction rejected by user';
-      } else if (error.code === 'NETWORK_ERROR') {
-        errorMessage = '❌ Network connection error';
-      } else if (error.code === 'TIMEOUT') {
-        errorMessage = '❌ Transaction timeout';
-      }
-      
-      toast.error(errorMessage);
-
-      return {
-        success: false,
-        error: error.message,
-        docHash: this.calculateDocumentHash(formData),
-      };
-    }
-  }
-
-  // ✅ NEW: Get all documents from blockchain with pagination
-  async getAllDocuments(startId = 0, limit = 50) {
-    try {
-      if (!this.isReady) {
-        throw new Error('Blockchain service not initialized');
-      }
-
-      const totalDocs = await this.contract.getDocumentCount();
-      const totalCount = Number(totalDocs);
-      
-      console.log(`[Blockchain] Fetching documents ${startId}-${Math.min(startId + limit, totalCount)} of ${totalCount}`);
-
-      const documents = [];
-      const endId = Math.min(startId + limit, totalCount);
-
-      for (let i = startId; i < endId; i++) {
-        try {
-          const doc = await this.contract.getDocument(i);
-          
-          documents.push({
-            docId: i,
-            docType: doc[0],
-            docHash: doc[1],
-            metadata: JSON.parse(doc[2] || '{}'),
-            uploader: doc[3],
-            timestamp: new Date(Number(doc[4]) * 1000),
-            timestampISO: new Date(Number(doc[4]) * 1000).toISOString(),
-            verified: true,
-            source: 'BLOCKCHAIN'
-          });
-        } catch (err) {
-          console.warn(`[Blockchain] Could not fetch document ${i}:`, err.message);
-        }
-      }
-
-      return {
-        documents,
-        totalCount,
-        startId,
-        endId,
-        hasMore: endId < totalCount
-      };
-    } catch (error) {
-      console.error('[Blockchain] Get all documents error:', error);
-      return {
-        documents: [],
-        totalCount: 0,
-        error: error.message
-      };
-    }
-  }
-}
-
-// ✅ Export singleton instance
+// Export singleton instance
 const blockchainService = new BlockchainService();
 export default blockchainService;

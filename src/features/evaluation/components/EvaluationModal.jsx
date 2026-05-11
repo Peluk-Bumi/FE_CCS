@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
 import { FiX, FiDownload } from "react-icons/fi";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import api from "@/shared/services/api";
 import SummaryCards from "./SummaryCards";
 import RecommendationsSection from "./RecommendationsSection";
 import IntroductionSection from "./IntroductionSection";
 import MethodologySection from "./MethodologySection";
 import MonitoringSection from "./MonitoringSection";
 import { buildEvaluasiPdfBlob } from "@/features/evaluation/utils/evaluationPdf";
+import { buildLaporanPdfBlob } from "@/features/reporting/utils/reportPdf";
 import { generateFullNarrative, getRecommendations } from "@/features/evaluation/utils/evaluationNarrator";
 import { getSuccessStatus } from "@/features/evaluation/utils/evaluationNarrator";
 
@@ -70,6 +73,42 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
       downloadBlob(blob, `evaluasi-${report.namaPerusahaan}-${report.id}.pdf`);
     } catch (error) {
       console.error("[EvaluasiModal] PDF generation error:", error);
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
+  const handleDownloadReportPdf = async () => {
+    if (!report) return;
+
+    setIsGeneratingPdf(true);
+    try {
+      // Get full report data for complete report
+      const response = await api.get(`/perencanaan/${report.id}/public`);
+      const reportData = response.data.data || response.data;
+      
+      if (!reportData) {
+        toast.error("Data laporan tidak ditemukan");
+        return;
+      }
+
+      // Generate PDF using the same template as ReportsPage
+      const pdfBlob = await buildLaporanPdfBlob(reportData);
+      
+      // Create download link
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Laporan_${reportData.nama_perusahaan || 'Unknown'}_${reportData.id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success("PDF laporan berhasil diunduh");
+    } catch (error) {
+      console.error("[EvaluasiModal] Report PDF generation error:", error);
+      toast.error("Gagal membuat PDF laporan. Silakan coba lagi.");
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -180,7 +219,16 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white text-sm font-semibold transition-colors"
               >
                 <FiDownload size={16} />
-                {isGeneratingPdf ? "Membuat PDF..." : "Unduh PDF Laporan"}
+                {isGeneratingPdf ? "Membuat PDF..." : "Unduh PDF Evaluasi"}
+              </button>
+              <button
+                type="button"
+                onClick={handleDownloadReportPdf}
+                disabled={isGeneratingPdf}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary-dark disabled:bg-gray-400 text-white text-sm font-semibold transition-colors"
+              >
+                <FiDownload size={16} />
+                {isGeneratingPdf ? "Mengunduh..." : "Unduh Laporan Lengkap"}
               </button>
             </div>
           </div>

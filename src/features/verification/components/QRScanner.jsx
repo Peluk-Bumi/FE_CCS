@@ -115,8 +115,8 @@ export default function QRScanner({
         </label>
       </div>
 
-      {/* Success State */}
-      {scanResult && !laporanDetail && (
+      {/* Success State - QR Valid */}
+      {scanResult && !laporanDetail && !loadingLaporan && (
         <motion.div
           className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-2xl p-8 text-center aspect-square flex flex-col items-center justify-center"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -131,7 +131,7 @@ export default function QRScanner({
           </motion.div>
           <p className="text-blue-700 dark:text-blue-300 font-bold text-lg mb-2">QR Code Valid ✅</p>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-            {loadingLaporan ? '⏳ Memuat detail laporan...' : '🔄 Sedang memproses...'}
+            🔄 Sedang memproses...
           </p>
           <motion.div
             animate={{ rotate: 360 }}
@@ -140,6 +140,24 @@ export default function QRScanner({
           >
             <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full"></div>
           </motion.div>
+        </motion.div>
+      )}
+
+      {/* Loading State - Fetching Data */}
+      {scanResult && loadingLaporan && (
+        <motion.div
+          className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-300 dark:border-amber-700 rounded-2xl p-8 text-center aspect-square flex flex-col items-center justify-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            className="mb-4"
+          >
+            <div className="w-8 h-8 border-3 border-amber-600 border-t-transparent rounded-full"></div>
+          </motion.div>
+          <p className="text-amber-700 dark:text-amber-300 font-bold text-lg">⏳ Memuat detail laporan...</p>
         </motion.div>
       )}
 

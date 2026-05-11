@@ -12,14 +12,20 @@ import {
   FiSearch,
   FiRotateCw,
   FiXCircle,
+  FiGlobe,
+  FiCalendar,
+  FiLink,
+  FiDownload,
 } from "react-icons/fi";
 import { toast } from "react-toastify";
 import api from "@/shared/services/api";
 import LoadingSpinner from "@/layouts/common/LoadingSpinner";
 import PageTitle from "@/shared/components/PageTitle";
+import { getActivityColors, getActivityIcon, formatHash, getActivityDisplayName } from "@/shared/constants/activityColors";
+import { buildLaporanPdfBlob } from "@/features/reporting/utils/reportPdf";
 const EXPLORER_BASE_URL =
-  import.meta.env.VITE_BLOCKCHAIN_EXPLORER_BASE_URL ||
-  "https://amoy.polygonscan.com";
+  import.meta.env.VITE_BLOCKCHAIN_EXPLORER_URL ||
+  "https://sepolia.etherscan.io";
 const ACTIVITY_TYPES = [
   "ALL",
   "PERENCANAAN",
@@ -59,6 +65,7 @@ export default function LaporanPage() {
   const [activityFilter, setActivityFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [retryingId, setRetryingId] = useState(null);
+  const [downloadingReportId, setDownloadingReportId] = useState(null);
   // ✅ Polling ref at top level (React hook rules)
   const pollingRef = useRef();
   const fetchTransactionHistory = async (page = 1) => {
@@ -92,10 +99,10 @@ export default function LaporanPage() {
   useEffect(() => {
     fetchTransactionHistory(1);
   }, []);
-  // ✅ Real-time polling setup - updates every 15 seconds for transaction history
+  // ✅ Real-time polling setup - updates every 10 seconds for transaction history
   useEffect(() => {
     let isMounted = true;
-    const POLLING_INTERVAL = 15000; // 15 seconds
+    const POLLING_INTERVAL = 10000; // 10 seconds - faster updates for doc/tx hash
     const pollTransactionHistory = async () => {
       if (!isMounted) return;
       try {
@@ -104,7 +111,18 @@ export default function LaporanPage() {
           timeout: 30000,
         });
         if (!isMounted) return;
-        setLogs(response.data?.data || []);
+        const newLogs = response.data?.data || [];
+        
+        // Only update if there are actual changes to prevent unnecessary re-renders
+        if (JSON.stringify(newLogs) !== JSON.stringify(logs)) {
+          setLogs(newLogs);
+          console.log('[LaporanPage] Transaction history updated:', {
+            count: newLogs.length,
+            hasDocHash: newLogs.some(log => log.blockchain_doc_hash),
+            hasTxHash: newLogs.some(log => log.blockchain_tx_hash)
+          });
+        }
+        
         setMeta(
           response.data?.meta || {
             current_page: 1,
@@ -133,7 +151,7 @@ export default function LaporanPage() {
         pollingRef.current = null;
       }
     };
-  }, []);
+  }, [logs]); // Add logs dependency for change detection
   const filteredLogs = useMemo(() => {
     return logs.filter((item) => {
       const lowerSearch = searchTerm.toLowerCase();
@@ -181,35 +199,110 @@ export default function LaporanPage() {
   const retryTransaction = async (item) => {
     setRetryingId(item.id);
     try {
+      console.log('[LaporanPage] Retrying transaction:', {
+        id: item.id,
+        parent_perencanaan_id: item.parent_perencanaan_id,
+        current_status: item.blockchain_status,
+        current_doc_hash: item.blockchain_doc_hash,
+        current_tx_hash: item.blockchain_tx_hash
+      });
+
       const response = await api.post(
         `/laporan/transaction-history/${item.id}/retry`,
       );
       const updated = response.data?.data || {};
+      
+      console.log('[LaporanPage] Retry response:', {
+        success: response.data.success,
+        updated: updated,
+        new_doc_hash: updated.blockchain_doc_hash,
+        new_tx_hash: updated.blockchain_tx_hash
+      });
+
+      // Update the specific item in logs
       setLogs((prev) =>
         prev.map((row) =>
-          row.id === item.id
-            ? {
-                ...row,
-                blockchain_status: updated.blockchain_status || "confirmed",
-                blockchain_tx_hash:
-                  updated.blockchain_tx_hash || row.blockchain_tx_hash,
-                blockchain_doc_hash:
-                  updated.blockchain_doc_hash || row.blockchain_doc_hash,
-                error_message: updated.error_message || null,
-              }
-            : row,
-        ),
+          row.id === item.id ? { ...row, ...updated } : row
+        )
       );
-      toast.success(response.data?.message || "Retry blockchain berhasil");
+      
+      if (response.data.success) {
+        toast.success("Transaksi berhasil di-retry");
+        // Force refresh after a short delay to get updated blockchain data
+        setTimeout(() => {
+          fetchTransactionHistory(meta.current_page || 1);
+        }, 2000);
+      } else {
+        toast.error(response.data.message || "Gagal retry transaksi");
+      }
     } catch (err) {
-      const message =
-        err?.response?.data?.message || err.message || "Retry blockchain gagal";
+      const message = err?.response?.data?.message || err.message || "Gagal retry transaksi";
       toast.error(message);
     } finally {
       setRetryingId(null);
     }
   };
-  if (loading) {
+
+  const downloadReportPdf = async (item) => {
+    setDownloadingReportId(item.id);
+    try {
+      // Debug: Log transaction history item structure
+      console.log('[ReportsPage] Transaction History Item:', {
+        id: item.id,
+        parent_perencanaan_id: item.parent_perencanaan_id,
+        activity_type: item.activity_type,
+        allKeys: Object.keys(item)
+      });
+
+      // Get full report data - use parent_perencanaan_id instead of id
+      const reportId = item.parent_perencanaan_id || item.id;
+      const response = await api.get(`/perencanaan/${reportId}/public`);
+      const reportData = response.data.data || response.data;
+      
+      // Debug: Log API response structure
+      console.log('[ReportsPage] API Response:', {
+        reportId: reportId,
+        status: response.status,
+        data: response.data,
+        reportData: reportData,
+        keys: reportData ? Object.keys(reportData) : 'null'
+      });
+      
+      if (!reportData) {
+        toast.error("Data laporan tidak ditemukan");
+        return;
+      }
+
+      // Validate required fields before PDF generation
+      if (!reportData.id || !reportData.nama_perusahaan) {
+        toast.error("Data laporan tidak lengkap");
+        return;
+      }
+
+      // Generate PDF using the template
+      const pdfBlob = await buildLaporanPdfBlob(reportData);
+      
+      // Create download link
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Laporan_${reportData.nama_perusahaan || 'Unknown'}_${reportData.id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success("PDF laporan berhasil diunduh");
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+      const message = err?.response?.data?.message || err.message || "Gagal generate PDF laporan";
+      toast.error(message);
+    } finally {
+      setDownloadingReportId(null);
+    }
+  };
+
+    if (loading) {
     return (
       <LoadingSpinner
         show={true}
@@ -399,15 +492,19 @@ export default function LaporanPage() {
                           {formatDate(item.recorded_at || item.created_at)}
                         </td>
                         <td className="px-3 sm:px-4 py-3">
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300">
-                            {item.activity_type}
-                          </span>
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${getActivityColors(item.activity_type).badge}`}>
+                                {getActivityDisplayName(item.activity_type)}
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                              {item.nama_perusahaan || '-'}
+                            </p>
+                          </div>
                         </td>
                         <td className="px-3 sm:px-4 py-3 text-gray-800 dark:text-gray-100">
-                          <div className="text-xs sm:text-sm font-medium">
-                            {item.nama_perusahaan || "-"}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-0.5">
+                          <div className="text-xs text-gray-500">
                             ID: {item.parent_perencanaan_id || "-"}
                           </div>
                         </td>
@@ -456,27 +553,44 @@ export default function LaporanPage() {
                           )}
                         </td>
                         <td className="px-3 sm:px-4 py-3">
-                          {item.blockchain_status === "failed" ? (
+                          <div className="flex items-center gap-2">
+                            {item.blockchain_status === "failed" && (
+                              <button
+                                type="button"
+                                onClick={() => retryTransaction(item)}
+                                disabled={retryingId === item.id}
+                                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all ${
+                                  retryingId === item.id
+                                    ? "bg-gray-400 cursor-not-allowed"
+                                    : "bg-rose-600 hover:bg-rose-700 active:scale-95"
+                                }`}
+                              >
+                                <FiRotateCw
+                                  className={`flex-shrink-0 ${retryingId === item.id ? "animate-spin" : ""}`}
+                                />
+                                <span className="hidden sm:inline">
+                                  {retryingId === item.id ? "Retry..." : "Retry"}
+                                </span>
+                              </button>
+                            )}
                             <button
                               type="button"
-                              onClick={() => retryTransaction(item)}
-                              disabled={retryingId === item.id}
+                              onClick={() => downloadReportPdf(item)}
+                              disabled={downloadingReportId === item.id}
                               className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all ${
-                                retryingId === item.id
+                                downloadingReportId === item.id
                                   ? "bg-gray-400 cursor-not-allowed"
                                   : "bg-primary hover:bg-primary-dark active:scale-95"
-                              }`}
+                                }`}
                             >
-                              <FiRotateCw
-                                className={`flex-shrink-0 ${retryingId === item.id ? "animate-spin" : ""}`}
+                              <FiDownload
+                                className={`flex-shrink-0 ${downloadingReportId === item.id ? "animate-pulse" : ""}`}
                               />
                               <span className="hidden sm:inline">
-                                {retryingId === item.id ? "Retry..." : "Retry"}
+                                {downloadingReportId === item.id ? "Mengunduh..." : "Unduh Laporan Lengkap"}
                               </span>
                             </button>
-                          ) : (
-                            <span className="text-xs text-gray-400">-</span>
-                          )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -492,101 +606,111 @@ export default function LaporanPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 sm:p-4 space-y-3"
                   >
-                    {/* Row 1: Waktu + Aktivitas + Status */}
+                    {/* Row 1: Title + Activity Badge */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                          Waktu
+                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                          {item.nama_perusahaan || "Aktivitas Tanpa Nama"}
                         </p>
-                        <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-200 font-medium truncate">
-                          {formatDate(item.recorded_at || item.created_at)}
-                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${getActivityColors(item.activity_type).badge}`}>
+                            {getActivityDisplayName(item.activity_type)}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            ID: {item.parent_perencanaan_id || "-"}
+                          </span>
+                        </div>
                       </div>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300 flex-shrink-0">
-                        {item.activity_type}
-                      </span>
                     </div>
-                    {/* Row 2: Perusahaan + ID */}
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                        Perusahaan
-                      </p>
-                      <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-200 font-medium">
-                        {item.nama_perusahaan || "-"}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        ID: {item.parent_perencanaan_id || "-"}
-                      </p>
-                    </div>
-                    {/* Row 3: Doc Hash */}
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 font-medium flex items-center gap-1">
-                        <FiHash className="flex-shrink-0" /> Doc Hash
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => copyHash(item.blockchain_doc_hash)}
-                        className="text-xs text-indigo-600 dark:text-indigo-300 hover:text-indigo-700 dark:hover:text-indigo-200 font-mono break-all text-left transition-colors flex items-center gap-1 mt-1"
-                      >
-                        <span className="flex-1">
-                          {shortHash(item.blockchain_doc_hash, 10)}
-                        </span>
-                        <FiCopy className="flex-shrink-0" />
-                      </button>
-                    </div>
-                    {/* Row 4: Tx Hash */}
-                    {item.blockchain_tx_hash && (
-                      <div>
+                    {/* Row 2: Hashes */}
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
                         <p className="text-xs text-gray-500 dark:text-gray-400 font-medium flex items-center gap-1">
-                          <FiExternalLink className="flex-shrink-0" /> Tx Hash
+                          <FiHash className="flex-shrink-0" /> Doc:
                         </p>
-                        <a
-                          href={`${EXPLORER_BASE_URL}/tx/${item.blockchain_tx_hash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-emerald-600 dark:text-emerald-300 hover:text-emerald-700 dark:hover:text-emerald-200 font-mono break-all transition-colors"
-                        >
-                          {shortHash(item.blockchain_tx_hash, 10)}
-                        </a>
-                      </div>
-                    )}
-                    {/* Row 5: Status + Action */}
-                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                      <div>
-                        {item.blockchain_status === "confirmed" && (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
-                            <FiCheckCircle className="flex-shrink-0" />{" "}
-                            Confirmed
-                          </span>
-                        )}
-                        {item.blockchain_status === "pending" && (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600">
-                            <FiClock className="flex-shrink-0" /> Pending
-                          </span>
-                        )}
-                        {item.blockchain_status === "failed" && (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600">
-                            <FiXCircle className="flex-shrink-0" /> Failed
-                          </span>
-                        )}
-                      </div>
-                      {item.blockchain_status === "failed" && (
                         <button
                           type="button"
-                          onClick={() => retryTransaction(item)}
-                          disabled={retryingId === item.id}
+                          onClick={() => copyHash(item.blockchain_doc_hash)}
+                          className="text-xs text-indigo-600 dark:text-indigo-300 hover:text-indigo-700 dark:hover:text-indigo-200 font-mono transition-colors flex items-center gap-1"
+                        >
+                          {formatHash(item.blockchain_doc_hash, 8, 6)}
+                          <FiCopy className="flex-shrink-0" />
+                        </button>
+                      </div>
+                      {item.blockchain_tx_hash && (
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium flex items-center gap-1">
+                            <FiExternalLink className="flex-shrink-0" /> Tx:
+                          </p>
+                          <a
+                            href={`${EXPLORER_BASE_URL}/tx/${item.blockchain_tx_hash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-emerald-600 dark:text-emerald-300 hover:text-emerald-700 dark:hover:text-emerald-200 font-mono transition-colors"
+                          >
+                            {formatHash(item.blockchain_tx_hash, 8, 6)}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                    {/* Row 3: Status + Actions */}
+                    <div className="flex flex-col gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {item.blockchain_status === "confirmed" && (
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+                              <FiCheckCircle className="flex-shrink-0" /> Confirmed
+                            </span>
+                          )}
+                          {item.blockchain_status === "pending" && (
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600">
+                              <FiClock className="flex-shrink-0" /> Pending
+                            </span>
+                          )}
+                          {item.blockchain_status === "failed" && (
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600">
+                              <FiXCircle className="flex-shrink-0" /> Failed
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {formatDate(item.recorded_at || item.created_at)}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {item.blockchain_status === "failed" && (
+                          <button
+                            type="button"
+                            onClick={() => retryTransaction(item)}
+                            disabled={retryingId === item.id}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all flex-shrink-0 ${
+                              retryingId === item.id
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-rose-600 hover:bg-rose-700 active:scale-95"
+                            }`}
+                          >
+                            <FiRotateCw
+                              className={`flex-shrink-0 ${retryingId === item.id ? "animate-spin" : ""}`}
+                            />
+                            Retry
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => downloadReportPdf(item)}
+                          disabled={downloadingReportId === item.id}
                           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all flex-shrink-0 ${
-                            retryingId === item.id
+                            downloadingReportId === item.id
                               ? "bg-gray-400 cursor-not-allowed"
                               : "bg-primary hover:bg-primary-dark active:scale-95"
                           }`}
                         >
-                          <FiRotateCw
-                            className={`flex-shrink-0 ${retryingId === item.id ? "animate-spin" : ""}`}
+                          <FiDownload
+                            className={`flex-shrink-0 ${downloadingReportId === item.id ? "animate-pulse" : ""}`}
                           />
-                          Retry
+                          {downloadingReportId === item.id ? "Mengunduh..." : "Unduh Laporan Lengkap"}
                         </button>
-                      )}
+                      </div>
                     </div>
                   </motion.div>
                 ))}

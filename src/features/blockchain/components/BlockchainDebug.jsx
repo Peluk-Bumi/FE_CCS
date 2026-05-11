@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiAlertCircle, FiCheckCircle, FiWifi, FiWifiOff, FiServer, FiLink, FiBriefcase, FiLock } from 'react-icons/fi';
 import { useState } from 'react';
 
-const NETWORK_LABEL = import.meta.env.VITE_BLOCKCHAIN_NETWORK_LABEL || 'Polygon';
-const CHAIN_ID_LABEL = import.meta.env.VITE_POLYGON_CHAIN_ID || '137';
+const NETWORK_LABEL = import.meta.env.VITE_BLOCKCHAIN_NETWORK_LABEL || 'Sepolia Testnet';
+const CHAIN_ID_LABEL = import.meta.env.VITE_BLOCKCHAIN_CHAIN_ID || '11155111';
 
 export default function BlockchainDebug() {
   const { isConnected, isReady, blockchainStatus, walletAddress, error, getBlockchainStatus } = useBlockchain();

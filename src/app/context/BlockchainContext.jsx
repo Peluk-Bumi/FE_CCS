@@ -33,6 +33,7 @@ export function BlockchainProvider({ children }) {
         setWalletStatus(status);
 
         console.log('[BlockchainContext] ✅ Blockchain service ready');
+        console.log('[BlockchainContext] Wallet balance:', status?.balance, 'ETH');
         setError(null);
       } else {
         const detail = typeof blockchainService.getLastError === 'function'

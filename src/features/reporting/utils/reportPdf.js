@@ -4,10 +4,31 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 const EXPLORER_BASE_URL = import.meta.env.VITE_BLOCKCHAIN_EXPLORER_BASE_URL || "https://polygonscan.com";
 
 export const getProgressInfo = (item) => {
+  // Progress berdasarkan activity type yang sedang dilihat
+  const activityType = item.activity_type || 'PERENCANAAN';
+  
+  // Check availability of each stage
+  const hasImplementasi = !!item?.implementasi || !!item?.is_implemented;
   const hasMonitoring = !!item?.implementasi?.monitoring || (Array.isArray(item?.monitoring) && item.monitoring.length > 0);
-  const hasImplementasi = hasMonitoring || !!item?.is_implemented || !!item?.implementasi;
-  const hasEvaluasi = hasMonitoring || !!item?.evaluasi || !!item?.implementasi?.evaluasi || !!item?.implementasi?.monitoring?.evaluasi;
-  const currentStage = hasMonitoring ? "Monitoring" : hasImplementasi ? "Implementasi" : "Perencanaan";
+  const hasEvaluasi = !!item?.evaluasi || !!item?.implementasi?.evaluasi || !!item?.implementasi?.monitoring?.evaluasi;
+  
+  // Determine current stage based on activity type
+  let currentStage;
+  switch (activityType) {
+    case 'EVALUASI':
+      currentStage = 'Evaluasi';
+      break;
+    case 'MONITORING':
+      currentStage = 'Monitoring';
+      break;
+    case 'IMPLEMENTASI':
+      currentStage = 'Implementasi';
+      break;
+    case 'PERENCANAAN':
+    default:
+      currentStage = hasEvaluasi ? 'Evaluasi' : hasMonitoring ? 'Monitoring' : hasImplementasi ? 'Implementasi' : 'Perencanaan';
+      break;
+  }
 
   return {
     hasImplementasi,
@@ -417,9 +438,9 @@ export const buildLaporanPdfBlob = async (item) => {
   addField("Progress Implementasi", progress.hasImplementasi ? "Selesai" : "Belum");
   addField("Progress Monitoring", progress.hasMonitoring ? "Selesai" : "Belum");
   addField("Progress Evaluasi", progress.hasEvaluasi ? "Selesai" : "Belum");
-  addField("Blockchain Doc Hash", item.blockchain_doc_hash || "-");
-  addField("Blockchain TX Hash", item.blockchain_tx_hash || "-");
-  addField("Blockchain Verification", item.blockchainData?.verified ? "Full Verified" : (item.blockchain_tx_hash ? "Uploaded (Pending Verify)" : "Not Uploaded"));
+  addField("Blockchain Doc Hash", item.blockchain?.doc_hash || "-");
+  addField("Blockchain TX Hash", item.blockchain?.tx_hash || "-");
+  addField("Blockchain Verification", item.blockchain?.verified ? "Full Verified" : (item.blockchain?.tx_hash ? "Uploaded (Pending Verify)" : "Not Uploaded"));
 
   if (progress.hasImplementasi || implementasi) {
     const implementasiDocs = parseStoredFiles(implementasi?.dokumentasi_kegiatan);
@@ -437,18 +458,24 @@ export const buildLaporanPdfBlob = async (item) => {
   }
 
   if (progress.hasMonitoring || monitoring) {
-    const monitoringDocs = parseStoredFiles(monitoring?.dokumentasi_monitoring);
+    // Debug: Log monitoring structure
+    console.log('[reportPdf] Monitoring data:', monitoring);
+    
+    // Handle nested monitoring structure
+    const monitoringData = monitoring?.monitoring || monitoring;
+    const monitoringDocs = parseStoredFiles(monitoringData?.dokumentasi_monitoring);
+    
     addSection("DETAIL MONITORING");
-    addField("Jumlah Bibit Ditanam", monitoring?.jumlah_bibit_ditanam ?? "-");
-    addField("Jumlah Bibit Mati", monitoring?.jumlah_bibit_mati ?? "-");
-    addField("Diameter Batang", monitoring?.diameter_batang ? `${monitoring.diameter_batang} cm` : "-");
-    addField("Jumlah Daun", monitoring?.jumlah_daun ?? "-");
-    addField("Survival Rate", monitoring?.survival_rate !== undefined && monitoring?.survival_rate !== null ? `${monitoring.survival_rate}%` : "-");
-    addField("Kondisi Daun Mengering", monitoring?.daun_mengering ?? "-");
-    addField("Kondisi Daun Layu", monitoring?.daun_layu ?? "-");
-    addField("Kondisi Daun Menguning", monitoring?.daun_menguning ?? "-");
-    addField("Bercak Daun", monitoring?.bercak_daun ?? "-");
-    addField("Serangan Hama/Serangga", monitoring?.daun_serangga ?? "-");
+    addField("Jumlah Bibit Ditanam", monitoringData?.jumlah_bibit_ditanam ?? "-");
+    addField("Jumlah Bibit Mati", monitoringData?.jumlah_bibit_mati ?? "-");
+    addField("Diameter Batang", monitoringData?.diameter_batang ? `${monitoringData.diameter_batang} cm` : "-");
+    addField("Jumlah Daun", monitoringData?.jumlah_daun ?? "-");
+    addField("Survival Rate", monitoringData?.survival_rate !== undefined && monitoringData?.survival_rate !== null ? `${monitoringData.survival_rate}%` : "-");
+    addField("Kondisi Daun Mengering", monitoringData?.daun_mengering ?? "-");
+    addField("Kondisi Daun Layu", monitoringData?.daun_layu ?? "-");
+    addField("Kondisi Daun Menguning", monitoringData?.daun_menguning ?? "-");
+    addField("Bercak Daun", monitoringData?.bercak_daun ?? "-");
+    addField("Serangan Hama/Serangga", monitoringData?.daun_serangga ?? "-");
     addField("Dokumentasi Monitoring", monitoringDocs.length > 0 ? `${monitoringDocs.length} file` : "-");
   }
 

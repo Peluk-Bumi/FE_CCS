@@ -19,9 +19,14 @@ import {
   FiEye,
   FiFileText,
   FiMonitor,
+  FiGlobe,
+  FiSearch,
+  FiLink,
+  FiMapPin,
 } from "react-icons/fi";
 import WalletIndicator from '@/features/blockchain/components/WalletIndicator';
 import { PieChart, BarChart } from "@/shared/components/charts/Charts";
+import { getActivityColors, getActivityIcon, formatHash, getActivityDisplayName } from "@/shared/constants/activityColors";
 
 const defaultStats = {
   total_perencanaan: 0,
@@ -610,29 +615,125 @@ export default function Dashboard() {
                   <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Aktivitas Terkini</h3>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Update terakhir dari sistem</p>
                 </div>
-                <FiActivity className="w-5 h-5 text-primary" />
+                <FiMoreVertical className="w-5 h-5 text-primary" />
               </div>
               <div className="space-y-3">
                 {stats.recent_activities && stats.recent_activities.length > 0 ? (
-                  stats.recent_activities.slice(0, 4).map((activity, index) => (
-                    <motion.div
-                      key={index}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {activity.description || `Aktivitas ${index + 1}`}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {activity.created_at ? new Date(activity.created_at).toLocaleDateString('id-ID') : 'Baru saja'}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))
+                  stats.recent_activities.slice(0, 4).map((activity, index) => {
+                    // Get activity configuration using shared colors
+                    const activityColors = getActivityColors(activity.type || activity.jenis_kegiatan);
+                    const iconType = getActivityIcon(activity.type || activity.jenis_kegiatan);
+                    
+                    // Get the actual icon component
+                    const getIconComponent = (iconType) => {
+                      switch (iconType) {
+                        case 'FiGlobe': return <FiGlobe className="w-4 h-4" />;
+                        case 'FiSearch': return <FiSearch className="w-4 h-4" />;
+                        case 'FiCheckCircle': return <FiCheckCircle className="w-4 h-4" />;
+                        case 'FiCalendar': return <FiCalendar className="w-4 h-4" />;
+                        case 'FiLink': return <FiLink className="w-4 h-4" />;
+                        case 'FiActivity': return <FiActivity className="w-4 h-4" />;
+                        default: return <FiActivity className="w-4 h-4" />;
+                      }
+                    };
+
+                    const formatTimeAgo = (dateString) => {
+                      if (!dateString) return 'Baru saja';
+                      
+                      const date = new Date(dateString);
+                      const now = new Date();
+                      const diffMs = now - date;
+                      const diffMins = Math.floor(diffMs / 60000);
+                      const diffHours = Math.floor(diffMs / 3600000);
+                      const diffDays = Math.floor(diffMs / 86400000);
+
+                      if (diffMins < 1) return 'Baru saja';
+                      if (diffMins < 60) return `${diffMins} menit lalu`;
+                      if (diffHours < 24) return `${diffHours} jam lalu`;
+                      if (diffDays < 7) return `${diffDays} hari lalu`;
+                      
+                      return date.toLocaleDateString('id-ID', { 
+                        day: 'numeric', 
+                        month: 'short', 
+                        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined 
+                      });
+                    };
+
+                    const formatFullDateTime = (dateString) => {
+                      if (!dateString) return '';
+                      const date = new Date(dateString);
+                      return date.toLocaleString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      });
+                    };
+
+                    // Prioritize activity name over company name
+                    const activityName = activity.nama_kegiatan || activity.name || activity.jenis_kegiatan || activity.type || 'Aktivitas Sistem';
+                    const activityTitle = activity.nama_perusahaan || activity.description || activityName;
+
+                    return (
+                      <motion.div
+                        key={activity.id || index}
+                        className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                      >
+                        <div className={`w-8 h-8 rounded-full ${activityColors.background} flex items-center justify-center flex-shrink-0`}>
+                          <span className={activityColors.icon}>
+                            {getIconComponent(iconType)}
+                          </span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-tight">
+                                {activityName}
+                              </p>
+                              {activityTitle !== activityName && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                  {activityTitle}
+                                </p>
+                              )}
+                              {activity.blockchain_doc_hash && (
+                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-1">
+                                  <FiHash className="w-3 h-3" />
+                                  Doc: {formatHash(activity.blockchain_doc_hash, 8, 6)}
+                                </p>
+                              )}
+                              {activity.blockchain_tx_hash && (
+                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-1">
+                                  <FiLink className="w-3 h-3" />
+                                  Tx: {formatHash(activity.blockchain_tx_hash, 8, 6)}
+                                </p>
+                              )}
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <p className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                {formatTimeAgo(activity.created_at)}
+                              </p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap mt-0.5">
+                                {formatFullDateTime(activity.created_at)}
+                              </p>
+                              {activity.status && (
+                                <span className={`inline-block px-2 py-0.5 text-xs rounded-full mt-1 ${
+                                  activity.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                  activity.status === 'pending' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                                  'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
+                                }`}>
+                                  {activity.status}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })
                 ) : (
                   // Empty state when no activities
                   <div className="text-center py-8">

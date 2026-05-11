@@ -414,7 +414,7 @@ export const useVerification = () => {
     }
 
     try {
-      toast.info("🔍 Verifying on Polygon blockchain...", { autoClose: 2000 });
+      toast.info("🔍 Verifying on Polygon blockchain...", { autoClose: 3000 });
 
       if (blockchainContext?.isReady) {
         const blockchainVerified = await Promise.race([
@@ -444,6 +444,8 @@ export const useVerification = () => {
     } catch (err) {
       if (err.message.includes('timeout')) {
         toast.error("❌ Verification timeout - blockchain slow, showing QR data");
+      } else if (err.message.includes('Verification timeout')) {
+        toast.error("❌ Verification timeout - blockchain service not responding");
       } else {
         toast.error("❌ Verification failed: " + err.message);
       }
@@ -460,9 +462,47 @@ export const useVerification = () => {
       const trimmedData = qrData.trim();
 
       let parsed = null;
+      
+      // Check if it's a URL first
+      if (/^https?:\/\//i.test(trimmedData)) {
+        console.log('[useVerification] URL detected in QR code:', trimmedData);
+        
+        try {
+          const parsedUrl = new URL(trimmedData);
+          if (parsedUrl.pathname.includes('/public/laporan/') || parsedUrl.pathname.includes('/laporan/')) {
+            // Extract ID from URL path
+            const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
+            const laporanId = pathParts[pathParts.length - 1];
+            
+            if (laporanId) {
+              parsed = {
+                id: laporanId,
+                type: 'URL_LAPORAN',
+                source: 'QR_CODE_URL'
+              };
+              
+              playBeepSound('success');
+              toast.success("✅ QR Code scanned successfully!");
+              setQrDataParsed(parsed);
+              setScanResult(qrData);
+              setScanning(false);
+              setError(null);
+              
+              // Fetch laporan detail
+              await fetchLaporanDetail(laporanId);
+              return;
+            }
+          }
+        } catch (urlErr) {
+          console.error('[useVerification] URL parsing error:', urlErr);
+        }
+      }
+      
+      // Try JSON parsing if not URL
       try {
         parsed = JSON.parse(trimmedData);
       } catch (jsonErr) {
+        console.log('[useVerification] Not JSON format, checking for raw text:', jsonErr.message);
       }
 
       if (parsed && typeof parsed === 'object') {

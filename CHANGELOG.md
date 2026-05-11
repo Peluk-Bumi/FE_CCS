@@ -6,6 +6,47 @@ Semua perubahan penting pada aplikasi frontend FE_CCS.
 
 ---
 
+## [v1.3.1] - 2026-05-11
+
+### Diperbaiki
+- **ReportsPage**: Perbaiki error download dengan endpoint API yang benar
+  - Fix 404 error dengan menggunakan `/perencanaan/{id}/public` endpoint
+  - Update ID mapping menggunakan `parent_perencanaan_id`
+  - Tambah debug logging untuk transaction history dan API responses
+  - Perbaiki error handling dan user feedback
+
+- **Blockchain Configuration**: Update konfigurasi ke Sepolia testnet
+  - Ganti hardcoded chain ID 137 dengan 11155111 (Sepolia)
+  - Update explorer URLs ke sepolia.etherscan.io
+  - Fix token symbol display (ETH untuk Sepolia, MATIC untuk Polygon)
+  - Pastikan semua komponen menggunakan `VITE_BLOCKCHAIN_*` environment variables
+
+- **PDF Generation**: Perbaiki mapping data blockchain dan logika progress
+  - Fix blockchain data structure mapping (`item.blockchain.doc_hash`)
+  - Update progress logic menggunakan `activity_type` bukan keberadaan data
+  - Perbaiki monitoring data parsing untuk nested structures
+  - Tambah debug logging untuk verifikasi struktur data
+
+- **Visual Consistency**: Peningkatan konsistensi visual komponen blockchain
+  - Update BlockchainStatus untuk match design patterns WalletIndicator
+  - Implement gradient backgrounds dan spacing yang konsisten
+  - Tambah proper dark mode support dan hover effects
+  - Standardisasi button styling dan animations
+
+### Diubah
+- Update package.json version ke v1.3.1
+- Update .env.example version ke v1.3.1
+- Perbaiki hardcoded chain ID 137 di BlockchainDebug component
+- Optimasi polling interval untuk update real-time transaction history (10 detik)
+
+### Teknis
+- Enhanced error handling untuk PDF download functionality
+- Improved debugging capabilities untuk blockchain integration
+- Better data validation dan error messaging
+- Optimized performance untuk real-time updates
+
+---
+
 ## [v1.3.0] - 2026-05-10
 
 ### Ditambahkan

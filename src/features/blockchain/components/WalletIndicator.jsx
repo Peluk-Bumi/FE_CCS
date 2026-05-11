@@ -5,8 +5,8 @@ import { FiCopy, FiCheckCircle, FiAlertCircle, FiBriefcase, FiLock, FiWifiOff } 
 import { toast } from 'react-toastify';
 import { createPortal } from 'react-dom';
 
-const NETWORK_LABEL = import.meta.env.VITE_BLOCKCHAIN_NETWORK_LABEL || 'Polygon';
-const CHAIN_ID_LABEL = import.meta.env.VITE_POLYGON_CHAIN_ID || '137';
+const NETWORK_LABEL = import.meta.env.VITE_BLOCKCHAIN_NETWORK_LABEL || 'Sepolia Testnet';
+const CHAIN_ID_LABEL = import.meta.env.VITE_BLOCKCHAIN_CHAIN_ID || '11155111';
 
 export default function WalletIndicator() {
   const { isConnected, account, balance, isReady, error, loading, connectWallet } = useBlockchain();
@@ -185,10 +185,10 @@ export default function WalletIndicator() {
                         whileHover={{ translateY: -2 }}
                       >
                         <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
-                          MATIC Balance
+                          ETH Balance
                         </p>
                         <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                          {safeBalance} MATIC
+                          {safeBalance} ETH
                         </p>
                       </motion.div>
 
