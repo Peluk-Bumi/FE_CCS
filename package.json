@@ -1,7 +1,7 @@
 {
   "name": "pelukbumi-ccs-frontend",
   "private": true,
-  "version": "1.3.1",
+  "version": "1.4.0",
   "type": "module",
   "description": "Frontend aplikasi Peluk Bumi untuk sistem Carbon Capture and Storage (CCS) - Platform monitoring transparansi data konservasi lingkungan",
   "homepage": "https://pelukbumi.id",

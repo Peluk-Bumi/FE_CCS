@@ -6,10 +6,23 @@ Semua perubahan penting pada aplikasi frontend FE_CCS.
 
 ---
 
-## [v1.3.1] - 2026-05-11
+## [v1.4.0] - 2026-05-11
+
+### Ditambahkan
+- **Arsitektur Terpusat**: Sistem konfigurasi dan utilities yang terstruktur
+  - `src/config/blockchainConfig.js` - Konfigurasi blockchain terpusat dengan validasi
+  - `src/shared/constants/activityColors.js` - Shared activity colors dan UI constants
+  - `src/shared/factories/providerFactory.js` - Provider factory dengan error handling
+  - `src/shared/guards/securityGuard.js` - Security guards untuk validasi
+  - `src/shared/utils/validation.js` - Validation utilities terpusat
+
+- **Error Handling Komprehensif**: Error boundaries dan state management
+  - `src/features/blockchain/components/BlockchainErrorBoundary.jsx` - Error boundary untuk blockchain components
+  - `src/features/blockchain/components/BlockchainErrorState.jsx` - Error state UI yang konsisten
+  - `src/features/blockchain/hooks/useBlockchainState.js` - State management hook untuk blockchain
 
 ### Diperbaiki
-- **ReportsPage**: Perbaiki error download dengan endpoint API yang benar
+- **ReportsPage**: Perbaikan error download dengan endpoint API yang benar
   - Fix 404 error dengan menggunakan `/perencanaan/{id}/public` endpoint
   - Update ID mapping menggunakan `parent_perencanaan_id`
   - Tambah debug logging untuk transaction history dan API responses
@@ -21,7 +34,7 @@ Semua perubahan penting pada aplikasi frontend FE_CCS.
   - Fix token symbol display (ETH untuk Sepolia, MATIC untuk Polygon)
   - Pastikan semua komponen menggunakan `VITE_BLOCKCHAIN_*` environment variables
 
-- **PDF Generation**: Perbaiki mapping data blockchain dan logika progress
+- **PDF Generation**: Perbaikan mapping data blockchain dan logika progress
   - Fix blockchain data structure mapping (`item.blockchain.doc_hash`)
   - Update progress logic menggunakan `activity_type` bukan keberadaan data
   - Perbaiki monitoring data parsing untuk nested structures
@@ -33,17 +46,38 @@ Semua perubahan penting pada aplikasi frontend FE_CCS.
   - Tambah proper dark mode support dan hover effects
   - Standardisasi button styling dan animations
 
+- **QR Scanner & Verification**: Perbaikan infinite processing dan timeout handling
+  - Fix infinite "Sedang memproses..." state di QRScanner
+  - Improve timeout handling dan error recovery
+  - Better URL detection sebelum JSON parsing
+  - Enhanced error messaging untuk user feedback
+
 ### Diubah
-- Update package.json version ke v1.3.1
-- Update .env.example version ke v1.3.1
-- Perbaiki hardcoded chain ID 137 di BlockchainDebug component
-- Optimasi polling interval untuk update real-time transaction history (10 detik)
+- **Refactoring Arsitektur**: Restrukturisasi ke pola yang lebih modular
+  - Ekstrak shared utilities ke folder terpisah
+  - Centralisasi konfigurasi blockchain
+  - Improve code organization dan maintainability
+  - Standardisasi error handling patterns
+
+- **Performance Optimizations**: Peningkatan performa dan user experience
+  - Optimasi polling interval untuk real-time updates (10 detik)
+  - Better state management untuk blockchain components
+  - Improved caching dan data validation
+  - Enhanced error recovery mechanisms
+
+- **Dashboard & UI**: Peningkatan visual dan fungsionalitas
+  - Update AdminDashboardPage dengan shared activity colors
+  - Improve activity display dengan proper formatting
+  - Better responsive design dan mobile experience
+  - Enhanced loading states dan error handling
 
 ### Teknis
-- Enhanced error handling untuk PDF download functionality
-- Improved debugging capabilities untuk blockchain integration
-- Better data validation dan error messaging
+- Enhanced error handling untuk semua blockchain operations
+- Improved debugging capabilities dengan comprehensive logging
+- Better data validation dan type checking
 - Optimized performance untuk real-time updates
+- Standardized API error handling dan user feedback
+- Improved security validations dan input sanitization
 
 ---
 
