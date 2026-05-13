@@ -29,6 +29,7 @@ export default function Sidebar({ isUser = false, onClose }) {
     { label: "Implementasi", path: "/user/implementasi", icon: <FiCheckCircle /> },
     { label: "Monitoring", path: "/user/monitoring", icon: <FiActivity /> },
     { label: "Evaluasi", path: "/user/evaluasi", icon: <FiBarChart2 /> },
+    { label: "Log Transaksi", path: "/user/laporan", icon: <FiFileText /> },
   ];
 
   const menuItems = isUser ? userMenuItems : adminMenuItems;
@@ -147,7 +148,7 @@ export default function Sidebar({ isUser = false, onClose }) {
           )}
         </motion.button>
 
-        {/* Laporan Button - Dipindah di bawah Verifikasi (hanya untuk admin) */}
+        {/* Laporan Button - hanya untuk admin */}
         {!isUser && (
           <motion.button
             onClick={() => handleNavigation("/admin/laporan")}

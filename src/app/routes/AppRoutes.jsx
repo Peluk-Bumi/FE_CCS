@@ -110,6 +110,7 @@ export default function AppRoutes() {
         <Route path="implementasi" element={<ImplementasiForm />} />
         <Route path="monitoring" element={<MonitoringForm />} />
         <Route path="evaluasi" element={<EvaluasiPage />} />
+        <Route path="laporan" element={<LaporanPage />} />
         <Route path="verifikasi" element={<VerifikasiDashboardPage />} />
         <Route path="settings" element={<Settings />} />
         <Route index element={<Navigate to="dashboard" replace />} />
