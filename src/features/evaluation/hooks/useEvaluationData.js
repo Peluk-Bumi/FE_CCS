@@ -5,12 +5,15 @@ import { fetchAllEvaluasiData } from "../services/evaluationService";
  * Custom hook for fetching and polling evaluasi data
  * Handles data fetching, loading/error states, and smart polling
  */
-export const useEvaluationData = (userRole, options = {}) => {
+export const useEvaluationData = (userOrRole, options = {}) => {
   const { 
     pollingInterval = 10000, 
     enablePolling = true,
     pauseOnModalClose = true 
   } = options;
+
+  const userRole = typeof userOrRole === 'string' ? userOrRole : userOrRole?.role;
+  const userId = typeof userOrRole === 'object' ? (userOrRole?.id ?? userOrRole?.user_id ?? null) : null;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,7 +29,7 @@ export const useEvaluationData = (userRole, options = {}) => {
     if (!isMountedRef.current) return;
 
     try {
-      const data = await fetchAllEvaluasiData(userRole);
+      const data = await fetchAllEvaluasiData(userRole, userId);
       
       if (!isMountedRef.current) return;
 
@@ -44,7 +47,7 @@ export const useEvaluationData = (userRole, options = {}) => {
         setLoading(false);
       }
     }
-  }, [userRole]);
+  }, [userRole, userId]);
 
   const pausePolling = useCallback(() => {
     isPausedRef.current = true;
@@ -72,7 +75,7 @@ export const useEvaluationData = (userRole, options = {}) => {
       if (!isMountedRef.current || isPausedRef.current) return;
 
       try {
-        const data = await fetchAllEvaluasiData(userRole);
+        const data = await fetchAllEvaluasiData(userRole, userId);
         
         if (!isMountedRef.current || isPausedRef.current) return;
 
@@ -95,7 +98,7 @@ export const useEvaluationData = (userRole, options = {}) => {
         pollingRef.current = null;
       }
     };
-  }, [userRole, pollingInterval, enablePolling]);
+  }, [userRole, userId, pollingInterval, enablePolling]);
 
   return {
     loading,

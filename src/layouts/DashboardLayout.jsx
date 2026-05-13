@@ -30,7 +30,7 @@ export default function DashboardLayout() {
 
           {/* Sidebar Panel */}
           <div className="fixed inset-y-0 left-0 w-64 z-50 md:hidden">
-            <Sidebar isUser={isUser} onClose={() => setSidebarOpen(false)} />
+            <Sidebar isUser={!isAdmin} onClose={() => setSidebarOpen(false)} />
           </div>
         </>
       )}

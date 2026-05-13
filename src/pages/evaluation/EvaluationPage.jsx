@@ -22,7 +22,7 @@ export default function EvaluasiPage() {
     refetch,
     pausePolling,
     resumePolling,
-  } = useEvaluationData(user?.role, {
+  } = useEvaluationData(user, {
     pollingInterval: 30000,
     enablePolling: true,
   });

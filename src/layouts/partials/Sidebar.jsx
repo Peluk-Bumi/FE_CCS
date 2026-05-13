@@ -25,6 +25,7 @@ export default function Sidebar({ isUser = false, onClose }) {
   // ✅ User menu items - Lengkap dengan semua menu
   const userMenuItems = [
     { label: "Dashboard", path: "/user/dashboard", icon: <FiHome /> },
+    { label: "Perencanaan", path: "/user/perencanaan", icon: <FiClipboard /> },
     { label: "Implementasi", path: "/user/implementasi", icon: <FiCheckCircle /> },
     { label: "Monitoring", path: "/user/monitoring", icon: <FiActivity /> },
     { label: "Evaluasi", path: "/user/evaluasi", icon: <FiBarChart2 /> },
