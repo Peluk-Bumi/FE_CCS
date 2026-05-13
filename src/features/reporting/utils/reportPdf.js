@@ -422,6 +422,7 @@ export const buildLaporanPdfBlob = async (item) => {
   addSection("DATA PERENCANAAN");
   addField("ID Laporan", item.id);
   addField("Nama Perusahaan", item.nama_perusahaan);
+  addField("Identitas Blok", item.identitas_blok || "-");
   addField("Nama PIC", item.nama_pic);
   addField("Narahubung", item.narahubung || "-");
   addField("Jenis Kegiatan", item.jenis_kegiatan);

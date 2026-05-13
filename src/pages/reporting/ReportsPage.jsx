@@ -16,7 +16,6 @@ import {
   FiCalendar,
   FiLink,
   FiDownload,
-  FiUser,
   FiUpload,
 } from "react-icons/fi";
 import { toast } from "react-toastify";
@@ -415,24 +414,26 @@ export default function LaporanPage() {
 
         {/* Filters and Search */}
         <div className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-2xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
-            {/* Search Input */}
-            <div className="sm:col-span-3 lg:col-span-2 relative">
-              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 flex-shrink-0" />
-              <input
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Cari perusahaan, hash..."
-                className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-              />
-            </div>
+          {/* Search Input - Full Width */}
+          <div className="relative">
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 flex-shrink-0" />
+            <input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Cari perusahaan, hash..."
+              className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+            />
+          </div>
+          
+          {/* Filters Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
             {/* Activity Filter */}
             <div className="relative">
-              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 flex-shrink-0" />
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 flex-shrink-0 z-10" />
               <select
                 value={activityFilter}
                 onChange={(e) => setActivityFilter(e.target.value)}
-                className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary transition-all appearance-none"
+                className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all appearance-none"
               >
                 {ACTIVITY_TYPES.map((item) => (
                   <option key={item} value={item}>
@@ -441,13 +442,14 @@ export default function LaporanPage() {
                 ))}
               </select>
             </div>
+            
             {/* Status Filter */}
             <div className="relative">
-              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 flex-shrink-0" />
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 flex-shrink-0 z-10" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary transition-all appearance-none"
+                className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all appearance-none"
               >
                 {STATUS_TYPES.map((item) => (
                   <option key={item} value={item}>
@@ -456,72 +458,68 @@ export default function LaporanPage() {
                 ))}
               </select>
             </div>
-            <div>
-              <button
-                type="button"
-                onClick={() => fetchTransactionHistory(meta.current_page || 1)}
-                className="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-semibold shadow-md transition-all hover:shadow-lg"
-              >
-                <FiRefreshCw className="flex-shrink-0" />
-                <span>Refresh Data</span>
-              </button>
-            </div>
-            <div>
-              <button
-                type="button"
-                onClick={backfillPerencanaanLogs}
-                disabled={backfilling}
-                className="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-70 text-white font-semibold shadow-md transition-all hover:shadow-lg"
-              >
-                <FiUpload className="flex-shrink-0" />
-                <span>{backfilling ? "Upload Berjalan..." : "Upload Perencanaan Lama"}</span>
-              </button>
-            </div>
+            
+            {/* Refresh Button */}
+            <button
+              type="button"
+              onClick={() => fetchTransactionHistory(meta.current_page || 1)}
+              className="inline-flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-primary hover:bg-primary-dark text-white font-semibold shadow-md transition-all hover:shadow-lg text-xs sm:text-sm"
+            >
+              <FiRefreshCw className="flex-shrink-0 w-4 h-4" />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+            
+            {/* Backfill Button */}
+            <button
+              type="button"
+              onClick={backfillPerencanaanLogs}
+              disabled={backfilling}
+              className="inline-flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-70 text-white font-semibold shadow-md transition-all hover:shadow-lg text-xs sm:text-sm"
+            >
+              <FiUpload className="flex-shrink-0 w-4 h-4" />
+              <span className="hidden sm:inline">{backfilling ? "Upload..." : "Backfill"}</span>
+              <span className="sm:hidden">{backfilling ? "..." : "Backfill"}</span>
+            </button>
           </div>
           {/* Error Message */}
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-lg sm:rounded-xl border border-rose-200 bg-rose-50 dark:bg-rose-900/20 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium"
+              className="rounded-lg sm:rounded-xl border border-rose-200 bg-rose-50 dark:bg-rose-900/20 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium break-words"
             >
               {error}
             </motion.div>
           )}
           {/* Empty State */}
           {filteredLogs.length === 0 ? (
-            <div className="rounded-lg sm:rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 px-3 sm:px-4 py-6 sm:py-8 text-center text-sm sm:text-base font-medium">
-              Data log transaksi tidak ditemukan.
+            <div className="rounded-lg sm:rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 px-3 sm:px-4 py-6 sm:py-8 text-center text-xs sm:text-base font-medium">
+              <p className="mb-2">📋 Data log transaksi tidak ditemukan.</p>
+              <p className="text-xs sm:text-sm opacity-80">Coba ubah filter atau klik tombol "Backfill" untuk upload data lama.</p>
             </div>
           ) : (
             <>
               {/* Desktop Table View */}
-              <div className="hidden lg:block overflow-x-auto rounded-lg sm:rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="hidden md:block overflow-x-auto rounded-lg sm:rounded-xl border border-gray-200 dark:border-gray-700">
                 <table className="w-full text-sm">
                   <thead className="bg-primary/10 dark:bg-gray-700 text-left sticky top-0">
                     <tr>
-                      <th className="px-3 sm:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">
+                      <th className="px-3 md:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300 text-xs md:text-sm">
                         Waktu
                       </th>
-                      <th className="px-3 sm:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">
+                      <th className="px-3 md:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300 text-xs md:text-sm">
                         Aktivitas
                       </th>
-                      <th className="px-3 sm:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">
-                        User
-                      </th>
-                      <th className="px-3 sm:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">
+                      <th className="px-3 md:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300 text-xs md:text-sm">
                         Perusahaan
                       </th>
-                      <th className="px-3 sm:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">
-                        Doc Hash
-                      </th>
-                      <th className="px-3 sm:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">
+                      <th className="px-3 md:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300 text-xs md:text-sm">
                         Tx Hash
                       </th>
-                      <th className="px-3 sm:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">
+                      <th className="px-3 md:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300 text-xs md:text-sm">
                         Status
                       </th>
-                      <th className="px-3 sm:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">
+                      <th className="px-3 md:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300 text-xs md:text-sm">
                         Aksi
                       </th>
                     </tr>
@@ -532,100 +530,79 @@ export default function LaporanPage() {
                         key={item.id}
                         className="hover:bg-primary/10 dark:hover:bg-gray-700/40 transition-colors"
                       >
-                        <td className="px-3 sm:px-4 py-3 text-gray-700 dark:text-gray-200 text-xs sm:text-sm">
+                        <td className="px-3 md:px-4 py-3 text-gray-700 dark:text-gray-200 text-xs md:text-sm whitespace-nowrap">
                           {formatDate(item.recorded_at || item.created_at)}
                         </td>
-                        <td className="px-3 sm:px-4 py-3">
+                        <td className="px-3 md:px-4 py-3">
                           <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-2">
                               <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${getActivityColors(item.activity_type).badge}`}>
                                 {getActivityDisplayName(item.activity_type)}
                               </span>
                             </div>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                          </div>
+                        </td>
+                        <td className="px-3 md:px-4 py-3 text-gray-800 dark:text-gray-100">
+                          <div className="flex flex-col gap-1 text-xs text-gray-500">
+                            <span className="font-medium text-gray-700 dark:text-gray-200 truncate">
                               {item.nama_perusahaan || '-'}
-                            </p>
+                            </span>
+                            <span className="text-xs">
+                              ID: {item.parent_perencanaan_id || "-"}
+                            </span>
                           </div>
                         </td>
-                        <td className="px-3 sm:px-4 py-3 text-gray-700 dark:text-gray-200">
-                          <div className="flex items-start gap-2">
-                            <FiUser className="mt-0.5 flex-shrink-0 text-gray-400" />
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-                                {item.user_name || '-'}
-                              </p>
-                              <p className="text-xs text-gray-500 truncate">
-                                {item.user_email || item.user_role || '-'}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-3 sm:px-4 py-3 text-gray-800 dark:text-gray-100">
-                          <div className="text-xs text-gray-500">
-                            ID: {item.parent_perencanaan_id || "-"}
-                          </div>
-                        </td>
-                        <td className="px-3 sm:px-4 py-3">
-                          <button
-                            type="button"
-                            onClick={() => copyHash(item.blockchain_doc_hash)}
-                            className="inline-flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-300 hover:text-indigo-700 dark:hover:text-indigo-200 transition-colors"
-                          >
-                            <FiHash className="flex-shrink-0" />
-                            {shortHash(item.blockchain_doc_hash)}
-                            <FiCopy className="flex-shrink-0" />
-                          </button>
-                        </td>
-                        <td className="px-3 sm:px-4 py-3">
+                        <td className="px-3 md:px-4 py-3">
                           {item.blockchain_tx_hash ? (
                             <a
                               href={`${EXPLORER_BASE_URL}/tx/${item.blockchain_tx_hash}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-xs text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary-light transition-colors"
+                              className="inline-flex items-center gap-1 text-xs text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary-light transition-colors font-mono"
                             >
-                              {shortHash(item.blockchain_tx_hash)}
-                              <FiExternalLink className="flex-shrink-0" />
+                              {shortHash(item.blockchain_tx_hash, 10)}
+                              <FiExternalLink className="flex-shrink-0 w-3 h-3" />
                             </a>
                           ) : (
                             <span className="text-xs text-gray-400">-</span>
                           )}
                         </td>
-                        <td className="px-3 sm:px-4 py-3">
+                        <td className="px-3 md:px-4 py-3">
                           {item.blockchain_status === "confirmed" && (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
-                              <FiCheckCircle className="flex-shrink-0" />{" "}
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary whitespace-nowrap">
+                              <FiCheckCircle className="flex-shrink-0 w-3 h-3" />{" "}
                               Confirmed
                             </span>
                           )}
                           {item.blockchain_status === "pending" && (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600">
-                              <FiClock className="flex-shrink-0" /> Pending
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 whitespace-nowrap">
+                              <FiClock className="flex-shrink-0 w-3 h-3" /> Pending
                             </span>
                           )}
                           {item.blockchain_status === "failed" && (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600">
-                              <FiXCircle className="flex-shrink-0" /> Failed
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 whitespace-nowrap">
+                              <FiXCircle className="flex-shrink-0 w-3 h-3" /> Failed
                             </span>
                           )}
                         </td>
-                        <td className="px-3 sm:px-4 py-3">
-                          <div className="flex items-center gap-2">
+                        <td className="px-3 md:px-4 py-3">
+                          <div className="flex items-center gap-1 md:gap-2 flex-wrap">
                             {item.blockchain_status === "failed" && (
                               <button
                                 type="button"
                                 onClick={() => retryTransaction(item)}
                                 disabled={retryingId === item.id}
-                                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all ${
+                                title="Coba ulang transaksi"
+                                className={`inline-flex items-center gap-1 px-2 md:px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all ${
                                   retryingId === item.id
                                     ? "bg-gray-400 cursor-not-allowed"
                                     : "bg-rose-600 hover:bg-rose-700 active:scale-95"
                                 }`}
                               >
                                 <FiRotateCw
-                                  className={`flex-shrink-0 ${retryingId === item.id ? "animate-spin" : ""}`}
+                                  className={`flex-shrink-0 w-3 h-3 ${retryingId === item.id ? "animate-spin" : ""}`}
                                 />
-                                <span className="hidden sm:inline">
+                                <span className="hidden md:inline">
                                   {retryingId === item.id ? "Retry..." : "Retry"}
                                 </span>
                               </button>
@@ -634,17 +611,18 @@ export default function LaporanPage() {
                               type="button"
                               onClick={() => downloadReportPdf(item)}
                               disabled={downloadingReportId === item.id}
-                              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all ${
+                              title="Unduh laporan lengkap"
+                              className={`inline-flex items-center gap-1 px-2 md:px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all ${
                                 downloadingReportId === item.id
                                   ? "bg-gray-400 cursor-not-allowed"
                                   : "bg-primary hover:bg-primary-dark active:scale-95"
                                 }`}
                             >
                               <FiDownload
-                                className={`flex-shrink-0 ${downloadingReportId === item.id ? "animate-pulse" : ""}`}
+                                className={`flex-shrink-0 w-3 h-3 ${downloadingReportId === item.id ? "animate-pulse" : ""}`}
                               />
-                              <span className="hidden sm:inline">
-                                {downloadingReportId === item.id ? "Mengunduh..." : "Unduh Laporan Lengkap"}
+                              <span className="hidden md:inline">
+                                {downloadingReportId === item.id ? "Download..." : "Laporan"}
                               </span>
                             </button>
                           </div>
@@ -654,126 +632,117 @@ export default function LaporanPage() {
                   </tbody>
                 </table>
               </div>
-              {/* Mobile Card View */}
-              <div className="lg:hidden space-y-3">
+              {/* Mobile/Tablet Card View */}
+              <div className="md:hidden space-y-3">
                 {filteredLogs.map((item) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 sm:p-4 space-y-3"
+                    className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                   >
-                    {/* Row 1: Title + Activity Badge */}
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-                          {item.nama_perusahaan || "Aktivitas Tanpa Nama"}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${getActivityColors(item.activity_type).badge}`}>
-                            {getActivityDisplayName(item.activity_type)}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            ID: {item.parent_perencanaan_id || "-"}
-                          </span>
+                    {/* Header: Activity Type & Status */}
+                    <div className="bg-gradient-to-r from-primary/5 to-transparent dark:from-primary/10 p-3 border-b border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${getActivityColors(item.activity_type).badge}`}>
+                          {getActivityDisplayName(item.activity_type)}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          {item.blockchain_status === "confirmed" && (
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                              <FiCheckCircle className="flex-shrink-0 w-3 h-3" /> Confirmed
+                            </span>
+                          )}
+                          {item.blockchain_status === "pending" && (
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400 whitespace-nowrap">
+                              <FiClock className="flex-shrink-0 w-3 h-3" /> Pending
+                            </span>
+                          )}
+                          {item.blockchain_status === "failed" && (
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 dark:text-rose-400 whitespace-nowrap">
+                              <FiXCircle className="flex-shrink-0 w-3 h-3" /> Failed
+                            </span>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                        <FiUser className="flex-shrink-0" />
-                        <span className="truncate">
-                          {item.user_name || item.user_email || item.user_role || "User tidak tercatat"}
-                        </span>
-                      </div>
                     </div>
-                    {/* Row 2: Hashes */}
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium flex items-center gap-1">
-                          <FiHash className="flex-shrink-0" /> Doc:
+
+                    {/* Body: Content */}
+                    <div className="p-3 space-y-3">
+                      {/* Company Info */}
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Perusahaan</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 line-clamp-2">
+                          {item.nama_perusahaan || "Tidak tercatat"}
                         </p>
-                        <button
-                          type="button"
-                          onClick={() => copyHash(item.blockchain_doc_hash)}
-                          className="text-xs text-indigo-600 dark:text-indigo-300 hover:text-indigo-700 dark:hover:text-indigo-200 font-mono transition-colors flex items-center gap-1"
-                        >
-                          {formatHash(item.blockchain_doc_hash, 8, 6)}
-                          <FiCopy className="flex-shrink-0" />
-                        </button>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          <span className="font-medium">ID:</span> {item.parent_perencanaan_id || "-"}
+                        </p>
                       </div>
+
+                      {/* Transaction Hash */}
                       {item.blockchain_tx_hash && (
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium flex items-center gap-1">
-                            <FiExternalLink className="flex-shrink-0" /> Tx:
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1">
+                            <FiExternalLink className="w-3 h-3" /> Transaction Hash
                           </p>
                           <a
                             href={`${EXPLORER_BASE_URL}/tx/${item.blockchain_tx_hash}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-emerald-600 dark:text-emerald-300 hover:text-emerald-700 dark:hover:text-emerald-200 font-mono transition-colors"
+                            className="inline-flex items-center gap-1 text-xs text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary-light font-mono bg-primary/5 dark:bg-primary/10 px-2 py-1 rounded break-all"
                           >
                             {formatHash(item.blockchain_tx_hash, 8, 6)}
+                            <FiExternalLink className="flex-shrink-0 w-3 h-3" />
                           </a>
                         </div>
                       )}
-                    </div>
-                    {/* Row 3: Status + Actions */}
-                    <div className="flex flex-col gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {item.blockchain_status === "confirmed" && (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
-                              <FiCheckCircle className="flex-shrink-0" /> Confirmed
-                            </span>
-                          )}
-                          {item.blockchain_status === "pending" && (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600">
-                              <FiClock className="flex-shrink-0" /> Pending
-                            </span>
-                          )}
-                          {item.blockchain_status === "failed" && (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600">
-                              <FiXCircle className="flex-shrink-0" /> Failed
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-xs text-gray-500">
+
+                      {/* Timestamp */}
+                      <div className="space-y-1 pt-1 border-t border-gray-100 dark:border-gray-700">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1">
+                          <FiCalendar className="w-3 h-3" /> Waktu Tercatat
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-300">
                           {formatDate(item.recorded_at || item.created_at)}
-                        </div>
+                        </p>
                       </div>
-                      <div className="flex gap-2">
-                        {item.blockchain_status === "failed" && (
-                          <button
-                            type="button"
-                            onClick={() => retryTransaction(item)}
-                            disabled={retryingId === item.id}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all flex-shrink-0 ${
-                              retryingId === item.id
-                                ? "bg-gray-400 cursor-not-allowed"
-                                : "bg-rose-600 hover:bg-rose-700 active:scale-95"
-                            }`}
-                          >
-                            <FiRotateCw
-                              className={`flex-shrink-0 ${retryingId === item.id ? "animate-spin" : ""}`}
-                            />
-                            Retry
-                          </button>
-                        )}
+                    </div>
+
+                    {/* Footer: Actions */}
+                    <div className="bg-gray-50 dark:bg-gray-700/30 border-t border-gray-100 dark:border-gray-700 p-3 flex gap-2">
+                      {item.blockchain_status === "failed" && (
                         <button
                           type="button"
-                          onClick={() => downloadReportPdf(item)}
-                          disabled={downloadingReportId === item.id}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all flex-shrink-0 ${
-                            downloadingReportId === item.id
+                          onClick={() => retryTransaction(item)}
+                          disabled={retryingId === item.id}
+                          className={`flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-white transition-all ${
+                            retryingId === item.id
                               ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-primary hover:bg-primary-dark active:scale-95"
+                              : "bg-rose-600 hover:bg-rose-700 active:scale-95"
                           }`}
                         >
-                          <FiDownload
-                            className={`flex-shrink-0 ${downloadingReportId === item.id ? "animate-pulse" : ""}`}
+                          <FiRotateCw
+                            className={`flex-shrink-0 w-3 h-3 ${retryingId === item.id ? "animate-spin" : ""}`}
                           />
-                          {downloadingReportId === item.id ? "Mengunduh..." : "Unduh Laporan Lengkap"}
+                          <span>{retryingId === item.id ? "Retrying..." : "Retry"}</span>
                         </button>
-                      </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => downloadReportPdf(item)}
+                        disabled={downloadingReportId === item.id}
+                        className={`flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-white transition-all ${
+                          downloadingReportId === item.id
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-primary hover:bg-primary-dark active:scale-95"
+                        }`}
+                      >
+                        <FiDownload
+                          className={`flex-shrink-0 w-3 h-3 ${downloadingReportId === item.id ? "animate-pulse" : ""}`}
+                        />
+                        <span>{downloadingReportId === item.id ? "Download..." : "Laporan"}</span>
+                      </button>
                     </div>
                   </motion.div>
                 ))}

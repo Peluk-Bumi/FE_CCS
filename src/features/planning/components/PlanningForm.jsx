@@ -110,6 +110,7 @@ const PerencanaanForm = () => {
 
   const validationSchema = Yup.object({
     nama_perusahaan: Yup.string().required("Wajib diisi"),
+    identitas_blok: Yup.string().required("Wajib diisi"),
     nama_pic: Yup.string().required("Wajib diisi"),
     narahubung: Yup.string().required("Wajib diisi"),
     jenis_kegiatan: Yup.string().required("Pilih salah satu"),
@@ -124,6 +125,7 @@ const PerencanaanForm = () => {
   const formik = useFormik({
     initialValues: {
       nama_perusahaan: "",
+      identitas_blok: "",
       nama_pic: "",
       narahubung: "",
       jenis_kegiatan: "",
@@ -224,6 +226,7 @@ const PerencanaanForm = () => {
 
   const inputFields = [
     { name: "nama_perusahaan", label: "Nama Perusahaan", icon: FiBriefcase, placeholder: "PT. Contoh Indonesia" },
+    { name: "identitas_blok", label: "Identitas Blok", icon: FiLink, placeholder: "Blok A / Petak 03" },
     { name: "nama_pic", label: "Nama PIC", icon: FiUser, placeholder: "John Doe" },
     { name: "narahubung", label: "Narahubung", icon: FiPhone, placeholder: "+62 812-3456-7890" },
     { name: "jumlah_bibit", label: "Jumlah Bibit", icon: FiCheckCircle, type: "number", placeholder: "100" },
