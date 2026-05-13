@@ -17,6 +17,7 @@ import {
   FiLink,
   FiDownload,
   FiUser,
+  FiUpload,
 } from "react-icons/fi";
 import { toast } from "react-toastify";
 import api from "@/shared/services/api";
@@ -67,6 +68,7 @@ export default function LaporanPage() {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [retryingId, setRetryingId] = useState(null);
   const [downloadingReportId, setDownloadingReportId] = useState(null);
+  const [backfilling, setBackfilling] = useState(false);
   // ✅ Polling ref at top level (React hook rules)
   const pollingRef = useRef();
   const fetchTransactionHistory = async (page = 1) => {
@@ -246,6 +248,31 @@ export default function LaporanPage() {
     }
   };
 
+  const backfillPerencanaanLogs = async () => {
+    setBackfilling(true);
+    try {
+      const response = await api.post("/laporan/transaction-history/backfill-perencanaan", {
+        only_missing: true,
+        limit: 100,
+      });
+
+      const data = response.data?.data || {};
+      toast.success(
+        `Backfill selesai. Berhasil: ${data.success || 0}, Gagal: ${data.failed || 0}`
+      );
+
+      fetchTransactionHistory(meta.current_page || 1);
+    } catch (err) {
+      const message =
+        err?.response?.data?.message ||
+        err.message ||
+        "Gagal upload perencanaan lama ke log transaksi";
+      toast.error(message);
+    } finally {
+      setBackfilling(false);
+    }
+  };
+
   const downloadReportPdf = async (item) => {
     setDownloadingReportId(item.id);
     try {
@@ -388,7 +415,7 @@ export default function LaporanPage() {
 
         {/* Filters and Search */}
         <div className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-2xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
             {/* Search Input */}
             <div className="sm:col-span-3 lg:col-span-2 relative">
               <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 flex-shrink-0" />
@@ -437,6 +464,17 @@ export default function LaporanPage() {
               >
                 <FiRefreshCw className="flex-shrink-0" />
                 <span>Refresh Data</span>
+              </button>
+            </div>
+            <div>
+              <button
+                type="button"
+                onClick={backfillPerencanaanLogs}
+                disabled={backfilling}
+                className="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-70 text-white font-semibold shadow-md transition-all hover:shadow-lg"
+              >
+                <FiUpload className="flex-shrink-0" />
+                <span>{backfilling ? "Upload Berjalan..." : "Upload Perencanaan Lama"}</span>
               </button>
             </div>
           </div>
