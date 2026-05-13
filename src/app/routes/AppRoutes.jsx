@@ -26,7 +26,7 @@ import Contact from "@/pages/public/Contact";
 import VerifikasiPublicPage from "@/pages/verification/VerificationPage";
 import MonitoringAccess from "@/pages/public/MonitoringAccess";
 import NotFound from "@/pages/public/NotFound";
-import PrivacyPolicy from "@/pages/public/PrivacyPolicy";
+import PolicyPage from "@/pages/public/PolicyPage";
 import TermsAndConditions from "@/pages/public/TermsAndConditions";
 import License from "@/pages/public/License";
 
@@ -68,7 +68,7 @@ export default function AppRoutes() {
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/monitoring-access/:perencanaanId" element={<MonitoringAccess />} />
-      <Route path="/kebijakan-privasi" element={<PrivacyPolicy />} />
+      <Route path="/kebijakan-privasi" element={<PolicyPage />} />
       <Route path="/syarat-ketentuan" element={<TermsAndConditions />} />
       <Route path="/lisensi" element={<License />} />
       
