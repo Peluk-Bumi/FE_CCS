@@ -11,6 +11,7 @@ import "leaflet/dist/leaflet.css";
 import "react-toastify/dist/ReactToastify.css";
 import PageTitle from "@/shared/components/PageTitle";
 import api from "@/shared/services/api";
+import { useAuth } from "@/app/context/AuthContext";
 
 // ✅ Fix Leaflet default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -73,6 +74,39 @@ const PerencanaanForm = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [mapCenter, setMapCenter] = useState([-2.5489, 118.0149]); // Indonesia center
   const [mapZoom, setMapZoom] = useState(5); // Default: show Indonesia region
+  const { user } = useAuth();
+  const isUserCreator = user?.role === "user";
+  const resolvedCompanyName = (
+    user?.company_name ||
+    user?.nama_perusahaan ||
+    user?.organization ||
+    user?.name ||
+    user?.username ||
+    user?.email ||
+    ""
+  ).trim();
+  const isAdmin = user?.role === 'admin';
+  const [adminUsers, setAdminUsers] = useState([]);
+
+  // Fetch user list for admin to choose company name
+  useEffect(() => {
+    if (!isAdmin) return;
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.get('/users', { params: { per_page: 100, role: 'user' } });
+        const list = res.data?.data || res.data || [];
+        if (!mounted) return;
+        setAdminUsers(list.map(u => ({
+          id: u.id,
+          label: u.company_name || u.nama_perusahaan || u.name || u.username || u.email || `User ${u.id}`
+        })));
+      } catch (err) {
+        console.error('[PlanningForm] Failed to fetch users for admin dropdown', err);
+      }
+    })();
+    return () => { mounted = false };
+  }, [isAdmin]);
 
   const validationSchema = Yup.object({
     nama_perusahaan: Yup.string().required("Wajib diisi"),
@@ -105,11 +139,20 @@ const PerencanaanForm = () => {
       setSubmitting(true);
       
       try {
+        const payload = isUserCreator
+          ? { ...values, nama_perusahaan: resolvedCompanyName }
+          : values;
+
+        if (isUserCreator && !payload.nama_perusahaan) {
+          toast.error("Nama perusahaan user belum tersedia. Silakan lengkapi profil akun Anda.");
+          return;
+        }
+
         console.log('[PerencanaanForm] ========== FORM SUBMISSION START ==========');
-        console.log('[PerencanaanForm] Form data:', values);
+        console.log('[PerencanaanForm] Form data:', payload);
 
         // Backend now records blockchain transaction for this activity.
-        const response = await api.post('/perencanaan', values);
+        const response = await api.post('/perencanaan', payload);
         const blockchain = response.data?.blockchain || {};
 
         if (blockchain.tx_hash) {
@@ -138,6 +181,12 @@ const PerencanaanForm = () => {
       }
     },
   });
+
+  useEffect(() => {
+    if (isUserCreator && resolvedCompanyName) {
+      formik.setFieldValue("nama_perusahaan", resolvedCompanyName);
+    }
+  }, [isUserCreator, resolvedCompanyName]);
 
   // ✅ Handle map click untuk menandai lokasi
   const handleLocationSelect = (latlng) => {
@@ -199,7 +248,6 @@ const PerencanaanForm = () => {
     "Cedar",
     "Mangrove campuran",
   ];
-
   return (
     <div className="py-12">
         {/* Header */}
@@ -266,7 +314,12 @@ const PerencanaanForm = () => {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       list={field.name === "jenis_bibit" ? "global-tree-species" : undefined}
+                      readOnly={field.name === "nama_perusahaan" && isUserCreator}
                       className={`w-full px-4 py-3.5 rounded-xl border-2 bg-white dark:bg-gray-700 dark:text-gray-100 transition-all duration-300 ${
+                        field.name === "nama_perusahaan" && isUserCreator
+                          ? "bg-gray-50 dark:bg-gray-800 cursor-not-allowed"
+                          : ""
+                      } ${
                         formik.touched[field.name] && formik.errors[field.name]
                           ? "border-red-400 focus:ring-4 focus:ring-red-200"
                           : "border-gray-200 dark:border-gray-600 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:focus:ring-emerald-900/50"
@@ -278,6 +331,11 @@ const PerencanaanForm = () => {
                           <option key={species} value={species} />
                         ))}
                       </datalist>
+                    )}
+                    {field.name === "nama_perusahaan" && isUserCreator && (
+                      <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-300">
+                        Diambil otomatis dari akun user yang sedang login.
+                      </p>
                     )}
                   </div>
                   {formik.touched[field.name] && formik.errors[field.name] && (

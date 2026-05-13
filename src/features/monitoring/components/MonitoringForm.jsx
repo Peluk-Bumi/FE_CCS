@@ -10,6 +10,7 @@ import L from "leaflet";
 import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
 import api from "@/shared/services/api";
+import { useAuth } from "@/app/context/AuthContext";
 import PageTitle from "@/shared/components/PageTitle";
 
 // ✅ Blue marker untuk lokasi implementasi (URL stabil)
@@ -42,6 +43,7 @@ const MonitoringForm = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [monitoringByImplementasi, setMonitoringByImplementasi] = useState({});
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   // ✅ ADD NEW STATES FOR UPLOAD
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -190,9 +192,13 @@ const MonitoringForm = () => {
 
     const fetchData = async () => {
       try {
+        const role = user?.role;
+        const implementasiEndpoint = role === 'admin' ? '/implementasi/all' : '/implementasi';
+        const monitoringEndpoint = role === 'admin' ? '/monitoring/all' : '/monitoring';
+
         const [implementasiResponse, monitoringResponse] = await Promise.all([
-          api.get("/implementasi"),
-          api.get("/monitoring")
+          api.get(implementasiEndpoint),
+          api.get(monitoringEndpoint)
         ]);
 
         const data = implementasiResponse.data?.data || implementasiResponse.data || [];

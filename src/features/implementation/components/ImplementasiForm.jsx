@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import api from "@/shared/services/api";
+import { useAuth } from "@/app/context/AuthContext";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -45,6 +46,7 @@ const ImplementasiForm = () => {
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
+  const { user } = useAuth();
 
   const validationSchema = Yup.object({
     perencanaan_id: Yup.string().required("Wajib pilih perencanaan"),
@@ -114,9 +116,13 @@ const ImplementasiForm = () => {
 
     const fetchData = async () => {
       try {
+        const role = user?.role;
+        const perencanaanEndpoint = role === 'admin' ? '/perencanaan/all' : '/perencanaan';
+        const implementasiEndpoint = role === 'admin' ? '/implementasi/all' : '/implementasi';
+
         const [perencanaanResponse, implementasiResponse] = await Promise.all([
-          api.get("/perencanaan"),
-          api.get("/implementasi"),
+          api.get(perencanaanEndpoint),
+          api.get(implementasiEndpoint),
         ]);
 
         const data = perencanaanResponse.data?.data || perencanaanResponse.data || [];

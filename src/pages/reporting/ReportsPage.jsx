@@ -16,6 +16,7 @@ import {
   FiCalendar,
   FiLink,
   FiDownload,
+  FiUser,
 } from "react-icons/fi";
 import { toast } from "react-toastify";
 import api from "@/shared/services/api";
@@ -157,6 +158,8 @@ export default function LaporanPage() {
       const lowerSearch = searchTerm.toLowerCase();
       const searchable = [
         item.activity_type,
+        item.user_name,
+        item.user_email,
         item.nama_perusahaan,
         item.blockchain_doc_hash,
         item.blockchain_tx_hash,
@@ -466,6 +469,9 @@ export default function LaporanPage() {
                         Aktivitas
                       </th>
                       <th className="px-3 sm:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">
+                        User
+                      </th>
+                      <th className="px-3 sm:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">
                         Perusahaan
                       </th>
                       <th className="px-3 sm:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">
@@ -501,6 +507,19 @@ export default function LaporanPage() {
                             <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
                               {item.nama_perusahaan || '-'}
                             </p>
+                          </div>
+                        </td>
+                        <td className="px-3 sm:px-4 py-3 text-gray-700 dark:text-gray-200">
+                          <div className="flex items-start gap-2">
+                            <FiUser className="mt-0.5 flex-shrink-0 text-gray-400" />
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                                {item.user_name || '-'}
+                              </p>
+                              <p className="text-xs text-gray-500 truncate">
+                                {item.user_email || item.user_role || '-'}
+                              </p>
+                            </div>
                           </div>
                         </td>
                         <td className="px-3 sm:px-4 py-3 text-gray-800 dark:text-gray-100">
@@ -620,6 +639,12 @@ export default function LaporanPage() {
                             ID: {item.parent_perencanaan_id || "-"}
                           </span>
                         </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                        <FiUser className="flex-shrink-0" />
+                        <span className="truncate">
+                          {item.user_name || item.user_email || item.user_role || "User tidak tercatat"}
+                        </span>
                       </div>
                     </div>
                     {/* Row 2: Hashes */}
