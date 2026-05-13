@@ -5,6 +5,8 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useTheme } from "@/app/context/ThemeContext";
 import { useState, useRef, useEffect } from "react";
 
+const Motion = motion;
+
 export default function Sidebar({ isUser = false, onClose }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,13 +64,13 @@ export default function Sidebar({ isUser = false, onClose }) {
   return (
     <aside className="h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col shadow-xl transition-colors">
       {/* Header */}
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
         className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800"
       >
-        <motion.a
+        <Motion.a
           href="/"
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
@@ -90,25 +92,25 @@ export default function Sidebar({ isUser = false, onClose }) {
               {isUser ? "User Panel" : "Admin Panel"}
             </p>
           </div>
-        </motion.a>
+        </Motion.a>
 
 
-        <motion.button
+        <Motion.button
           onClick={onClose}
           className="md:hidden p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.94 }}
         >
           <FiX size={20} className="text-gray-600 dark:text-gray-400" />
-        </motion.button>
-      </motion.div>
+        </Motion.button>
+      </Motion.div>
 
       {/* Menu Navigation */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-hide">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
-            <motion.button
+            <Motion.button
               key={item.path}
               onClick={() => handleNavigation(item.path)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
@@ -126,12 +128,12 @@ export default function Sidebar({ isUser = false, onClose }) {
               {isActive && (
                 <span className="ml-auto h-2 w-2 rounded-full bg-white/80 animate-pulse" />
               )}
-            </motion.button>
+            </Motion.button>
           );
         })}
 
         {/* Verifikasi Button */}
-        <motion.button
+        <Motion.button
           onClick={() => handleNavigation(isUser ? "/user/verifikasi" : "/admin/verifikasi")}
           className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all border ${
             location.pathname.endsWith('/verifikasi')
@@ -146,11 +148,11 @@ export default function Sidebar({ isUser = false, onClose }) {
           {location.pathname.endsWith('/verifikasi') && (
             <span className="ml-auto h-2 w-2 rounded-full bg-white/80 animate-pulse" />
           )}
-        </motion.button>
+        </Motion.button>
 
         {/* Laporan Button - hanya untuk admin */}
         {!isUser && (
-          <motion.button
+          <Motion.button
             onClick={() => handleNavigation("/admin/laporan")}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
               location.pathname === "/admin/laporan"
@@ -165,21 +167,21 @@ export default function Sidebar({ isUser = false, onClose }) {
             {location.pathname === "/admin/laporan" && (
               <span className="ml-auto h-2 w-2 rounded-full bg-white/80 animate-pulse" />
             )}
-          </motion.button>
+          </Motion.button>
         )}
       </nav>
 
       {/* User Profile Section */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-800">
         <div className="relative" ref={dropdownRef}>
-          <motion.button
+          <Motion.button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-primary/10 dark:hover:bg-primary/20 transition-all"
+            className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-primary/10 dark:hover:bg-primary/20 transition-all overflow-hidden"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             <div className="relative">
-              <motion.div 
+              <Motion.div 
                 className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white text-sm font-bold shadow-lg"
                 whileHover={{ scale: 1.1 }}
                 animate={{ 
@@ -189,23 +191,23 @@ export default function Sidebar({ isUser = false, onClose }) {
                 }}
               >
                 {(user?.username || user?.name || "U")[0].toUpperCase()}
-              </motion.div>
+              </Motion.div>
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900 animate-pulse"></div>
             </div>
-            <div className="flex-1 text-left">
-              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate max-w-full">
                 {user?.username || user?.name || "User"}
               </p>
-              <p className="text-xs text-primary dark:text-primary-light font-medium">
+              <p className="text-xs text-primary dark:text-primary-light font-medium truncate max-w-full">
                 {user?.role || "User"}
               </p>
             </div>
-          </motion.button>
+          </Motion.button>
           
           {/* Dropdown Menu */}
           <AnimatePresence>
             {dropdownOpen && (
-              <motion.div
+              <Motion.div
                 initial={{ opacity: 0, y: -10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -219,10 +221,10 @@ export default function Sidebar({ isUser = false, onClose }) {
                       {(user?.username || user?.name || "U")[0].toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
+                      <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate max-w-full">
                         {user?.username || user?.name || "User"}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 truncate max-w-full">
                         {user?.email || "user@example.com"}
                       </p>
                       <div className="flex items-center mt-1">
@@ -238,7 +240,7 @@ export default function Sidebar({ isUser = false, onClose }) {
                 {/* Menu Items */}
                 <div className="p-2">
                   {/* Theme Toggle - Moved to Dropdown */}
-                  <motion.button
+                  <Motion.button
                     onClick={() => {
                       toggleTheme();
                     }}
@@ -256,10 +258,10 @@ export default function Sidebar({ isUser = false, onClose }) {
                         <span className="font-medium">Mode Gelap</span>
                       </>
                     )}
-                  </motion.button>
+                  </Motion.button>
 
                   {/* Settings */}
-                  <motion.button
+                  <Motion.button
                     onClick={() => {
                       setDropdownOpen(false);
                       handleNavigation(user?.role === "admin" ? "/admin/settings" : "/user/settings");
@@ -269,19 +271,19 @@ export default function Sidebar({ isUser = false, onClose }) {
                   >
                     <FiSettings className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     <span className="font-medium">Pengaturan</span>
-                  </motion.button>
+                  </Motion.button>
                   
                   {/* Logout */}
-                  <motion.button
+                  <Motion.button
                     onClick={handleLogout}
                     className="flex items-center gap-3 w-full px-3 py-2 text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all border-t border-gray-200/50 dark:border-gray-700/50 mt-2 pt-2 text-sm"
                     whileHover={{ x: 4 }}
                   >
                     <FiLogOut className="w-4 h-4" />
                     <span className="font-medium">Keluar</span>
-                  </motion.button>
+                  </Motion.button>
                 </div>
-              </motion.div>
+              </Motion.div>
             )}
           </AnimatePresence>
         </div>
