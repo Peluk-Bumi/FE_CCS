@@ -64,9 +64,9 @@ features/[feature-name]/
 
 ### Daftar Features:
 - **admin/** - Manajemen admin dan user management
-- **auth/** - Autentikasi dan authorization
 - **blockchain/** - Integrasi blockchain dan wallet
 - **dashboard/** - Dashboard admin dan user
+- **demo/** - Demo components untuk development
 - **evaluation/** - Evaluasi dan monitoring
 - **implementation/** - Implementasi proyek
 - **landing/** - Landing page components
@@ -93,26 +93,91 @@ Folder `shared/` berisi semua komponen, hooks, services, dan utilities yang dapa
 shared/
 ├── components/
 │   ├── common/           # Generic UI components
+│   │   ├── FAQAdmin.jsx
+│   │   ├── FAQList.jsx
+│   │   ├── PageTitle.jsx
+│   │   ├── ProjectProgressBar.jsx
+│   │   ├── ProjectStatusBadge.jsx
+│   │   └── index.js      # Centralized exports
 │   ├── layout/           # Layout components
+│   │   ├── Footer.jsx
+│   │   ├── LoadingSpinner.jsx
+│   │   ├── Navbar.jsx
+│   │   ├── ScrollToTop.jsx
+│   │   ├── Sidebar.jsx
+│   │   ├── navbar/       # Navigation sub-components
+│   │   │   ├── DesktopNavigation.jsx
+│   │   │   ├── LandingMobileSheet.jsx
+│   │   │   ├── Logo.jsx
+│   │   │   ├── MobileMenu.jsx
+│   │   │   ├── NavbarControls.jsx
+│   │   │   ├── ProfileDropdown.jsx
+│   │   │   └── index.js  # Centralized exports
+│   │   └── index.js      # Centralized exports
+│   ├── ui/               # Shadcn-based components
+│   │   ├── button.jsx    # Shadcn button primitive
+│   │   ├── card.jsx      # Shadcn card primitive
+│   │   ├── input.jsx     # Shadcn input primitive
+│   │   ├── button/       # Custom button variations
+│   │   ├── card/         # Custom card variations
+│   │   ├── navigation/   # Navigation components
+│   │   └── sheet/        # Sheet components
 │   ├── charts/           # Chart components
 │   ├── table/            # Table components
 │   ├── form/             # Form components
 │   ├── modal/            # Modal components
 │   ├── map/              # Map components
 │   └── stats/            # Statistics components
-├── hooks/               # Reusable custom hooks
-├── services/            # Shared API services
-├── utils/               # Utility functions
-└── constants/           # Application constants
+├── hooks/                # Reusable custom hooks
+│   └── index.js          # Centralized exports (placeholder)
+├── services/             # Shared API services
+├── utils/                # Utility functions
+│   ├── utils.js
+│   ├── partnersLoader.js
+│   ├── validation.js
+│   ├── devHelper.js
+│   ├── evaluationEngine.js
+│   ├── factories/        # Factory pattern implementations
+│   │   ├── providerFactory.js
+│   │   └── index.js      # Centralized exports
+│   ├── guards/           # Guard/middleware utilities
+│   │   ├── securityGuard.js
+│   │   └── index.js      # Centralized exports
+│   └── index.js          # (optional) Centralized exports
+└── constants/            # Application constants
 ```
 
 ### Penggunaan:
-- **Common**: LoadingSpinner, Button, Input, dll
-- **Layout**: Navbar, Sidebar, Footer, dll
+- **Common**: FAQAdmin, FAQList, PageTitle, ProjectProgressBar, ProjectStatusBadge
+- **Layout**: Navbar, Sidebar, Footer, LoadingSpinner, ScrollToTop
+- **UI**: Shadcn primitives (button, card, input) + custom variations
 - **Charts**: Komponen visualisasi data
-- **Hooks**: useLocalStorage, useDebounce, dll
+- **Hooks**: useLocalStorage, useDebounce, dll (placeholder untuk future)
 - **Services**: API client, auth service, dll
-- **Utils**: Formatters, validators, helpers
+- **Utils**: Formatters, validators, helpers, factories, guards
+- **Constants**: Application constants
+
+### Best Practices - Index Files
+
+Setiap folder di `shared/components/` memiliki `index.js` untuk centralized exports:
+
+```javascript
+// /src/shared/components/common/index.js
+export { default as FAQAdmin } from './FAQAdmin';
+export { default as FAQList } from './FAQList';
+export { default as PageTitle } from './PageTitle';
+export { default as ProjectProgressBar } from './ProjectProgressBar';
+export { default as ProjectStatusBadge } from './ProjectStatusBadge';
+```
+
+Ini memungkinkan import yang lebih clean:
+```javascript
+// Instead of:
+import { FAQAdmin } from '../shared/components/common/FAQAdmin';
+
+// Use:
+import { FAQAdmin } from '../shared/components/common';
+```
 
 ---
 
@@ -127,16 +192,23 @@ pages/
 │   ├── LandingPage.jsx
 │   ├── About.jsx
 │   ├── Contact.jsx
+│   ├── License.jsx
+│   ├── MonitoringAccess.jsx
+│   ├── NotFound.jsx
+│   ├── PolicyPage.jsx
+│   ├── TermsAndConditions.jsx
 │   └── ...
 ├── auth/                 # Authentication pages
 │   ├── LoginPage.jsx
 │   ├── RegisterPage.jsx
 │   └── ...
 ├── admin/                # Admin pages
-│   ├── AdminDashboardPage.jsx
+│   ├── ActivityPage.jsx
+│   ├── RecentActivity.jsx
 │   ├── UserPage.jsx
 │   └── ...
-├── user/                 # User pages
+├── dashboard/            # Dashboard pages
+│   ├── AdminDashboardPage.jsx
 │   ├── UserDashboardPage.jsx
 │   └── ...
 ├── evaluation/           # Evaluation pages
@@ -145,9 +217,13 @@ pages/
 ├── reporting/            # Reporting pages
 │   ├── ReportsPage.jsx
 │   └── ...
+├── settings/             # Settings pages
+│   ├── Settings.jsx
+│   └── ...
 └── verification/         # Verification pages
-    ├── VerificationPage.jsx
+    ├── PublicVerificationPage.jsx
     ├── VerificationDashboardPage.jsx
+    ├── VerificationPage.jsx
     └── ...
 ```
 
@@ -155,8 +231,11 @@ pages/
 - **Public**: Halaman yang dapat diakses tanpa login
 - **Auth**: Login, register, forgot password
 - **Admin**: Halaman khusus admin
-- **User**: Halaman khusus user
-- **Feature**: Halaman untuk setiap fitur domain
+- **Dashboard**: Dashboard untuk admin dan user
+- **Evaluation**: Halaman evaluasi
+- **Reporting**: Halaman laporan
+- **Settings**: Halaman pengaturan user
+- **Verification**: Halaman verifikasi data
 
 ---
 
@@ -195,19 +274,39 @@ assets/
 
 ### 1. Import Patterns
 ```javascript
-// ✅ Benar: Import dari feature index
+// ✅ Benar: Import dari shared dengan index.js
+import { FAQAdmin, PageTitle } from '../shared/components/common';
+import { Navbar, Footer } from '../shared/components/layout';
 import { useAuth } from '../app/context/AuthContext';
+
+// ✅ Benar: Import dari feature index
 import { EvaluationPage } from '../features/evaluation';
 
-// ✅ Benar: Import dari shared
-import { LoadingSpinner } from '../shared/components/common';
+// ✅ Benar: Import dari shared utils
 import { formatDate } from '../shared/utils';
+import { securityGuard } from '../shared/utils/guards';
 
 // ❌ Salah: Import deep nesting
+import { FAQAdmin } from '../shared/components/common/FAQAdmin';
 import { useAuth } from '../../../app/context/AuthContext';
 ```
 
-### 2. Feature Structure
+### 2. Component Organization
+
+**UI Components (Shadcn-based):**
+- Primitives: button.jsx, card.jsx, input.jsx, dll
+- Variations: button/, card/, navigation/, sheet/
+- Location: `/src/shared/components/ui/`
+
+**Generic Components (Custom):**
+- FAQAdmin, FAQList, PageTitle, ProjectProgressBar, dll
+- Location: `/src/shared/components/common/`
+
+**Layout Components:**
+- Navbar, Sidebar, Footer, LoadingSpinner, dll
+- Location: `/src/shared/components/layout/`
+
+### 3. Feature Structure
 Setiap feature harus memiliki struktur yang konsisten:
 - `components/` - UI components
 - `hooks/` - Custom hooks
@@ -215,7 +314,7 @@ Setiap feature harus memiliki struktur yang konsisten:
 - `utils/` - Helper functions
 - `index.js` - Centralized exports
 
-### 3. Naming Conventions
+### 4. Naming Conventions
 - **Files**: PascalCase untuk components (UserProfile.jsx)
 - **Folders**: kebab-case atau camelCase (user-profile / userProfile)
 - **Components**: PascalCase (UserProfile)
@@ -223,17 +322,17 @@ Setiap feature harus memiliki struktur yang konsisten:
 - **Services**: camelCase (userService)
 - **Utils**: camelCase (formatDate)
 
-### 4. Separation of Concerns
-- **Features**: Business logic dan domain-specific UI
-- **Shared**: Reusable components dan utilities
-- **Pages**: Routing dan composition layer
-- **App**: Global configuration dan providers
-
 ### 5. File Organization
 - Satu file per component
-- Index files untuk exports
+- Index files untuk exports (centralized imports)
 - Group related files together
 - Keep files focused and small
+
+### 6. Utilities Organization
+Utilities diorganisir dalam subfolder berdasarkan pattern:
+- `factories/` - Factory pattern implementations
+- `guards/` - Guard/middleware utilities
+- Root level - General utilities (utils.js, validation.js, dll)
 
 ---
 
@@ -268,6 +367,84 @@ Setiap feature harus memiliki struktur yang konsisten:
    import apiConfig from '../app/config/apiConfig';
    ```
 
+4. **Component Files**:
+   ```javascript
+   // Lama
+   import { FAQAdmin } from '../components/FAQAdmin';
+   
+   // Baru
+   import { FAQAdmin } from '../shared/components/common';
+   ```
+
+5. **Layout Files**:
+   ```javascript
+   // Lama
+   import { Navbar } from '../layouts/partials/Navbar';
+   
+   // Baru
+   import { Navbar } from '../shared/components/layout';
+   ```
+
+6. **Utility Files**:
+   ```javascript
+   // Lama
+   import { formatDate } from '../lib/utils';
+   
+   // Baru
+   import { formatDate } from '../shared/utils';
+   ```
+
+7. **Factory/Guard Files**:
+   ```javascript
+   // Lama
+   import { providerFactory } from '../shared/factories/providerFactory';
+   
+   // Baru
+   import { providerFactory } from '../shared/utils/factories';
+   ```
+
+---
+
+## 📁 Reserved Features
+
+Folder-folder berikut ini reserved untuk future implementation:
+
+### /src/features/auth/
+- **Status**: Reserved untuk authentication features
+- **Current**: Kosong (authentication context ada di `/src/app/context/AuthContext.jsx`)
+- **Future**: Akan diisi dengan auth-specific components, hooks, services
+
+### /src/features/button/
+- **Status**: Reserved untuk button-related features
+- **Current**: Kosong (button components ada di `/src/shared/components/ui/button/`)
+- **Future**: Akan diisi dengan button-specific features jika diperlukan
+
+---
+
+## 📚 Demo Components
+
+### /src/features/demo/
+Folder ini berisi demo dan example components untuk development:
+- `ButtonTypesDemo.jsx` - Demonstrasi berbagai tipe button dan variations
+- `DashboardCardDemo.jsx` - Demonstrasi dashboard card components
+- `index.js` - Centralized exports
+
+**Purpose:**
+- Development reference untuk component usage
+- Testing playground untuk new features
+- Documentation dari component capabilities
+- Isolated environment untuk component testing
+
+**Usage:**
+```javascript
+import { ButtonTypesDemo, DashboardCardDemo } from '@/features/demo';
+```
+
+**Note:**
+- Components ini untuk development only
+- Tidak boleh digunakan di production
+- Gunakan sebagai reference saat membuat components baru
+
 ---
 
 ## 📚 Referensi
@@ -295,4 +472,5 @@ Saat menambahkan shared components:
 
 ---
 
-*Last Updated: 10 Mei 2026*
+*Last Updated: 19 Mei 2026*
+*Status: ✅ Reorganization Complete - All Best Practices Applied*

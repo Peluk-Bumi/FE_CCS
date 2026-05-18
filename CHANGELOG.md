@@ -4,6 +4,10 @@ Semua perubahan penting pada aplikasi frontend FE_CCS.
 
 ## [Unreleased]
 
+### Dokumentasi
+- `README.md` diganti menjadi overview proyek (deploy dipindah ke `docs/DEPLOYMENT.md`)
+- Tambah `docs/SEVEN_LAYER_ALIGNMENT.md` — audit kesesuaian 7 layer frontend
+
 ---
 
 ## [v1.4.0] - 2026-05-11

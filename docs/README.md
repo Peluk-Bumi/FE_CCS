@@ -4,6 +4,8 @@
 
 Frontend aplikasi Peluk Bumi Environmental Monitoring System (EMS) dibangun dengan React 19 dan Vite untuk memberikan pengalaman pengguna yang modern dan responsif dalam monitoring aktivitas konservasi lingkungan dengan fokus pada workflow konservasi.
 
+**Root project:** [../README.md](../README.md) · **Changelog:** [../CHANGELOG.md](../CHANGELOG.md) · **7 layer:** [SEVEN_LAYER_ALIGNMENT.md](SEVEN_LAYER_ALIGNMENT.md)
+
 ## 🏗️ Architecture
 
 ### System Architecture
