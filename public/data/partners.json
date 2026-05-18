@@ -1,0 +1,101 @@
+{
+  "academic": [
+    {
+      "name": "IWU",
+      "logo": "/uploads/partners/academic/Logo_Universitas_Wanita_Internasional.svg",
+      "alt": "IWU Campus Logo",
+      "imageSize": "h-24",
+      "url": "https://iwu.ac.id"
+    }
+  ],
+  "government": [
+    {
+      "name": "Kemdiktisaintek",
+      "logo": "/uploads/partners/government/diktisaintek-berdampak.png",
+      "alt": "Kemendiktisaintek Logo",
+      "imageSize": "h-20",
+      "url": "https://kemdiktisaintek.go.id/"
+    }
+  ],
+  "partners": [
+    {
+      "name": "Yayasan Sadaya Inspirasi Negeri",
+      "logo": "/uploads/partners/partners/Yayasan Sadaya Logo_Horizontal-comp.png",
+      "alt": "Sadaya Logo",
+      "imageSize": "h-10"
+
+    },
+    {
+      "name": "Pemuda Nusantara Digital Kreatif",
+      "logo": "/uploads/partners/partners/PDK_logo.png",
+      "alt": "PNDK Logo",
+      "imageSize": "h-10"
+    },
+    {
+      "name": "Maulia and Partners",
+      "logo": "/uploads/partners/partners/maulia-logo.png",
+      "alt": "Maulia Logo",
+      "imageSize": "h-16"
+    },
+    {
+      "name": "HIPMI Kota Bandung",
+      "logo": "/uploads/partners/partners/hipmi-bdg-black.png",
+      "alt": "HIPMI Bandung Logo",
+      "imageSize": "h-10"
+    },
+    {
+      "name": "KNPI Kota Bandung",
+      "logo": "/uploads/partners/partners/knpi-bdg.png",
+      "alt": "KNPI Bandung Logo"
+    },
+    {
+      "name": "KADIN Jawa Barat",
+      "logo": "/uploads/partners/partners/kadin-jabar.png",
+      "alt": "KADIN Jabar Logo",
+      "imageSize": "h-14"
+    }
+  ],
+  "supported": [
+    {
+      "name": "Next Cube Digital",
+      "logo": "/uploads/partners/supported/nexcube-digital.png",
+      "alt": "Next Cube Logo",
+      "imageSize": "h-14"
+    },
+    {
+      "name": "Elevate Studios",
+      "logo": "/uploads/partners/supported/Logo elevate studios.png",
+      "alt": "Elevate Logo",
+      "imageSize": "h-9"
+    },
+    {
+      "name": "Wylkpy Creative Collective",
+      "logo": "/uploads/partners/supported/Wylpky 2.0 logo.png",
+      "alt": "Wylkpy Logo",
+      "imageSize": "h-8",
+      "url": "https://wylkpy.vercel.app/"
+    },
+    {
+      "name": "Gen Wirausaha Milenial",
+      "logo": "/uploads/partners/supported/Logo GenW.png",
+      "alt": "Gen Wirausaha Logo",
+      "imageSize": "h-14"
+    },
+    {
+      "name": "Seputar Legal",
+      "logo": "/uploads/partners/supported/seputar-legal.png",
+      "alt": "Seputar Legal Logo"
+    },
+    {
+      "name": "IMPURITY Band",
+      "logo": "/uploads/partners/supported/imppurity-band.png",
+      "alt": "IMPURITY Logo",
+      "imageSize": "h-14"
+    },
+    {
+      "name": "Genzi Project",
+      "logo": "/uploads/partners/supported/LOGO GENZI PROJECT.png",
+      "alt": "Genzi Logo"
+    }
+  ]
+}

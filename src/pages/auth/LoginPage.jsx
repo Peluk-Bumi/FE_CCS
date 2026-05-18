@@ -3,9 +3,9 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/app/context/AuthContext";
 import { EyeIcon, EyeSlashIcon, HomeIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
-import LoadingSpinner from "@/layouts/common/LoadingSpinner";
+import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import { FiAlertTriangle, FiLock, FiZap, FiFeather } from "react-icons/fi";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 import api from "@/shared/services/api";
 
 export default function Login() {
@@ -501,3 +501,4 @@ export default function Login() {
                   </div>
                 );
               }
+

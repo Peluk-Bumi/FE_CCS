@@ -20,8 +20,8 @@ import {
 } from "react-icons/fi";
 import { toast } from "react-toastify";
 import api from "@/shared/services/api";
-import LoadingSpinner from "@/layouts/common/LoadingSpinner";
-import PageTitle from "@/shared/components/PageTitle";
+import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
+import PageTitle from "@/shared/components/common/PageTitle";
 import { getActivityColors, getActivityIcon, formatHash, getActivityDisplayName } from "@/shared/constants/activityColors";
 import { buildLaporanPdfBlob } from "@/features/reporting/utils/reportPdf";
 const EXPLORER_BASE_URL =
@@ -754,3 +754,5 @@ export default function LaporanPage() {
     </div>
   );
 }
+
+

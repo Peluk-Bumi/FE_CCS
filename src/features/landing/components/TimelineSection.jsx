@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { FiCheck, FiClock, FiTarget, FiTrendingUp } from "react-icons/fi";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 
 export default function TimelineSection({ theme }) {
   const phases = [
@@ -148,3 +148,4 @@ export default function TimelineSection({ theme }) {
     </section>
   );
 }
+

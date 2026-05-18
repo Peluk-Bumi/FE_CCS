@@ -7,7 +7,7 @@ import { buildAllCompanyReports } from "@/shared/utils/evaluationEngine";
 import { getApiOrigin } from "@/app/config/apiConfig";
 import EvaluationModal from "@/features/evaluation/components/EvaluationModal";
 import CompanyList from "@/features/evaluation/components/CompanyList";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 
 export default function EvaluasiPage() {
   const { user } = useAuth();
@@ -101,3 +101,4 @@ export default function EvaluasiPage() {
     </div>
   );
 }
+

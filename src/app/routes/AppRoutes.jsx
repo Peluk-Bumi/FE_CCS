@@ -7,7 +7,6 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 import Dashboard from "@/pages/dashboard/AdminDashboardPage";
 import UserPage from "@/pages/admin/UserPage";
 import LaporanPage from "@/pages/reporting/ReportsPage";
-import ActivityPage from "@/pages/admin/ActivityPage";
 import VerifikasiDashboardPage from "@/pages/verification/VerificationDashboardPage";
 
 // Forms
@@ -37,31 +36,30 @@ import Register from "@/pages/auth/RegisterPage";
 // Settings
 import Settings from "@/pages/settings/Settings";
 
+// Demo - moved to /docs/examples/ for documentation purposes
+import { ButtonTypesDemo, DashboardCardDemo } from '@/features/demo';
+
 // Protected Route
 import ProtectedRoute from "./ProtectedRoute";
 import { useAuth } from "../context/AuthContext";
 
-// ✅ Smart Verifikasi Router - Route berdasarkan status autentikasi
+// Smart Verifikasi Router — public or authenticated
 function VerifikasiRouter() {
   const { isAuthenticated, user } = useAuth();
-
   if (isAuthenticated) {
-    // ✅ User sudah login - arahkan ke dashboard verifikasi
     return (
       <ProtectedRoute>
         <VerifikasiDashboardPage />
       </ProtectedRoute>
     );
   }
-
-  // ✅ Public - tanpa layout dan authentication
   return <VerifikasiPublicPage />;
 }
 
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Public */}
+      {/* ── Public ─────────────────────────────────────────────────────────── */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -71,11 +69,9 @@ export default function AppRoutes() {
       <Route path="/kebijakan-privasi" element={<PolicyPage />} />
       <Route path="/syarat-ketentuan" element={<TermsAndConditions />} />
       <Route path="/lisensi" element={<License />} />
-      
-      {/* ✅ Smart Verifikasi Route - berdasarkan autentikasi */}
       <Route path="/verifikasi" element={<VerifikasiRouter />} />
 
-      {/* Admin - Full Access */}
+      {/* ── Admin ──────────────────────────────────────────────────────────── */}
       <Route
         path="/admin/*"
         element={
@@ -84,19 +80,21 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="users" element={<UserPage />} />
-        <Route path="perencanaan" element={<PlanningForm />} />
+        <Route path="dashboard"    element={<Dashboard />} />
+        <Route path="users"        element={<UserPage />} />
+        <Route path="perencanaan"  element={<PlanningForm />} />
         <Route path="implementasi" element={<ImplementasiForm />} />
-        <Route path="laporan" element={<LaporanPage />} />
-        <Route path="monitoring" element={<MonitoringForm />} />
-        <Route path="evaluasi" element={<EvaluasiPage />} />
-        <Route path="verifikasi" element={<VerifikasiDashboardPage />} />
-        <Route path="settings" element={<Settings />} />
+        <Route path="monitoring"   element={<MonitoringForm />} />
+        <Route path="evaluasi"     element={<EvaluasiPage />} />
+        {/* laporan = PDF reports page; log-history = blockchain tx log */}
+        {/* <Route path="laporan"      element={<LaporanPage />} /> */}
+        <Route path="log-history"  element={<LaporanPage />} />
+        <Route path="verifikasi"   element={<VerifikasiDashboardPage />} />
+        <Route path="settings"     element={<Settings />} />
         <Route index element={<Navigate to="dashboard" replace />} />
       </Route>
 
-      {/* User Routes - Fixed */}
+      {/* ── User ───────────────────────────────────────────────────────────── */}
       <Route
         path="/user/*"
         element={
@@ -105,19 +103,27 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route path="dashboard" element={<DashboardUser />} />
-        <Route path="perencanaan" element={<PlanningForm />} />
+        <Route path="dashboard"    element={<DashboardUser />} />
+        <Route path="perencanaan"  element={<PlanningForm />} />
         <Route path="implementasi" element={<ImplementasiForm />} />
-        <Route path="monitoring" element={<MonitoringForm />} />
-        <Route path="evaluasi" element={<EvaluasiPage />} />
-        <Route path="laporan" element={<LaporanPage />} />
-        <Route path="verifikasi" element={<VerifikasiDashboardPage />} />
-        <Route path="settings" element={<Settings />} />
+        <Route path="monitoring"   element={<MonitoringForm />} />
+        <Route path="evaluasi"     element={<EvaluasiPage />} />
+        {/* laporan = PDF reports; log-history = blockchain tx log */}
+        {/* <Route path="laporan"      element={<LaporanPage />} /> */}
+        <Route path="log-history"  element={<LaporanPage />} />
+        <Route path="verifikasi"   element={<VerifikasiDashboardPage />} />
+        <Route path="settings"     element={<Settings />} />
         <Route index element={<Navigate to="dashboard" replace />} />
       </Route>
 
-      {/* Fallback */}
+      {/* ── Fallback ───────────────────────────────────────────────────────── */}
       <Route path="*" element={<NotFound />} />
+
+      {/* ── Dev Demo ───────────────────────────────────────────────────────── */}
+      {/* Demo routes disabled - demo files moved to /docs/examples/ */}
+      <Route path="/demo/buttons" element={<ButtonTypesDemo />} />
+      <Route path="/demo/cards"   element={<DashboardCardDemo />} />
+      <Route path="/demo/*" element={<Navigate to=".." replace />} />
     </Routes>
   );
 }

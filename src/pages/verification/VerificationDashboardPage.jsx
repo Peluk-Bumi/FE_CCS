@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { FiCamera } from "react-icons/fi";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 import { useVerification } from "@/features/verification/hooks/useVerification";
 import QRScanner from "@/features/verification/components/QRScanner";
 import LaporanDetailModal from "@/features/verification/components/LaporanDetailModal";
@@ -85,3 +85,4 @@ export default function VerifikasiDashboardPage() {
     </div>
   );
 }
+

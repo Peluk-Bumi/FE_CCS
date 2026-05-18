@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import LoadingSpinner from "@/layouts/common/LoadingSpinner";
+import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import { FiMapPin, FiCalendar, FiUser, FiPhone, FiBriefcase, FiCheckCircle, FiNavigation, FiLink, FiAlertCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,9 +9,10 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from "re
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "react-toastify/dist/ReactToastify.css";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 import api from "@/shared/services/api";
 import { useAuth } from "@/app/context/AuthContext";
+import { FormButton } from "@/shared/components/ui/button/FormButton";
 
 // ✅ Fix Leaflet default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -549,35 +550,13 @@ const PerencanaanForm = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <motion.button
+              <FormButton
                 type="submit"
-                disabled={submitting}
-                className={`relative group w-full py-4 rounded-xl font-bold text-lg shadow-xl overflow-hidden transition-all duration-300 ${
-                  submitting
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-primary text-primary-foreground"
-                }`}
+                loading={submitting}
+                icon={<FiCheckCircle className="w-5 h-5" />}
               >
-                {/* hover overlay */}
-                {!submitting && (
-                  <span className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                )}
-                
-                {/* content */}
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  {submitting ? (
-                    <>
-                      <motion.div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
-                      Menyimpan data & transaksi...
-                    </>
-                  ) : (
-                    <>
-                      <FiCheckCircle className="w-6 h-6" />
-                      Simpan Kegiatan
-                    </>
-                  )}
-                </span>
-              </motion.button>
+                {submitting ? "Menyimpan data & transaksi..." : "Simpan Kegiatan"}
+              </FormButton>
             </motion.div>
           </form>
         </motion.div>
@@ -586,3 +565,4 @@ const PerencanaanForm = () => {
 };
 
 export default PerencanaanForm;
+

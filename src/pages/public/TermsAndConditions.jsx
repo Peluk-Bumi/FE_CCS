@@ -1,9 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "@/app/context/ThemeContext";
-import Footer from "@/layouts/partials/Footer";
-import Navbar from "@/layouts/partials/Navbar";
-import PageTitle from "@/shared/components/PageTitle";
+import Footer from "@/shared/components/layout/Footer";
+import Navbar from "@/shared/components/layout/Navbar";
+import PageTitle from "@/shared/components/common/PageTitle";
 
 export default function TermsAndConditions() {
   const { theme } = useTheme();
@@ -158,3 +158,5 @@ export default function TermsAndConditions() {
     </div>
   );
 }
+
+

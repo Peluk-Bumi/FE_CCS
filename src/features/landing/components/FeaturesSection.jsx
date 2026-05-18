@@ -1,7 +1,7 @@
 import React from "react";
 import { FiLink, FiFileText, FiGlobe, FiBarChart2, FiCheck, FiArrowRight } from "react-icons/fi";
 import { motion } from "framer-motion";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 
 export default function FeaturesSection({ theme }) {
   const features = [
@@ -142,3 +142,4 @@ export default function FeaturesSection({ theme }) {
     </section>
   );
 }
+

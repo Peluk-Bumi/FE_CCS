@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowRight, FiPlay, FiFeather, FiZap, FiShield, FiHeart, FiUsers, FiGlobe } from "react-icons/fi";
 import { motion } from "framer-motion";
+import { CTAButton } from "@/shared/components/ui/button/CTAButton";
 
 export default function HeroSection({ theme, scrollToSection }) {
   const navigate = useNavigate();
@@ -173,18 +174,12 @@ export default function HeroSection({ theme, scrollToSection }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
             >
-              <motion.button
+              <CTAButton
+                icon={<FiArrowRight />}
                 onClick={() => navigate("/register")}
-                className="px-8 py-4 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group border border-primary/30"
-                whileHover={{ 
-                  scale: 1.05,
-                  boxShadow: "0 20px 40px -10px rgba(81, 118, 64, 0.4)"
-                }}
-                whileTap={{ scale: 0.95 }}
               >
                 Mulai Gratis Sekarang
-                <FiArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
+              </CTAButton>
               
               <motion.button
                 onClick={() => scrollToSection("#features")}

@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/utils/utils"
 
 function Input({
   className,
@@ -22,3 +22,4 @@ function Input({
 }
 
 export { Input }
+

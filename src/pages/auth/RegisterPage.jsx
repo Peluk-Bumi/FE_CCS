@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeSlashIcon, HomeIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 import { motion, AnimatePresence } from "framer-motion";
-import LoadingSpinner from "@/layouts/common/LoadingSpinner";
+import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import { FiFeather, FiZap, FiShield } from "react-icons/fi";
 
 export default function Register() {
@@ -375,3 +375,4 @@ export default function Register() {
     </div>
   );
 }
+

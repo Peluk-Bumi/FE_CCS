@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { PieChart, BarChart } from "@/shared/components/charts/Charts";
-import LoadingSpinner from "@/layouts/common/LoadingSpinner";
+import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import {
   FiCalendar,
   FiCheckCircle,
@@ -13,7 +13,9 @@ import {
   FiTrendingDown,
 } from "react-icons/fi";
 import api from "@/shared/services/api";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
+import { FieldDashboardCard } from "@/shared/components/ui/card/FieldDashboardCard";
+import { ContextActions } from "@/shared/components/ui/ContextActions";
 
 // Default stats dengan format chart yang benar
 const defaultStats = {
@@ -306,39 +308,47 @@ export default function DashboardUser() {
     }
   };
 
-  // Stat cards untuk user dashboard dengan admin styling
+  // Stat cards untuk user dashboard
   const statCards = [
     {
       title: "Aktivitas Direncanakan",
       value: stats.total_perencanaan || 0,
-      icon: <FiCalendar className="w-7 h-7" />,
+      icon: <FiCalendar className="w-5 h-5" />,
       trend: "+12%",
       trendUp: true,
-      subtitle: "Proses konservasi (Blockchain)"
+      subtitle: "Proses konservasi (Blockchain)",
+      type: "default",
+      navigateTo: "/user/perencanaan",
     },
     {
       title: "Aktivitas Dilaksanakan",
       value: stats.total_implementasi || 0,
-      icon: <FiCheckCircle className="w-7 h-7" />,
+      icon: <FiCheckCircle className="w-5 h-5" />,
       trend: "+8%",
       trendUp: true,
-      subtitle: "Dari rencana (Real-time)"
+      subtitle: "Dari rencana (Real-time)",
+      type: "trees",
+      navigateTo: "/user/implementasi",
     },
     {
       title: "Monitoring Berjalan",
       value: stats.total_monitoring || 0,
-      icon: <FiMonitor className="w-7 h-7" />,
+      icon: <FiMonitor className="w-5 h-5" />,
       trend: "+5%",
       trendUp: true,
-      subtitle: "Proses evaluasi (Data Analytics)"
+      subtitle: "Proses evaluasi (Data Analytics)",
+      type: "activities",
+      navigateTo: "/user/monitoring",
     },
     {
       title: "Proses Selesai",
       value: stats.completed_activities || 0,
-      icon: <FiCheckCircle className="w-7 h-7" />,
+      icon: <FiCheckCircle className="w-5 h-5" />,
       trend: "+3",
       trendUp: true,
-      subtitle: "Dokumentasi lengkap (Digital)"
+      subtitle: "Dokumentasi lengkap (Digital)",
+      type: "progress",
+      navigateTo: "/user/evaluasi",
     },
   ];
 
@@ -374,44 +384,27 @@ export default function DashboardUser() {
         </div>
       )}
 
-      {/* Stats Cards - Admin Styling */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Stats Cards — FieldDashboardCard, clickable ke halaman terkait */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-4">
         {statCards.map((card, index) => (
-          <div
+          <FieldDashboardCard
             key={index}
-            className="bg-white group dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 transition-all hover:shadow-xl"
-          >
-            <div className="flex items-start justify-between gap-3 mb-4">
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 truncate">
-                  {card.title}
-                </p>
-                <h3 className="text-3xl font-black text-gray-900 dark:text-gray-100 leading-none">
-                  {card.value}
-                </h3>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground flex-shrink-0 group-hover:bg-primary-dark dark:group-hover:bg-primary-light group-hover:scale-105 transition-all duration-300">
-                <span className="text-base">{React.cloneElement(card.icon, { className: "w-5 h-5" })}</span>
-              </div>
-            </div>
-
-            {/* Trend Indicator */}
-            <div className="flex items-center justify-between gap-1">
-              <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold ${
-                card.trendUp 
-                  ? 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light group-hover:bg-primary/20 dark:group-hover:bg-primary/30' 
-                  : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 group-hover:bg-red-200 dark:group-hover:bg-red-800/40'
-              }`}>
-                {card.trendUp ? (
-                  <FiTrendingUp className="w-3 h-3" />
-                ) : (
-                  <FiTrendingDown className="w-3 h-3" />
-                )}
-                <span>{card.trend}</span>
-              </div>
-            </div>
-          </div>
+            title={card.title}
+            value={card.value}
+            subtitle={card.subtitle}
+            icon={card.icon}
+            trend={card.trend}
+            trendUp={card.trendUp}
+            type={card.type}
+            onClick={() => navigate(card.navigateTo)}
+          />
         ))}
+      </div>
+
+      {/* Quick Actions — mobile only */}
+      <div className="md:hidden mb-6">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Aksi Cepat</p>
+        <ContextActions context="dashboard" />
       </div>
 
       {/* Charts - Admin Styling */}
@@ -445,3 +438,5 @@ export default function DashboardUser() {
     </div>
   );
 }
+
+

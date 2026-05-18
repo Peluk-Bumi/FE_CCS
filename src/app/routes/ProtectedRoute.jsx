@@ -1,8 +1,8 @@
 // src/components/ProtectedRoute.jsx
 import { useAuth } from '../context/AuthContext';
 import { Navigate, useLocation } from 'react-router-dom';
-import PageTitle from "@/shared/components/PageTitle";
-import LoadingSpinner from '@/layouts/common/LoadingSpinner';
+import PageTitle from "@/shared/components/common/PageTitle";
+import LoadingSpinner from '@/shared/components/layout/LoadingSpinner';
 
 export default function ProtectedRoute({ children, role }) {
   const { isAuthenticated, loading, user } = useAuth();
@@ -42,3 +42,5 @@ export default function ProtectedRoute({ children, role }) {
   console.log('[ProtectedRoute] Access granted, rendering protected content');
   return children;
 }
+
+

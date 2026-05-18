@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { FiUserPlus, FiLayout, FiFileText, FiCheckCircle, FiDatabase, FiFile } from "react-icons/fi";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 
 export default function HowItWorksSection({ theme }) {
   const steps = [
@@ -102,3 +102,4 @@ export default function HowItWorksSection({ theme }) {
     </section>
   );
 }
+

@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { FiUser, FiMail, FiLock, FiSave, FiShield, FiCamera, FiSettings } from "react-icons/fi";
 import api from "@/shared/services/api";
 import { useAuth } from "@/app/context/AuthContext";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 
 export default function Settings() {
   const { user, refreshUserProfile } = useAuth();
@@ -296,3 +296,4 @@ export default function Settings() {
     </div>
   );
 }
+

@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 import api from "@/shared/services/api";
-import LoadingSpinner from "@/layouts/common/LoadingSpinner";
+import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiCalendar,
@@ -27,6 +27,8 @@ import {
 import WalletIndicator from '@/features/blockchain/components/WalletIndicator';
 import { PieChart, BarChart } from "@/shared/components/charts/Charts";
 import { getActivityColors, getActivityIcon, formatHash, getActivityDisplayName } from "@/shared/constants/activityColors";
+import { FieldDashboardCard } from "@/shared/components/ui/card/FieldDashboardCard";
+import { ContextActions } from "@/shared/components/ui/ContextActions";
 
 const defaultStats = {
   total_perencanaan: 0,
@@ -399,34 +401,42 @@ export default function Dashboard() {
     {
       title: "Kolaborator Terdaftar",
       value: stats.total_users || 0,
-      icon: <FiUser className="w-7 h-7" />,
+      icon: <FiUser className="w-5 h-5" />,
       trend: stats.user_growth || "+0%",
-      trendUp: stats.user_growth && stats.user_growth.startsWith('+'),
-      subtitle: "Bergabung dalam proses"
+      trendUp: !!(stats.user_growth && stats.user_growth.startsWith('+')),
+      subtitle: "Bergabung dalam proses",
+      type: "activities",
+      navigateTo: "/admin/users",
     },
     {
       title: "Aktivitas Direncanakan",
       value: stats.total_perencanaan || 0,
-      icon: <FiFileText className="w-7 h-7" />,
+      icon: <FiFileText className="w-5 h-5" />,
       trend: metrics.projectGrowth,
-      trendUp: metrics.projectGrowth && metrics.projectGrowth.startsWith('+'),
-      subtitle: "Proses konservasi (Blockchain)"
+      trendUp: !!(metrics.projectGrowth && metrics.projectGrowth.startsWith('+')),
+      subtitle: "Proses konservasi (Blockchain)",
+      type: "default",
+      navigateTo: "/admin/perencanaan",
     },
     {
       title: "Tingkat Pelaksanaan",
       value: `${metrics.completionRate}%`,
-      icon: <FiCheckCircle className="w-7 h-7" />,
+      icon: <FiCheckCircle className="w-5 h-5" />,
       trend: stats.completion_trend || "+0%",
-      trendUp: true, // Implementation rate generally positive
-      subtitle: "Dari rencana (Real-time)"
+      trendUp: true,
+      subtitle: "Dari rencana (Real-time)",
+      type: "trees",
+      navigateTo: "/admin/implementasi",
     },
     {
       title: "Tingkat Keberhasilan",
       value: `${stats.avg_survival_monitoring || 0}%`,
-      icon: <FiActivity className="w-7 h-7" />,
+      icon: <FiActivity className="w-5 h-5" />,
       trend: metrics.survivalTrend,
-      trendUp: metrics.survivalTrend && metrics.survivalTrend.startsWith('+'),
-      subtitle: "Hasil monitoring (Data Analytics)"
+      trendUp: !!(metrics.survivalTrend && metrics.survivalTrend.startsWith('+')),
+      subtitle: "Hasil monitoring (Data Analytics)",
+      type: "progress",
+      navigateTo: "/admin/monitoring",
     },
   ];
 
@@ -530,51 +540,35 @@ export default function Dashboard() {
       {/* Main Content - Scrollable */}
       <div className="flex-1 overflow-hidden min-h-0">
         <div className="h-full flex flex-col gap-6 min-h-0">
-          {/* Stats Cards - User Friendly Large Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 flex-shrink-0">
+          {/* Stats Cards — FieldDashboardCard, clickable ke halaman terkait */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 flex-shrink-0">
             {statCards.map((card, index) => (
-              <motion.div
+              <FieldDashboardCard
                 key={index}
-                className="bg-white group dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 transition-all hover:shadow-xl"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 truncate">
-                      {card.title}
-                    </p>
-                    <h3 className="text-3xl font-black text-gray-900 dark:text-gray-100 leading-none">
-                      {card.value}
-                    </h3>
-                    {card.subtitle && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {card.subtitle}
-                      </p>
-                    )}
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-primary/5 border border-primary/60 flex items-center justify-center text-primary-dark group-hover:text-light flex-shrink-0 group-hover:bg-primary-dark dark:group-hover:bg-primary-light group-hover:scale-105 transition-all duration-300">
-                    <span className="text-base">{React.cloneElement(card.icon, { className: "w-5 h-5" })}</span>
-                  </div>
-                </div>
-
-                {/* Trend Indicator */}
-                <div className="flex items-center justify-between gap-1">
-                  <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold ${
-                    card.trendUp 
-                      ? 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light group-hover:bg-primary/20 dark:group-hover:bg-primary/30' 
-                      : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 group-hover:bg-red-200 dark:group-hover:bg-red-800/40'
-                  }`}>
-                    {card.trendUp ? (
-                      <FiTrendingUp className="w-3 h-3" />
-                    ) : (
-                      <FiTrendingDown className="w-3 h-3" />
-                    )}
-                    <span>{card.trend}</span>
-                  </div>
-                </div>
-              </motion.div>
+                title={card.title}
+                value={card.value}
+                subtitle={card.subtitle}
+                icon={card.icon}
+                trend={card.trend}
+                trendUp={card.trendUp}
+                type={card.type}
+                onClick={() => navigate(card.navigateTo)}
+              />
             ))}
+          </div>
+
+          {/* Quick Actions — mobile horizontal scroll, hidden on desktop */}
+          <div className="md:hidden flex-shrink-0">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Aksi Cepat</p>
+            <ContextActions
+              context="dashboard"
+              actions={[
+                { id: 'perencanaan', label: 'Tambah Perencanaan', icon: <FiFileText />, color: 'primary', path: '/admin/perencanaan' },
+                { id: 'implementasi', label: 'Lihat Implementasi', icon: <FiCheckCircle />, color: 'primary', path: '/admin/implementasi' },
+                { id: 'monitoring', label: 'Monitoring', icon: <FiActivity />, color: 'primary', path: '/admin/monitoring' },
+                { id: 'users', label: 'Kelola User', icon: <FiUser />, color: 'primary', path: '/admin/users' },
+              ]}
+            />
           </div>
 
           {/* Charts Section - Side by Side */}
@@ -786,3 +780,4 @@ export default function Dashboard() {
     </div>
   );
 }
+

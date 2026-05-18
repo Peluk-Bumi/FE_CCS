@@ -1,7 +1,7 @@
 import React from "react";
 import { FiActivity, FiMapPin, FiDatabase, FiUsers, FiArrowRight } from "react-icons/fi";
 import { motion } from "framer-motion";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 
 export default function StatsSection({ theme }) {
   const progressItems = [
@@ -113,3 +113,4 @@ export default function StatsSection({ theme }) {
     </section>
   );
 }
+

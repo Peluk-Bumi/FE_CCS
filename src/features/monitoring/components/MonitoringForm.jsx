@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import LoadingSpinner from "@/layouts/common/LoadingSpinner";
+import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import { FiCheckCircle, FiUpload, FiX, FiMapPin, FiAlertCircle, FiCamera, FiFolder, FiBarChart2, FiHash, FiTrendingUp, FiActivity, FiNavigation } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
 import api from "@/shared/services/api";
 import { useAuth } from "@/app/context/AuthContext";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 
 // ✅ Blue marker untuk lokasi implementasi (URL stabil)
 const implementationMarkerIcon = new L.Icon({
@@ -1214,3 +1214,5 @@ const MonitoringForm = () => {
 };
 
 export default MonitoringForm;
+
+

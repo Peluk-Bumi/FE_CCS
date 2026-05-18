@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
-import blockchainConfig from '@/config/blockchainConfig';
-import SecurityGuard from '@/shared/guards/securityGuard';
-import ProviderFactory from '@/shared/factories/providerFactory';
+import blockchainConfig from '@/app/config/blockchainConfig';
+import SecurityGuard from '@/shared/utils/guards/securityGuard';
+import ProviderFactory from '@/shared/utils/factories/providerFactory';
 import { validateContractAddress, validateDocumentHash, validateDocumentType, validateMetadata } from '@/shared/utils/validation';
 
 // Smart Contract ABI
@@ -359,3 +359,6 @@ async function processRequestQueue() {
 // Export singleton instance
 const blockchainService = new BlockchainService();
 export default blockchainService;
+
+
+

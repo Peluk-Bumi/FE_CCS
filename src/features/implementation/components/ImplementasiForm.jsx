@@ -9,8 +9,9 @@ import L from "leaflet";
 import { FiCheck, FiX, FiUpload, FiCheckCircle, FiMapPin, FiAlertCircle, FiCamera, FiFolder } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
-import LoadingSpinner from "@/layouts/common/LoadingSpinner";
-import PageTitle from "@/shared/components/PageTitle";
+import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
+import PageTitle from "@/shared/components/common/PageTitle";
+import { FormButton } from "@/shared/components/ui/button/FormButton";
 
 // ✅ Blue marker for existing planned locations
 const existingMarkerIcon = new L.Icon({
@@ -840,37 +841,13 @@ const ImplementasiForm = () => {
             </motion.div>
                         
             {/* Submit Button */}
-            <motion.button
+            <FormButton
               type="submit"
-              disabled={submitting}
-              className={`relative group w-full py-4 rounded-xl font-bold text-lg shadow-xl overflow-hidden transition-all duration-300 ${
-                submitting
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-primary text-primary-foreground"
-              }`}
-              whileHover={!submitting ? { scale: 1.02, boxShadow: "0 20px 60px -10px rgba(var(--primary), 0.5)" } : {}}
-              whileTap={!submitting ? { scale: 0.98 } : {}}
+              loading={submitting}
+              icon={<FiCheckCircle className="w-5 h-5" />}
             >
-              {/* hover overlay */}
-              {!submitting && (
-                <span className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              )}
-              
-              {/* content */}
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                {submitting ? (
-                  <>
-                    <motion.div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
-                    Menyimpan...
-                  </>
-                ) : (
-                  <>
-                    <FiCheckCircle className="w-6 h-6" />
-                    Simpan Data Implementasi
-                  </>
-                )}
-              </span>
-            </motion.button>
+              {submitting ? "Menyimpan..." : "Simpan Data Implementasi"}
+            </FormButton>
           </form>
         </motion.div>
 
@@ -977,3 +954,5 @@ const ImplementasiForm = () => {
 };
 
 export default ImplementasiForm;
+
+

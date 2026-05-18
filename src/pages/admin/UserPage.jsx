@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import api from "@/shared/services/api";
-import LoadingSpinner from "@/layouts/common/LoadingSpinner";
+import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -8,7 +8,7 @@ import {
   FiUser, FiX, FiCheck, FiAlertCircle, FiChevronLeft, FiChevronRight,
   FiFilter, FiDownload, FiRefreshCw
 } from "react-icons/fi";
-import PageTitle from "@/shared/components/PageTitle";
+import PageTitle from "@/shared/components/common/PageTitle";
 export default function UserPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -323,7 +323,7 @@ export default function UserPage() {
             currentUsers.map((user, index) => (
               <motion.div
                 key={user.id}
-                className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-2xl transition-all"
+                className="group relative z-0 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-2xl hover:z-10 transition-all"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
@@ -631,3 +631,5 @@ export default function UserPage() {
     </>
   );
 }
+
+
