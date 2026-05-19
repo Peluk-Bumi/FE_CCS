@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 // Layouts
 import DashboardLayout from "@/layouts/DashboardLayout";
+import VerificationFullscreenLayout from "@/layouts/VerificationFullscreenLayout";
 
 // Admin pages
 import Dashboard from "@/pages/dashboard/AdminDashboardPage";
@@ -41,19 +42,12 @@ import { ButtonTypesDemo, DashboardCardDemo } from '@/features/demo';
 
 // Protected Route
 import ProtectedRoute from "./ProtectedRoute";
-import { useAuth } from "../context/AuthContext";
-
-// Smart Verifikasi Router — public or authenticated
 function VerifikasiRouter() {
-  const { isAuthenticated, user } = useAuth();
-  if (isAuthenticated) {
-    return (
-      <ProtectedRoute>
-        <VerifikasiDashboardPage />
-      </ProtectedRoute>
-    );
-  }
-  return <VerifikasiPublicPage />;
+  return (
+    <VerificationFullscreenLayout>
+      <VerifikasiPublicPage />
+    </VerificationFullscreenLayout>
+  );
 }
 
 export default function AppRoutes() {

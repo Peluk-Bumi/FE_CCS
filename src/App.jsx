@@ -10,6 +10,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BlockchainProvider } from "@/app/context/BlockchainContext";
 import BlockchainDebug from "@/features/blockchain/components/BlockchainDebug";
+import { showBlockchainDebug } from "@/shared/utils/showBlockchainDebug";
 import { ThemeProvider } from "@/app/context/ThemeContext";
 
 // ✅ Komponen terpisah yang menggunakan useAuth - harus di dalam AuthProvider
@@ -19,7 +20,8 @@ function AppContent() {
   const { isAuthenticated, loading } = useAuth();
 
   const noNavbarRoutes = ["/login", "/register", "/admin", "/user"];
-  const alwaysShowNavbarRoutes = ["/", "/about", "/contact", "/verifikasi"];
+  const alwaysShowNavbarRoutes = ["/", "/about", "/contact"];
+  const fullscreenRoutes = ["/verifikasi"];
   
   const isNoNavbarRoute = noNavbarRoutes.some(route => location.pathname.startsWith(route));
   const isAlwaysShowNavbar = alwaysShowNavbarRoutes.some(route => {
@@ -29,7 +31,12 @@ function AppContent() {
     return location.pathname.startsWith(route);
   });
 
-  const showNavbar = isAlwaysShowNavbar || (!isNoNavbarRoute && !isAuthenticated);
+  const isFullscreenRoute = fullscreenRoutes.some(
+    (route) => location.pathname === route || location.pathname.startsWith(`${route}/`)
+  );
+  const showNavbar =
+    !isFullscreenRoute &&
+    (isAlwaysShowNavbar || (!isNoNavbarRoute && !isAuthenticated));
 
   useEffect(() => {
     let idleTimeout = null;
@@ -82,8 +89,7 @@ function AppContent() {
       {showNavbar && <Navbar />}
       <AppRoutes />
       
-      {/* ✅ Blockchain Debug Component - only in development */}
-      {import.meta.env.DEV && <BlockchainDebug />}
+      {/* {showBlockchainDebug() && <BlockchainDebug />} */}
       
       <ToastContainer 
         position="top-right" 
