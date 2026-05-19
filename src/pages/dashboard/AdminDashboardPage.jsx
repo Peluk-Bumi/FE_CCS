@@ -11,18 +11,13 @@ import {
   FiActivity,
   FiUser,
   FiClock,
-  FiTrendingUp,
-  FiTrendingDown,
   FiMoreVertical,
-  FiDownload,
   FiRefreshCw,
-  FiEye,
   FiFileText,
   FiMonitor,
   FiGlobe,
   FiSearch,
   FiLink,
-  FiMapPin,
 } from "react-icons/fi";
 import WalletIndicator from '@/features/blockchain/components/WalletIndicator';
 import { PieChart, BarChart } from "@/shared/components/charts/Charts";
@@ -460,7 +455,7 @@ export default function Dashboard() {
       
       {/* Compact Header Section */}
       <motion.div 
-        className="flex-shrink-0 md:pb-12"
+        className="flex-shrink-0 pb-6 md:pb-12"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}

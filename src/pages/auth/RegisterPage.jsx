@@ -5,6 +5,7 @@ import PageTitle from "@/shared/components/common/PageTitle";
 import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import { FiFeather, FiZap, FiShield } from "react-icons/fi";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function Register() {
   const [form, setForm] = useState({
