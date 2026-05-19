@@ -13,25 +13,33 @@ import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import PageTitle from "@/shared/components/common/PageTitle";
 import { FormButton } from "@/shared/components/ui/button/FormButton";
 
-// ✅ Blue marker for existing planned locations
-const existingMarkerIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+const createSaplingMarkerIcon = (accentColor, leafColor) => {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="44" height="60" viewBox="0 0 44 60" fill="none">
+      <path d="M22 58C22 58 10 44.5 10 31.5C10 20.6 16.4 12 22 12C27.6 12 34 20.6 34 31.5C34 44.5 22 58 22 58Z" fill="${accentColor}" opacity="0.18"/>
+      <path d="M22 55C22 55 12.5 43.7 12.5 32.7C12.5 24.1 17.5 17 22 17C26.5 17 31.5 24.1 31.5 32.7C31.5 43.7 22 55 22 55Z" fill="${accentColor}"/>
+      <path d="M22 45V27" stroke="#7a4e2d" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M22 35.5C19.5 33.8 16.9 32.8 13.8 32.4C15.4 36.4 18.5 38.6 22 39.5" fill="none" stroke="${leafColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22 31.8C24.2 29.5 27.2 28.1 31 27.6C29.5 31.6 26.5 34.1 22 35.1" fill="none" stroke="${leafColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22 28.2C20.2 25.8 17.6 24.3 14.3 23.9C15.7 27.4 18 29.7 22 30.6" fill="none" stroke="${leafColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22 24.8C24 22.1 26.8 20.5 30.4 20.2C29.1 23.6 26.4 25.8 22 26.7" fill="none" stroke="${leafColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M13 52H31" stroke="#6b4b2a" stroke-width="3.2" stroke-linecap="round" opacity="0.9"/>
+    </svg>
+  `;
 
-// ✅ Selected marker (red)
-const selectedMarkerIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+  return new L.Icon({
+    iconUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+    iconSize: [44, 60],
+    iconAnchor: [22, 58],
+    popupAnchor: [0, -50],
+    shadowSize: [41, 41],
+  });
+};
+
+// ✅ Bibit pohon marker untuk lokasi yang sudah ada dan yang dipilih
+const existingMarkerIcon = createSaplingMarkerIcon('#16a34a', '#22c55e');
+const selectedMarkerIcon = createSaplingMarkerIcon('#15803d', '#86efac');
 
 const ImplementasiForm = () => {
   const [submitting, setSubmitting] = useState(false);
