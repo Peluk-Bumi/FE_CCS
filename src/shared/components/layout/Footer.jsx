@@ -26,14 +26,14 @@ export default function Footer() {
           viewport={{ once: true }}
           className={`w-full rounded-3xl border border-white/15 dark:border-primary/10 bg-white/10 dark:bg-green-950/25 backdrop-blur-xl shadow-[0_24px_60px_-32px_rgba(81,118,64,0.45)] p-6 lg:p-8 overflow-hidden`}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-6 gap-8 mb-8">
+          <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-12 gap-8 mb-8">
             {/* Brand Section */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
               viewport={{ once: true }}
-              className="col-span-2 md:col-span-2 lg:col-span-3"
+              className="col-span-3 md:col-span-3 lg:col-span-5"
             >
               <motion.div 
                 className="flex items-center gap-3 mb-4"
@@ -60,7 +60,7 @@ export default function Footer() {
                   </p>
                 </div>
               </motion.div>
-              <p className={`text-sm leading-relaxed mb-4 ${
+              <p className={`text-sm leading-relaxed mb-4 text-balance ${
                 isDark ? 'text-gray-400' : 'text-gray-600'
               }`}>
                 Gerakan lingkungan yang sedang bertumbuh melalui aksi nyata dan transparansi proses dokumentasi.
@@ -89,7 +89,7 @@ export default function Footer() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
-              className="col-span-1"
+              className="col-span-1 lg:col-span-2"
             >
               <h4 className={`font-semibold mb-4 ${
                 isDark ? 'text-white' : 'text-gray-900'
@@ -139,7 +139,7 @@ export default function Footer() {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               viewport={{ once: true }}
-              className="col-span-1 md:col-span-2"
+              className="col-span-2 md:col-span-2 lg:col-span-5"
             >
               <h4 className={`font-semibold mb-4 ${
                 isDark ? 'text-white' : 'text-gray-900'

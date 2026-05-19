@@ -28,11 +28,11 @@ export default function Logo({ onNavigate }) {
 
         {/* Text */}
         <div className="flex flex-col transition-transform duration-300 group-hover:translate-x-0.5 group-hover:scale-95">
-          <h1 className="text-lg font-bold leading-tight text-white/90 transition-all duration-300 group-hover:text-white">
+          <h1 className="hidden sm:block text-lg font-bold leading-tight text-white/90 transition-all duration-300 group-hover:text-white">
             PELUK BUMI
           </h1>
 
-          <p className="hidden text-xs font-medium leading-tight text-white/75 transition-colors duration-300 group-hover:text-white/90 sm:block">
+          <p className="text-base max-w-36 sm:max-w-fit sm:text-xs font-medium leading-tight text-white/75 transition-colors duration-300 group-hover:text-white/90">
             Environmental Monitoring System
           </p>
         </div>

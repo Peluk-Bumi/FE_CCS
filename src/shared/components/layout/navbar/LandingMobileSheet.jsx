@@ -90,17 +90,17 @@ export default function LandingMobileSheet({ isOpen, onClose }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] lg:hidden"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[75] md:hidden"
             onClick={onClose}
           />
 
-          {/* Sheet */}
+          {/* Sheet - z-index lebih tinggi dari FAB (z-[80]) */}
           <motion.div
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 left-0 right-0 z-[70] lg:hidden bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl max-h-[85vh] overflow-hidden flex flex-col"
+            className="fixed bottom-0 left-0 right-0 z-[85] md:hidden bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl max-h-[85vh] overflow-hidden flex flex-col"
           >
             {/* Handle bar */}
             <div className="flex justify-center py-3">
@@ -110,7 +110,7 @@ export default function LandingMobileSheet({ isOpen, onClose }) {
             {/* Header */}
             <div className="flex items-center justify-between px-6 pb-4">
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Menu</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Menu Navigasi</h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Peluk Bumi</p>
               </div>
               <button
@@ -181,13 +181,13 @@ export default function LandingMobileSheet({ isOpen, onClose }) {
                             : "0 0 0px rgba(16, 185, 129, 0)",
                         }}
                       >
-                        {(user?.name || "U")[0].toUpperCase()}
+                        {(user?.username || user?.name || "U")[0].toUpperCase()}
                       </motion.div>
                       <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900 animate-pulse" />
                     </div>
                     <div className="flex-1 text-left min-w-0">
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-                        {user?.name || "User"}
+                        {user?.username || user?.name || "User"}
                       </p>
                       <p className="text-xs text-primary dark:text-primary-light font-medium">
                         {user?.role || "user"}
@@ -210,11 +210,11 @@ export default function LandingMobileSheet({ isOpen, onClose }) {
                         <div className="p-3 bg-gradient-to-r from-primary/10 to-primary-dark/10 dark:from-primary/20 dark:to-primary-dark/20 border-b border-gray-200/50 dark:border-gray-700/50">
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white text-sm font-bold">
-                              {(user?.name || "U")[0].toUpperCase()}
+                              {(user?.username || user?.name || "U")[0].toUpperCase()}
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
-                                {user?.name || "User"}
+                                {user?.username || user?.name || "User"}
                               </p>
                               <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
                                 {user?.email || "user@example.com"}

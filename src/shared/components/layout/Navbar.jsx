@@ -93,13 +93,10 @@ export default function Navbar({ isUser = false }) {
     }, 150);
   };
 
-  // Smart navigation ke verifikasi
   const handleVerifikasiNav = () => {
-    if (isAuthenticated) {
-      navigate(user?.role === "admin" ? "/admin/verifikasi" : "/user/verifikasi");
-    } else {
-      navigate("/verifikasi");
-    }
+    setSheetOpen(false);
+    setDropdownOpen(false);
+    navigate("/verifikasi");
   };
 
   return (
@@ -111,7 +108,7 @@ export default function Navbar({ isUser = false }) {
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="h-16 flex items-center justify-between rounded-full px-6 lg:px-8 backdrop-blur-2xl border border-primary-light bg-gradient-to-r from-primary via-primary/85 to-primary-dark shadow-[0_12px_30px_-12px_rgba(81,118,64,0.75)]">
+          <div className="h-16 flex items-center sm:justify-between justify-center rounded-full px-6 lg:px-8 backdrop-blur-2xl border border-primary-light bg-gradient-to-r from-primary via-primary/85 to-primary-dark shadow-[0_12px_30px_-12px_rgba(81,118,64,0.75)]">
             {/* Logo */}
             <Logo onNavigate={() => handleNavigation("/")} />
 
@@ -124,15 +121,17 @@ export default function Navbar({ isUser = false }) {
             />
 
             {/* Right Controls — desktop profile / login only; mobile button removed */}
-            <NavbarControls
-              user={user}
-              isAuthenticated={isAuthenticated}
-              dropdownOpen={dropdownOpen}
-              onDropdownToggle={() => setDropdownOpen(!dropdownOpen)}
-              onLogout={handleLogout}
-              onNavigate={handleNavigation}
-              profileMenuItems={profileMenuItems}
-            />
+            <div className="absolute right-6 lg:right-8">
+              <NavbarControls
+                user={user}
+                isAuthenticated={isAuthenticated}
+                dropdownOpen={dropdownOpen}
+                onDropdownToggle={() => setDropdownOpen(!dropdownOpen)}
+                onLogout={handleLogout}
+                onNavigate={handleNavigation}
+                profileMenuItems={profileMenuItems}
+              />
+            </div>
           </div>
         </div>
       </motion.nav>
