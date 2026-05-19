@@ -42,6 +42,7 @@ const MonitoringForm = () => {
   const [existingLocations, setExistingLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [monitoringByImplementasi, setMonitoringByImplementasi] = useState({});
+  const [monitoringRecordsByImplementasi, setMonitoringRecordsByImplementasi] = useState({});
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   // ✅ ADD NEW STATES FOR UPLOAD
@@ -69,7 +70,7 @@ const MonitoringForm = () => {
 
   const validationSchema = Yup.object({
     implementasi_id: Yup.string().required("Wajib pilih implementasi terlebih dahulu"),
-    bulan_monitoring: Yup.number().required("Wajib pilih bulan monitoring").min(1).max(6),
+    bulan_monitoring: Yup.number().required("Wajib pilih bulan monitoring").oneOf([3,6], 'Bulan monitoring harus salah satu dari 3 atau 6'),
     jumlah_bibit_ditanam: Yup.number().required("Wajib diisi").positive("Harus positif"),
     jumlah_bibit_mati: Yup.number().required("Wajib diisi").min(0, "Tidak boleh negatif"),
     tinggi_bibit: Yup.number().required("Wajib diisi").positive("Harus positif"),
@@ -182,7 +183,23 @@ const MonitoringForm = () => {
     if (computedSurvivalRate !== formik.values.survival_rate) {
       formik.setFieldValue("survival_rate", computedSurvivalRate, false);
     }
-  }, [formik.values.jumlah_bibit_ditanam, formik.values.jumlah_bibit_mati]);
+
+    // If user selects bulan ke-6, adjust jumlah_bibit_ditanam to be the
+    // remaining (bibit hidup) from monitoring bulan ke-3 if available.
+    const month = Number(formik.values.bulan_monitoring);
+    if (month === 6 && selectedLocation) {
+      const records = monitoringRecordsByImplementasi[String(selectedLocation.id)] || [];
+      const month3 = records.find(r => Number(r.bulan_monitoring) === 3);
+      if (month3) {
+        const initialPlanted = Number(selectedLocation.jumlah_bibit ?? selectedLocation.jumlah_bibit_ditanam ?? selectedLocation.perencanaan?.jumlah_bibit ?? 0);
+        const deadInMonth3 = Number(month3.jumlah_bibit_mati ?? 0);
+        const alive = Math.max(initialPlanted - deadInMonth3, 0);
+        if (String(alive) !== String(formik.values.jumlah_bibit_ditanam)) {
+          formik.setFieldValue("jumlah_bibit_ditanam", String(alive), false);
+        }
+      }
+    }
+  }, [formik.values.jumlah_bibit_ditanam, formik.values.jumlah_bibit_mati, formik.values.bulan_monitoring, selectedLocation, monitoringRecordsByImplementasi]);
 
   // ✅ Fetch implementasi dan lokasi
   useEffect(() => {
@@ -204,15 +221,18 @@ const MonitoringForm = () => {
         const data = implementasiResponse.data?.data || implementasiResponse.data || [];
         const monitoringData = monitoringResponse.data?.data || monitoringResponse.data || [];
 
-        const monitoringMap = monitoringData.reduce((acc, item) => {
+        const monitoringMap = {};
+        const monitoringRecords = {};
+        monitoringData.forEach((item) => {
           const key = String(item.implementasi_id);
           const month = Number(item.bulan_monitoring);
-          if (!acc[key]) acc[key] = [];
-          if (!Number.isNaN(month) && month >= 1 && month <= 6 && !acc[key].includes(month)) {
-            acc[key].push(month);
+          if (!monitoringMap[key]) monitoringMap[key] = [];
+          if (!monitoringRecords[key]) monitoringRecords[key] = [];
+          if (!Number.isNaN(month) && [3,6].includes(month) && !monitoringMap[key].includes(month)) {
+            monitoringMap[key].push(month);
           }
-          return acc;
-        }, {});
+          monitoringRecords[key].push(item);
+        });
 
         Object.keys(monitoringMap).forEach((key) => {
           monitoringMap[key].sort((a, b) => a - b);
@@ -227,6 +247,7 @@ const MonitoringForm = () => {
           setImplementasis(data);
           setExistingLocations(availableImplementasi);
           setMonitoringByImplementasi(monitoringMap);
+          setMonitoringRecordsByImplementasi(monitoringRecords);
 
           if (preselectedPerencanaanId) {
             const preselectedImplementasi = data.find(
@@ -235,13 +256,13 @@ const MonitoringForm = () => {
 
             if (preselectedImplementasi) {
               const usedMonths = monitoringMap[String(preselectedImplementasi.id)] || [];
-              const nextMonth = [1, 2, 3, 4, 5, 6].find((month) => !usedMonths.includes(month));
+              const nextMonth = [3, 6].find((month) => !usedMonths.includes(month));
               if (nextMonth) {
                 handleLocationSelect(preselectedImplementasi, monitoringMap);
                 formik.setFieldValue("bulan_monitoring", String(nextMonth));
                 toast.info(`Monitoring diarahkan dari QR untuk bulan ke-${nextMonth}`);
               } else {
-                toast.warning("Implementasi ini sudah lengkap 6 bulan monitoring");
+                toast.warning("Implementasi ini sudah lengkap monitoring untuk 1,3,6 bulan");
               }
             }
           }
@@ -301,7 +322,7 @@ const MonitoringForm = () => {
     }
 
     const usedMonths = monitoringMap[String(location.id)] || [];
-    const suggestedMonth = [1, 2, 3, 4, 5, 6].find((month) => !usedMonths.includes(month));
+    const suggestedMonth = [3, 6].find((month) => !usedMonths.includes(month));
     if (suggestedMonth) {
       formik.setFieldValue("bulan_monitoring", String(suggestedMonth));
     } else {
@@ -817,7 +838,7 @@ const MonitoringForm = () => {
 
               <div className="mb-6">
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                  Bulan Monitoring (1 - 6) <span className="text-red-500">*</span>
+                  Bulan Monitoring (3, 6) <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="bulan_monitoring"
@@ -827,7 +848,7 @@ const MonitoringForm = () => {
                   className="w-full md:w-72 px-4 py-3.5 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-gray-100 focus:border-green-500 focus:ring-4 focus:ring-green-100 dark:focus:ring-green-900/50 transition-all disabled:opacity-60"
                 >
                   <option value="">Pilih bulan monitoring</option>
-                  {[1, 2, 3, 4, 5, 6].map((month) => {
+                  {[3, 6].map((month) => {
                     const used = selectedLocation ? getMonitoringMonths(selectedLocation.id).includes(month) : false;
                     return (
                       <option key={month} value={month} disabled={used}>

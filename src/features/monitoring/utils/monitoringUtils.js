@@ -7,8 +7,9 @@ export const validateMonitoringData = (data, existingData = [], maxMonths = 6) =
     errors.push('ID implementasi wajib diisi');
   }
 
-  if (!data.bulan_monitoring || data.bulan_monitoring < 1 || data.bulan_monitoring > maxMonths) {
-    errors.push(`Bulan monitoring harus antara 1 dan ${maxMonths}`);
+  const allowedMonths = [3, 6];
+  if (!data.bulan_monitoring || !allowedMonths.includes(Number(data.bulan_monitoring))) {
+    errors.push(`Bulan monitoring harus salah satu dari ${allowedMonths.join(' atau ')}`);
   }
 
   // Check if month already exists
