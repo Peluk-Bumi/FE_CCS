@@ -224,6 +224,7 @@ const PerencanaanForm = () => {
         const newCenter = [latitude, longitude];
         setMapCenter(newCenter);
         setMapZoom(13);
+        handleLocationSelect({ lat: latitude, lng: longitude });
         toast.success("✅ Peta dipusatkan ke lokasi Anda!", { autoClose: 2000 });
       },
       (error) => {
