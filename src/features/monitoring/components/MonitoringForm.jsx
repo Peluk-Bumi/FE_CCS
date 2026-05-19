@@ -7,31 +7,45 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { renderToStaticMarkup } from "react-dom/server";
+import { FaTree } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
 import api from "@/shared/services/api";
 import { useAuth } from "@/app/context/AuthContext";
 import PageTitle from "@/shared/components/common/PageTitle";
 
-// ✅ Blue marker untuk lokasi implementasi (URL stabil)
-const implementationMarkerIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+const createTreeMarkerIcon = (isSelected = false) => {
+  const accentColor = isSelected ? "#15803d" : "#16a34a";
+  const iconColor = isSelected ? "#bbf7d0" : "#dcfce7";
 
-// ✅ Selected marker (red)
-const selectedMarkerIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+  return L.divIcon({
+    className: "monitoring-tree-marker",
+    html: renderToStaticMarkup(
+      <div
+        style={{
+          width: isSelected ? 52 : 46,
+          height: isSelected ? 52 : 46,
+          borderRadius: 9999,
+          background: accentColor,
+          border: "2px solid white",
+          boxShadow: "0 8px 18px rgba(0, 0, 0, 0.22)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <FaTree size={isSelected ? 25 : 22} color={iconColor} />
+      </div>
+    ),
+    iconSize: [isSelected ? 52 : 46, isSelected ? 52 : 46],
+    iconAnchor: [isSelected ? 26 : 23, isSelected ? 26 : 23],
+    popupAnchor: [0, isSelected ? -24 : -20],
+  });
+};
+
+const implementationMarkerIcon = createTreeMarkerIcon(false);
+const selectedMarkerIcon = createTreeMarkerIcon(true);
 
 const MonitoringForm = () => {
   const [submitting, setSubmitting] = useState(false);
