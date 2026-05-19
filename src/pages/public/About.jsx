@@ -22,7 +22,7 @@ const About = () => {
 
   return (
     <>
-      <div className={`pt-20 min-h-screen transition-colors duration-300 ${
+      <div className={`pt-20 min-h-screen max-md:pb-20 transition-colors duration-300 ${
         theme === 'dark' 
           ? 'bg-gradient-to-br from-green-950 via-gray-950 to-green-950' 
           : 'bg-white'

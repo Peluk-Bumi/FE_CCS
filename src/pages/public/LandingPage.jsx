@@ -1,9 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import Navbar from "@/shared/components/layout/Navbar";
 import Footer from "@/shared/components/layout/Footer";
-import { useAuth } from "@/app/context/AuthContext";
 import { useTheme } from "@/app/context/ThemeContext";
 
 // Import modular components
@@ -17,8 +14,6 @@ import TimelineSection from "@/features/landing/components/TimelineSection";
 import HowItWorksSection from "@/features/landing/components/HowItWorksSection";
 
 const LandingPage = () => {
-  const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
   const { theme } = useTheme();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
@@ -37,21 +32,9 @@ const LandingPage = () => {
     element?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // ✅ Smart navigation ke verifikasi berdasarkan status autentikasi
-  const handleVerifikasiClick = () => {
-    if (isAuthenticated) {
-      if (user?.role === "admin") {
-        navigate("/admin/verifikasi");
-      } else if (user?.role === "user") {
-        navigate("/user/verifikasi");
-      }
-    } else {
-      navigate("/verifikasi");
-    }
-  };
-
   return (
-    <div className={`min-h-screen text-gray-900 dark:text-gray-100 overflow-x-hidden transition-colors duration-300 ${
+    <motion.div
+      className={`min-h-screen text-gray-900 dark:text-gray-100 overflow-x-hidden transition-colors duration-300 max-md:pb-20 ${
       theme === 'dark' 
         ? 'bg-gradient-to-br from-green-950 via-gray-950 to-green-950' 
         : 'bg-gradient-to-br from-primary/10 via-white to-primary/10'
@@ -74,7 +57,7 @@ const LandingPage = () => {
       
       {/* Footer Component */}
       <Footer />
-    </div>
+    </motion.div>
   );
 };
 

@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import {
   FiCamera, FiCheckCircle, FiAlertCircle, FiRefreshCw,
   FiX, FiDownload, FiCopy, FiChevronDown, FiChevronUp, FiUpload,
-  FiShield, FiExternalLink
+  FiShield, FiExternalLink,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/context/AuthContext";
@@ -1040,40 +1040,13 @@ export default function Verifikasi() {
     }
   };
 
-  const containerClass = isAuthenticated
-    ? ""
-    : "min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-28 pb-12 px-3 sm:px-6 lg:px-8 transition-colors";
+  const containerClass = "w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-6";
 
-  const innerContainerClass = isAuthenticated
-    ? ""
-    : "max-w-7xl mx-auto";
+  const innerContainerClass = "max-w-7xl mx-auto";
 
   return (
     <div className={containerClass}>
       <div className={innerContainerClass}>
-        {/* Header Card */}
-        <motion.div
-          className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden border border-green-100 dark:border-gray-700 mb-8"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 px-6 py-6 sm:px-8 sm:py-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3 mb-2">
-              <motion.div
-                className="p-2 bg-white/20 rounded-xl"
-                whileHover={{ rotate: 10, scale: 1.1 }}
-              >
-                <FiCamera className="text-2xl" />
-              </motion.div>
-              Verifikasi & Lihat Detail Laporan
-            </h1>
-            <p className="text-green-100 text-sm sm:text-base">
-              Scan QR Code untuk melihat detail lengkap laporan perencanaan kegiatan konservasi
-            </p>
-          </div>
-        </motion.div>
-
         {/* Main Grid */}
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Scanner Section */}
