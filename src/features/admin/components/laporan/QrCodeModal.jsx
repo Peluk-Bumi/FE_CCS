@@ -1,7 +1,17 @@
 import { motion } from "framer-motion";
 import { FiDownload, FiX } from "react-icons/fi";
 
-export default function QrCodeModal({ open, qrCodeData, onClose, onDownload }) {
+export default function QrCodeModal({
+  open,
+  qrCodeData,
+  onClose,
+  onDownload,
+  title = "QR Code Blockchain",
+  statusLabel = (verified) => (verified ? "Verified dari Blockchain" : "Data dari Database"),
+  noteTitle = "QR ini mengarah ke form monitoring",
+  noteDescription = "Konten QR memuat dokumen verifikasi blockchain dan akan mengarahkan user ke halaman monitoring. Login diperlukan sebelum mengisi form monitoring.",
+  downloadLabel = "Download QR (PNG)",
+}) {
   if (!open || !qrCodeData) {
     return null;
   }
@@ -50,7 +60,7 @@ export default function QrCodeModal({ open, qrCodeData, onClose, onDownload }) {
               </svg>
             </motion.div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-              QR Code Blockchain
+              {title}
             </h2>
             <p
               className={`text-sm font-semibold ${
@@ -59,7 +69,7 @@ export default function QrCodeModal({ open, qrCodeData, onClose, onDownload }) {
                   : "text-blue-600 dark:text-blue-400"
               }`}
             >
-              {qrCodeData.verified ? "Verified dari Blockchain" : "Data dari Database"}
+              {statusLabel(qrCodeData.verified)}
             </p>
           </div>
 
@@ -76,10 +86,10 @@ export default function QrCodeModal({ open, qrCodeData, onClose, onDownload }) {
 
           <div className="mb-6 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-900/20 p-4 text-left">
             <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-1">
-              QR ini mengarah ke form monitoring
+              {noteTitle}
             </p>
             <p className="text-xs text-emerald-700/90 dark:text-emerald-300/90">
-              Konten QR memuat dokumen verifikasi blockchain dan akan mengarahkan user ke halaman monitoring. Login diperlukan sebelum mengisi form monitoring 6 bulan.
+              {noteDescription}
             </p>
           </div>
 
@@ -90,7 +100,7 @@ export default function QrCodeModal({ open, qrCodeData, onClose, onDownload }) {
             whileTap={{ scale: 0.98 }}
           >
             <FiDownload className="w-5 h-5" />
-            <span>Download QR (PNG)</span>
+            <span>{downloadLabel}</span>
           </motion.button>
         </div>
       </motion.div>

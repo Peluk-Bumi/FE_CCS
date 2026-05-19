@@ -13,6 +13,8 @@ import PageTitle from "@/shared/components/common/PageTitle";
 import api from "@/shared/services/api";
 import { useAuth } from "@/app/context/AuthContext";
 import { FormButton } from "@/shared/components/ui/button/FormButton";
+import QrCodeModal from "@/features/admin/components/laporan/QrCodeModal";
+import { downloadQrDataUrl, generatePlanningQrDataUrl } from "../utils/planningQr";
 
 // ✅ Fix Leaflet default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -72,6 +74,8 @@ function MapViewUpdater({ center, zoom }) {
 const PerencanaanForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrCodeData, setQrCodeData] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [mapCenter, setMapCenter] = useState([-2.5489, 118.0149]); // Indonesia center
   const [mapZoom, setMapZoom] = useState(5); // Default: show Indonesia region
@@ -156,7 +160,8 @@ const PerencanaanForm = () => {
 
         // Backend now records blockchain transaction for this activity.
         const response = await api.post('/perencanaan', payload);
-        const blockchain = response.data?.blockchain || {};
+        const savedPerencanaan = response.data?.data || response.data || null;
+        const blockchain = response.data?.blockchain || savedPerencanaan?.blockchain || {};
 
         if (blockchain.tx_hash) {
           toast.success('✅ Data tersimpan dan transaksi blockchain berhasil dibuat!');
@@ -170,10 +175,14 @@ const PerencanaanForm = () => {
         setSelectedLocation(null);
         setSuccess(true);
 
-        // ✅ Redirect ke laporan page untuk lihat hasil
-        setTimeout(() => {
-          window.location.href = '/admin/laporan';
-        }, 2000);
+        if (savedPerencanaan?.id) {
+          const generatedQr = await generatePlanningQrDataUrl(savedPerencanaan);
+          setQrCodeData({
+            url: generatedQr,
+            verified: Boolean(blockchain.tx_hash || blockchain.doc_hash),
+          });
+          setQrModalOpen(true);
+        }
 
       } catch (err) {
         console.error('[PerencanaanForm] Error:', err);
@@ -573,6 +582,17 @@ const PerencanaanForm = () => {
             </motion.div>
           </form>
         </motion.div>
+
+      <QrCodeModal
+        open={qrModalOpen}
+        qrCodeData={qrCodeData}
+        onClose={() => setQrModalOpen(false)}
+        onDownload={() => qrCodeData?.url && downloadQrDataUrl(qrCodeData.url, "qr-perencanaan.png")}
+        title="QR Code Perencanaan"
+        noteTitle="QR ini dipakai untuk verifikasi monitoring"
+        noteDescription="Simpan QR ini atau unduh kembali dari halaman All Perencanaan. Saat dipindai, QR akan mengarahkan user ke halaman monitoring perencanaan yang sesuai."
+        downloadLabel="Download QR Perencanaan (PNG)"
+      />
     </div>
   );
 };

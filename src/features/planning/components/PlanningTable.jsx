@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
-import { Trash2, Edit, Eye, MapPin, Calendar, Building } from 'lucide-react';
+import { Trash2, Edit, Eye, MapPin, Calendar, Building, Download } from 'lucide-react';
 import { formatPlanningStatus } from '../utils/planningUtils';
 
 const PlanningTable = ({ 
@@ -11,11 +11,12 @@ const PlanningTable = ({
   onEdit, 
   onDelete, 
   onView,
+  onQrDownload,
   userRole = 'user' 
 }) => {
   const [sortField, setSortField] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
-  const hasActions = Boolean(onView || onEdit || onDelete);
+  const hasActions = Boolean(onView || onEdit || onDelete || onQrDownload);
 
   const handleSort = (field) => {
     const newDirection = sortField === field && sortDirection === 'asc' ? 'desc' : 'asc';
@@ -161,6 +162,17 @@ const PlanningTable = ({
                               className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
                             >
                               <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {onQrDownload && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onQrDownload(item)}
+                              className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700"
+                              title="Unduh QR"
+                            >
+                              <Download className="h-4 w-4" />
                             </Button>
                           )}
                         </div>
