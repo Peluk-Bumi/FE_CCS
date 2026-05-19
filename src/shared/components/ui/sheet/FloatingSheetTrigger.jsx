@@ -7,16 +7,17 @@ const FloatingSheetTrigger = React.forwardRef(({
   isOpen,
   onClick,
   className,
-  position = "bottom-left",
+  position = "bottom-right",
   ...props 
 }, ref) => {
   const getPositionClasses = () => {
+    const safeBottom = "bottom-[max(2.5rem,env(safe-area-inset-bottom,0px)+1rem)]"
     const positions = {
-      'bottom-right': 'bottom-10 right-6',
-      'bottom-left': 'bottom-10 left-6',
-      'bottom-center': 'bottom-10 left-1/2 -translate-x-1/2'
+      "bottom-right": `${safeBottom} right-6`,
+      "bottom-left": `${safeBottom} left-6`,
+      "bottom-center": `${safeBottom} left-1/2 -translate-x-1/2`,
     }
-    return positions[position] || positions['bottom-left']
+    return positions[position] || positions["bottom-right"]
   }
 
   return (
@@ -26,7 +27,7 @@ const FloatingSheetTrigger = React.forwardRef(({
         // floating button base styles
         "fixed md:hidden h-14 w-14 inline-flex items-center justify-center rounded-2xl shadow-xl",
         
-        // z-index above sheet (z-[70]) and backdrop (z-[60])
+        // z-index above sheet (z-[85]) and backdrop (z-[75])
         "z-[80]",
 
         // background with blur

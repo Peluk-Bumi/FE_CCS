@@ -1,4 +1,5 @@
 import { useBlockchain } from '@/app/context/BlockchainContext';
+import { showBlockchainDebug } from '@/shared/utils/showBlockchainDebug';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiAlertCircle, FiCheckCircle, FiWifi, FiWifiOff, FiServer, FiLink, FiBriefcase, FiLock } from 'react-icons/fi';
 import { useState } from 'react';
@@ -7,11 +8,10 @@ const NETWORK_LABEL = import.meta.env.VITE_BLOCKCHAIN_NETWORK_LABEL || 'Sepolia 
 const CHAIN_ID_LABEL = import.meta.env.VITE_BLOCKCHAIN_CHAIN_ID || '11155111';
 
 export default function BlockchainDebug() {
-  const { isConnected, isReady, blockchainStatus, walletAddress, error, getBlockchainStatus } = useBlockchain();
+  const { isConnected, isReady, blockchainStatus, walletAddress, error } = useBlockchain();
   const [isOpen, setIsOpen] = useState(false);
-  const status = getBlockchainStatus();
 
-  if (!isReady) {
+  if (!showBlockchainDebug() || !isReady) {
     return null;
   }
 
@@ -19,7 +19,7 @@ export default function BlockchainDebug() {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed bottom-4 right-4 z-50 max-w-sm"
+          className="fixed bottom-[max(1rem,env(safe-area-inset-bottom,0px)+1rem)] right-4 z-50 max-w-sm"
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -114,7 +114,7 @@ export default function BlockchainDebug() {
       {!isOpen && (
         <motion.button
           onClick={() => setIsOpen(true)}
-          className={`fixed bottom-4 right-4 z-50 w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center transition-all ${
+          className={`fixed bottom-[max(1rem,env(safe-area-inset-bottom,0px)+1rem)] right-4 z-50 w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center transition-all ${
             isConnected
               ? 'bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
               : 'bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700'

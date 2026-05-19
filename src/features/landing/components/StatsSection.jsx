@@ -32,7 +32,7 @@ export default function StatsSection({ theme }) {
   ];
 
   return (
-    <section className={`py-10 sm:py-12 md:py-16 transition-colors ${
+    <section id="stats" className={`py-10 sm:py-12 md:py-16 scroll-m-12 transition-colors ${
       theme === 'dark'
         ? 'bg-gradient-to-b from-green-950 via-gray-950 to-green-950'
         : 'bg-gradient-to-b from-white via-primary/10 to-white'
@@ -87,7 +87,7 @@ export default function StatsSection({ theme }) {
                     }`}>
                       {item.label}
                     </h3>
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    <span className={`text-xs text-center font-medium px-2 py-1 rounded-full ${
                       theme === 'dark'
                         ? 'bg-primary/20 text-primary-light'
                         : 'bg-primary/10 text-primary'

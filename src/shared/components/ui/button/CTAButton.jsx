@@ -10,13 +10,23 @@ const CTAButton = React.forwardRef(({
   children,
   icon,
   disabled = false,
+  type = "primary",
+  iconOnly = false,
   ...props 
 }, ref) => {
+  // Type variants
+  const typeStyles = {
+    primary: "bg-gradient-to-r from-primary via-primary/90 to-primary-dark text-white hover:shadow-[0_25px_50px_-12px_rgba(81,118,64,0.4)]",
+    secondary: "bg-white text-primary border-2 border-primary/20 hover:border-primary hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:bg-primary/10"
+  }
+
+  // Padding based on iconOnly mode
+  const paddingStyles = iconOnly ? "p-3" : "p-8"
+
   return (
     <motion.div
       whileHover={!loading && !disabled ? { 
-        scale: 1.05, 
-        boxShadow: "0 25px 50px -12px rgba(81, 118, 64, 0.4)"
+        scale: 1.05
       } : {}}
       whileTap={!loading && !disabled ? { scale: 0.96 } : {}}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
@@ -25,15 +35,20 @@ const CTAButton = React.forwardRef(({
         ref={ref}
         disabled={disabled || loading}
         variant="default"
+        {...props}
         className={cn(
           // base CTA styles
-          "relative group overflow-hidden rounded-xl font-bold text-lg",
+          "relative group overflow-hidden rounded-xl font-bold",
+
+          // size styles
+          iconOnly ? "text-base" : "text-lg",
 
           // layout styles
-          "px-8 py-4",
+          paddingStyles,
 
           // CTA specific styling
-          "bg-gradient-to-r from-primary via-primary/90 to-primary-dark text-white hover:shadow-2xl",
+          typeStyles[type],
+          "shadow-lg",
           
           // state
           loading && "opacity-70 cursor-not-allowed",
@@ -43,7 +58,12 @@ const CTAButton = React.forwardRef(({
         {/* Animated Hover Overlay */}
         {!loading && (
           <motion.span 
-            className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary to-primary/60 opacity-0"
+            className={cn(
+              "absolute inset-0 opacity-0",
+              type === "primary" 
+                ? "bg-gradient-to-r from-primary/80 via-primary to-primary/60"
+                : ""
+            )}
             initial={{ opacity: 0 }}
             whileHover={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
@@ -65,16 +85,16 @@ const CTAButton = React.forwardRef(({
           {loading ? (
             <>
               <motion.div 
-                className="w-5 h-5 border-3 border-white border-t-transparent rounded-full" 
+                className="w-5 h-5 border-3 border-current border-t-transparent rounded-full" 
                 animate={{ rotate: 360 }} 
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }} 
               />
-              {children}
+              {!iconOnly && children}
             </>
           ) : (
             <>
               {icon && <span className="flex-shrink-0">{icon}</span>}
-              {children}
+              {!iconOnly && children}
             </>
           )}
         </span>

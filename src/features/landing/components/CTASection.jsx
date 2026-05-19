@@ -1,6 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { CTAButton } from "@/shared/components/ui/button/CTAButton";
+import { FiArrowRight, FiCheckCircle } from "react-icons/fi";
 
 export default function CTASection({ theme }) {
   const navigate = useNavigate();
@@ -28,29 +30,31 @@ export default function CTASection({ theme }) {
           </p>
 
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto"
+            className="flex flex-col md:flex-row gap-4 justify-center items-center md:max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <button
-              onClick={() => navigate("/register")}
-              className="px-8 py-3 bg-primary text-white font-semibold rounded-2xl hover:bg-primary-dark transition-colors"
-            >
-              Mulai Berproses Bersama
-            </button>
+            <div className="w-full md:w-auto">
+              <CTAButton
+                type="primary"
+                icon={<FiArrowRight />}
+                onClick={() => navigate("/register")}
+              >
+                Mulai Berproses Bersama
+              </CTAButton>
+            </div>
 
-            <button
-              onClick={() => navigate("/verifikasi")}
-              className={`px-8 py-3 font-semibold rounded-2xl border-2 transition-colors ${
-                theme === 'dark'
-                  ? 'border-white text-white hover:bg-white hover:text-gray-900'
-                  : 'border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white'
-              }`}
-            >
-              Lihat Proses Berjalan
-            </button>
+            <div className="w-full md:w-auto">
+              <CTAButton
+                type="secondary"
+                icon={<FiCheckCircle />}
+                onClick={() => navigate("/verifikasi")}
+              >
+                Lihat Proses Berjalan
+              </CTAButton>
+            </div>
           </motion.div>
         </motion.div>
       </div>

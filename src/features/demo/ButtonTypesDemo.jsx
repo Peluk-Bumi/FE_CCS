@@ -121,15 +121,42 @@ const ButtonTypesDemo = () => {
         <div className="space-y-4">
           <h2 className="text-2xl font-semibold">Landing Page CTA</h2>
 
-          <div className="p-10 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 text-center space-y-4">
+          <div className="p-10 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 text-center space-y-6">
             <h3 className="text-xl font-bold">Build Something Great</h3>
             <p className="text-sm text-gray-500">
               Convert visitors into users with clear action
             </p>
 
-            <CTAButton icon={<FiDownload />}>
-              Get Started
-            </CTAButton>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <CTAButton type="primary" icon={<FiDownload />}>
+                Get Started
+              </CTAButton>
+              
+              <CTAButton type="secondary" icon={<FiCheckCircle />}>
+                Learn More
+              </CTAButton>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA ICON-ONLY MODE (for navbar md-lg) */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold">CTA Icon-Only Mode (Navbar md-lg)</h2>
+
+          <div className="p-6 rounded-xl border space-y-4">
+            <p className="text-sm text-gray-500">
+              Use iconOnly prop for compact navbar display on md-lg screens
+            </p>
+
+            <div className="flex gap-3 items-center">
+              <CTAButton type="primary" icon={<FiDownload />} iconOnly title="Download" />
+              <CTAButton type="secondary" icon={<FiCheckCircle />} iconOnly title="Verify" />
+              <CTAButton type="primary" icon={<FiSettings />} iconOnly title="Settings" />
+            </div>
+
+            <p className="text-xs text-gray-400 mt-4">
+              These buttons show only icons on md-lg screens, then hide on smaller screens
+            </p>
           </div>
         </div>
 

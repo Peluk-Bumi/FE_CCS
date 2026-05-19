@@ -175,25 +175,20 @@ export default function HeroSection({ theme, scrollToSection }) {
               transition={{ delay: 0.6, duration: 0.8 }}
             >
               <CTAButton
+                type="primary"
                 icon={<FiArrowRight />}
                 onClick={() => navigate("/register")}
               >
                 Mulai Gratis Sekarang
               </CTAButton>
               
-              <motion.button
-                onClick={() => scrollToSection("#features")}
-                className={`px-8 py-4 font-medium rounded-xl shadow-lg hover:shadow-xl transition-all border flex items-center justify-center group ${
-                  theme === 'dark'
-                    ? 'bg-green-950/35 hover:bg-green-900/45 text-gray-100 border-white/10 backdrop-blur-xl'
-                    : 'bg-white/80 hover:bg-white text-gray-700 border-primary/20 backdrop-blur-xl'
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <CTAButton
+                type="secondary"
+                icon={<FiPlay />}
+                onClick={() => scrollToSection("#stats")}
               >
-                <FiPlay className="mr-2 group-hover:scale-110 transition-transform" />
                 Selengkapnya
-              </motion.button>
+              </CTAButton>
             </motion.div>
 
             {/* Trust Indicators */}
