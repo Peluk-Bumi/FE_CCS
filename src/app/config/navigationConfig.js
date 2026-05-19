@@ -30,12 +30,30 @@ export const navigationConfig = {
     { label: "Verifikasi", path: "/verifikasi", iconName: "FiCheckCircle" },
   ],
 
+  // ── Mobile bottom tabs (< md) — quick access + Menu opens full sheet ───────
+  // Gunakan nama yang sama dengan sidebar untuk konsistensi
+  userMobileTabs: [
+    { id: "home",       label: "Dashboard",    path: "/user/dashboard",    iconName: "FiHome"        },
+    { id: "perencanaan", label: "Perencanaan", path: "/user/perencanaan",  iconName: "FiClipboard"   },
+    { id: "implementasi", label: "Implementasi", path: "/user/implementasi", iconName: "FiCheckCircle" },
+    { id: "menu",       label: "Menu",         action: "menu",             iconName: "FiMenu"        },
+  ],
+
+  adminMobileTabs: [
+    { id: "home",     label: "Dashboard",    path: "/admin/dashboard",   iconName: "FiHome"      },
+    { id: "pengguna", label: "Pengguna",     path: "/admin/users",       iconName: "FiUsers"     },
+    { id: "monitoring", label: "Monitoring", path: "/admin/monitoring",  iconName: "FiActivity"  },
+    { id: "menu",     label: "Menu",         action: "menu",             iconName: "FiMenu"      },
+  ],
+
   // ── Special menu items (appear below main nav, role-aware) ─────────────────
   specialMenuItems: {
     verifikasi: {
       label: "Verifikasi",
       iconName: "FiCheckCircle",
-      getPath: (isAdmin) => isAdmin ? "/admin/verifikasi" : "/user/verifikasi",
+      // Public QR scanner — same route from landing nav & dashboard sheet
+      path: "/verifikasi",
+      getPath: () => "/verifikasi",
     },
     logHistory: {
       label: "Log History",
@@ -55,8 +73,10 @@ export const navigationConfig = {
     navigationConfig.specialMenuItems.logHistory,
   ],
 
-  getVerifikasiPath: (isAdmin) =>
-    navigationConfig.specialMenuItems.verifikasi.getPath(isAdmin),
+  getVerifikasiPath: () => navigationConfig.specialMenuItems.verifikasi.path,
+
+  getMobileTabs: (isAdmin) =>
+    isAdmin ? navigationConfig.adminMobileTabs : navigationConfig.userMobileTabs,
 
   getLogHistoryInfo: (isAdmin) => ({
     path:  navigationConfig.specialMenuItems.logHistory.getPath(isAdmin),
