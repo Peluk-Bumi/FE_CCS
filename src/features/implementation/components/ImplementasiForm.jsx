@@ -60,12 +60,18 @@ const ImplementasiForm = () => {
     initialValues: {
       perencanaan_id: "",
       kesesuaian: {
-        nama_perusahaan: false,
-        lokasi: false,
-        jenis_kegiatan: false,
-        jumlah_bibit: false,
-        jenis_bibit: false,
-        tanggal: false,
+        nama_perusahaan: null,
+        nama_perusahaan_detail: "",
+        lokasi: null,
+        lokasi_detail: "",
+        jenis_kegiatan: null,
+        jenis_kegiatan_detail: "",
+        jumlah_bibit: null,
+        jumlah_bibit_detail: "",
+        jenis_bibit: null,
+        jenis_bibit_detail: "",
+        tanggal: null,
+        tanggal_detail: "",
       },
       pic_koorlap: "",
       dokumentasi: null,
@@ -605,44 +611,64 @@ const ImplementasiForm = () => {
                 Checklist Kesesuaian Perencanaan
               </h3>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Object.keys(formik.values.kesesuaian).map((field, index) => (
-                  <motion.label
-                    key={field}
-                    className={`relative cursor-pointer group`}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.1 * index }}
-                    whileHover={{ scale: 1.02 }}
+                {[
+                  { field: 'nama_perusahaan', label: 'Nama Perusahaan', type: 'text' },
+                  { field: 'lokasi', label: 'Lokasi', type: 'text' },
+                  { field: 'jenis_kegiatan', label: 'Jenis Kegiatan', type: 'text' },
+                  { field: 'jumlah_bibit', label: 'Jumlah Bibit', type: 'number' },
+                  { field: 'jenis_bibit', label: 'Jenis Bibit', type: 'text' },
+                  { field: 'tanggal', label: 'Tanggal', type: 'date' },
+                ].map((item, index) => (
+                  <motion.div
+                    key={item.field}
+                    className="p-4 rounded-xl border bg-white dark:bg-gray-800"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.06 * index }}
                   >
-                    <div className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
-                      formik.values.kesesuaian[field]
-                        ? "border-green-500 bg-gradient-to-br from-green-50 to-lime-50 dark:from-green-900/30 dark:to-lime-900/30"
-                        : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-green-300"
-                    }`}>
-                      <input
-                        type="checkbox"
-                        checked={formik.values.kesesuaian[field]}
-                        onChange={(e) => formik.setFieldValue(`kesesuaian.${field}`, e.target.checked)}
-                        className="sr-only"
-                      />
-                      <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
-                        formik.values.kesesuaian[field]
-                          ? "border-green-500 bg-green-500"
-                          : "border-gray-300 dark:border-gray-500"
-                      }`}>
-                        {formik.values.kesesuaian[field] && (
-                          <FiCheck className="w-4 h-4 text-white" />
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">{item.label}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => formik.setFieldValue(`kesesuaian.${item.field}`, true)}
+                          className={`px-3 py-1 rounded-lg text-sm font-semibold transition focus:outline-none ${formik.values.kesesuaian[item.field] === true ? 'bg-green-600 text-white shadow hover:bg-green-700' : 'bg-white border hover:bg-green-100 hover:text-green-800'}`}
+                        >
+                          Ya
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => formik.setFieldValue(`kesesuaian.${item.field}`, false)}
+                          className={`px-3 py-1 rounded-lg text-sm font-semibold transition focus:outline-none ${formik.values.kesesuaian[item.field] === false ? 'bg-rose-600 text-white shadow hover:bg-rose-700' : 'bg-white border hover:bg-rose-100 hover:text-rose-800'}`}
+                        >
+                          Tidak
+                        </button>
+                      </div>
+                    </div>
+
+                    {formik.values.kesesuaian[item.field] === false && (
+                      <div className="mt-3 p-3 bg-amber-50 border-l-4 border-amber-400 rounded">
+                        {item.type === 'date' ? (
+                          <input
+                            type="date"
+                            value={formik.values.kesesuaian[`${item.field}_detail`]}
+                            onChange={(e) => formik.setFieldValue(`kesesuaian.${item.field}_detail`, e.target.value)}
+                            className="w-full rounded px-2 py-2"
+                          />
+                        ) : (
+                          <input
+                            type={item.type}
+                            placeholder={`Masukkan ${item.label.toLowerCase()} jika berbeda`}
+                            value={formik.values.kesesuaian[`${item.field}_detail`]}
+                            onChange={(e) => formik.setFieldValue(`kesesuaian.${item.field}_detail`, e.target.value)}
+                            className="w-full rounded px-2 py-2"
+                          />
                         )}
                       </div>
-                      <span className={`text-sm font-medium capitalize ${
-                        formik.values.kesesuaian[field]
-                          ? "text-green-700 dark:text-green-300"
-                          : "text-gray-700 dark:text-gray-300"
-                      }`}>
-                        {field.replace("_", " ")}
-                      </span>
-                    </div>
-                  </motion.label>
+                    )}
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
