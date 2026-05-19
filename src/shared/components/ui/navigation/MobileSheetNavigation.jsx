@@ -85,11 +85,11 @@ const MobileSheetNavigation = React.forwardRef(({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] md:hidden"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[75] md:hidden"
             onClick={onClose}
           />
           
-          {/* Sheet */}
+          {/* Sheet - z-index lebih tinggi dari FAB (z-[80]) */}
           <motion.div
             ref={ref}
             initial={{ y: "100%" }}
@@ -97,7 +97,7 @@ const MobileSheetNavigation = React.forwardRef(({
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className={cn(
-              "fixed bottom-0 left-0 right-0 z-[70] md:hidden",
+              "fixed bottom-0 left-0 right-0 z-[85] md:hidden",
               "bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl",
               "max-h-[85vh] overflow-hidden flex flex-col",
               className
@@ -116,7 +116,7 @@ const MobileSheetNavigation = React.forwardRef(({
                   Menu Navigasi
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Monitoring Lapangan
+                  Peluk Bumi
                 </p>
               </div>
               <button
@@ -176,7 +176,7 @@ const MobileSheetNavigation = React.forwardRef(({
                         ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
                         : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                     }`}
-                    whileHover={{ x: 5 }}
+                    whileHover={{ x: isActive ? 0 : 5 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <span className={isActive ? "text-white" : item.label === "Verifikasi" ? "" : "text-primary dark:text-primary-light"}>

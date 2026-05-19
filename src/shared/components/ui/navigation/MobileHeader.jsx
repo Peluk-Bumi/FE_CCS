@@ -13,11 +13,12 @@ const MobileHeader = React.forwardRef(({
   const location = useLocation()
   const { user } = useAuth()
   
-  // Check roles and routes
-  const isAdmin = user?.role === 'admin'
-  const isAdminRoute = location.pathname.startsWith('/admin')
-  const isUserRoute = location.pathname.startsWith('/user')
-  const isDashboard = location.pathname === '/user/dashboard' || location.pathname === '/admin/dashboard'
+  const isAdmin = user?.role === "admin"
+  const isAdminRoute = location.pathname.startsWith("/admin")
+  const isDashboard =
+    location.pathname === "/user/dashboard" ||
+    location.pathname === "/admin/dashboard"
+  const showBack = !isDashboard
   
   const handleBack = () => {
     navigate(-1) // Go back in history
@@ -32,26 +33,28 @@ const MobileHeader = React.forwardRef(({
     
     if (isAdminRoute) {
       // Admin routes
-      if (path === '/admin/dashboard') return 'Dashboard Admin'
-      if (path === '/admin/users') return 'Kelola Pengguna'
-      if (path === '/admin/perencanaan') return 'Perencanaan'
-      if (path === '/admin/implementasi') return 'Implementasi'
-      if (path === '/admin/laporan') return 'Laporan'
-      if (path === '/admin/monitoring') return 'Monitoring'
-      if (path === '/admin/evaluasi') return 'Evaluasi'
-      if (path === '/admin/verifikasi') return 'Verifikasi'
-      if (path === '/admin/settings') return 'Pengaturan'
-      return 'Dashboard Admin'
+      if (path === '/admin/dashboard') return { title: 'Dashboard', subtitle: 'Admin Panel' }
+      if (path === '/admin/users') return { title: 'Pengguna', subtitle: 'Kelola pengguna sistem' }
+      if (path === '/admin/perencanaan') return { title: 'Perencanaan', subtitle: 'Rencana konservasi' }
+      if (path === '/admin/implementasi') return { title: 'Implementasi', subtitle: 'Aksi lapangan' }
+      if (path === '/admin/laporan') return { title: 'Laporan', subtitle: 'Laporan sistem' }
+      if (path === '/admin/monitoring') return { title: 'Monitoring', subtitle: 'Pantau aktivitas' }
+      if (path === '/admin/evaluasi') return { title: 'Evaluasi', subtitle: 'Evaluasi hasil' }
+      if (path === '/admin/verifikasi') return { title: 'Verifikasi', subtitle: 'Validasi data' }
+      if (path === '/admin/settings') return { title: 'Pengaturan', subtitle: 'Konfigurasi sistem' }
+      if (path === '/admin/log-history') return { title: 'Log Sistem', subtitle: 'Riwayat transaksi' }
+      return { title: 'Dashboard', subtitle: 'Admin Panel' }
     } else {
       // User routes
-      if (path === '/user/dashboard') return 'Dashboard'
-      if (path === '/user/implementasi') return 'Implementasi'
-      if (path === '/user/monitoring') return 'Monitoring'
-      if (path === '/user/evaluasi') return 'Evaluasi'
-      if (path === '/user/verifikasi') return 'Verifikasi'
-      if (path === '/user/settings') return 'Pengaturan'
-      if (path.startsWith('/user/perencanaan')) return 'Perencanaan'
-      return 'Dashboard'
+      if (path === '/user/dashboard') return { title: 'Dashboard', subtitle: 'User Panel' }
+      if (path === '/user/perencanaan') return { title: 'Perencanaan', subtitle: 'Rencana konservasi' }
+      if (path === '/user/implementasi') return { title: 'Implementasi', subtitle: 'Aksi lapangan' }
+      if (path === '/user/monitoring') return { title: 'Monitoring', subtitle: 'Pantau aktivitas' }
+      if (path === '/user/evaluasi') return { title: 'Evaluasi', subtitle: 'Evaluasi hasil' }
+      if (path === '/user/verifikasi') return { title: 'Verifikasi', subtitle: 'Validasi data' }
+      if (path === '/user/settings') return { title: 'Pengaturan', subtitle: 'Konfigurasi akun' }
+      if (path === '/user/log-history') return { title: 'Log Aktivitas', subtitle: 'Riwayat aktivitas' }
+      return { title: 'Dashboard', subtitle: 'User Panel' }
     }
   }
 
@@ -62,18 +65,18 @@ const MobileHeader = React.forwardRef(({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className={cn(
-        "md:hidden sticky top-0 z-20 bg-primary/90 dark:bg-gray-900/80 backdrop-blur-xl",
-        "border-b border-primary-light dark:border-gray-700 px-4 py-3 flex items-center justify-between shadow-sm",
+        "md:hidden sticky top-0 z-20 bg-gradient-to-r from-primary via-primary/95 to-primary-dark dark:from-gray-900 dark:via-gray-900/95 dark:to-gray-900 backdrop-blur-xl",
+        "border-b border-primary-light/30 dark:border-gray-700 px-4 py-3 flex items-center justify-between shadow-sm",
         className
       )}
       {...props}
     >
       {/* Left Section - Back Button or Empty */}
-      <div className="w-10 flex items-center justify-center">
-        {(!isDashboard || (isAdminRoute && location.pathname !== '/admin/dashboard')) && (
+      <div className="w-10 flex items-center justify-center flex-shrink-0">
+        {showBack && (
           <motion.button
             onClick={handleBack}
-            className="p-2 rounded-xl bg-white/10 dark:bg-primary/20 text-peach dark:text-primary-light hover:bg-white/20 dark:hover:bg-primary/40 transition-all"
+            className="p-2 rounded-xl bg-white/10 dark:bg-primary/20 text-white dark:text-primary-light hover:bg-white/20 dark:hover:bg-primary/40 transition-all"
             aria-label="Kembali"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -83,28 +86,31 @@ const MobileHeader = React.forwardRef(({
         )}
       </div>
 
-      {/* Center Section - Page Title */}
-      <div className="flex-1 text-center">
-        <h1 className="text-lg font-bold bg-gradient-to-r from-white to-peach bg-clip-text text-transparent">
-          {getPageTitle()}
+      {/* Center Section - Page Title & Subtitle */}
+      <div className="flex-1 text-center min-w-0">
+        <h1 className="text-base font-bold text-white truncate">
+          {getPageTitle().title}
         </h1>
+        <p className="text-xs text-white/80 truncate">
+          {getPageTitle().subtitle}
+        </p>
       </div>
 
-      {/* Right Section - Logo */}
-      <div className="w-10 flex items-center justify-center">
+      {/* Right Section - Logo (Rounded) */}
+      <div className="w-10 flex items-center justify-center flex-shrink-0">
         <motion.button
           onClick={handleLogoClick}
-          className="p-2 rounded-xl hover:bg-white/10 dark:hover:bg-gray-800 transition-all"
+          className="p-2 rounded-xl bg-white/10 hover:bg-white/20 dark:hover:bg-gray-800 transition-all"
           aria-label="Ke halaman utama"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
             {/* Logo */}
             <img
               src="/logo/icon-peach.png"
               alt="Peluk Bumi Logo"
-              className="relative z-10 object-contain drop-shadow-lg transition-transform duration-300 group-hover:scale-[1.06] group-hover:rotate-3"
+              className="w-full h-full object-contain drop-shadow-lg"
             />
           </div>
         </motion.button>
