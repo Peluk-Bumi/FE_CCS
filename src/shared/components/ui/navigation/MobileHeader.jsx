@@ -35,6 +35,7 @@ const MobileHeader = React.forwardRef(({
       // Admin routes
       if (path === '/admin/dashboard') return { title: 'Dashboard', subtitle: 'Admin Panel' }
       if (path === '/admin/users') return { title: 'Pengguna', subtitle: 'Kelola pengguna sistem' }
+      if (path === '/admin/perencanaan/all') return { title: 'All Perencanaan', subtitle: 'Daftar semua perencanaan' }
       if (path === '/admin/perencanaan') return { title: 'Perencanaan', subtitle: 'Rencana konservasi' }
       if (path === '/admin/implementasi') return { title: 'Implementasi', subtitle: 'Aksi lapangan' }
       if (path === '/admin/laporan') return { title: 'Laporan', subtitle: 'Laporan sistem' }
@@ -47,6 +48,7 @@ const MobileHeader = React.forwardRef(({
     } else {
       // User routes
       if (path === '/user/dashboard') return { title: 'Dashboard', subtitle: 'User Panel' }
+      if (path === '/user/perencanaan/all') return { title: 'All Perencanaan', subtitle: 'Daftar perencanaan Anda' }
       if (path === '/user/perencanaan') return { title: 'Perencanaan', subtitle: 'Rencana konservasi' }
       if (path === '/user/implementasi') return { title: 'Implementasi', subtitle: 'Aksi lapangan' }
       if (path === '/user/monitoring') return { title: 'Monitoring', subtitle: 'Pantau aktivitas' }

@@ -12,7 +12,9 @@ import {
   FiCheckCircle,
   FiActivity,
   FiBarChart2,
-  FiFileText
+  FiFileText,
+  FiChevronDown,
+  FiChevronRight
 } from "react-icons/fi"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "@/app/context/AuthContext"
@@ -31,6 +33,7 @@ const MobileSheetNavigation = React.forwardRef(({
   const { user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const [userMenuOpen, setUserMenuOpen] = React.useState(false)
+  const [planningMenuOpen, setPlanningMenuOpen] = React.useState(false)
   
   // Check if user is admin
   const isAdmin = user?.role === 'admin'
@@ -51,7 +54,16 @@ const MobileSheetNavigation = React.forwardRef(({
 
   // Use centralized navigation configuration for consistency
   const mainMenuItems = navigationConfig.getMenuItems(isAdmin)
+  const planningMenuItems = navigationConfig.getPlanningMenuItems(isAdmin)
   const specialMenuItems = navigationConfig.getSpecialMenuItems(isAdmin)
+  const planningBasePath = isAdmin ? "/admin/perencanaan" : "/user/perencanaan"
+  const isPlanningRoute = location.pathname.startsWith(planningBasePath)
+
+  React.useEffect(() => {
+    if (isPlanningRoute) {
+      setPlanningMenuOpen(true)
+    }
+  }, [isPlanningRoute])
 
   const handleNavigation = (path) => {
     navigate(path)
@@ -130,6 +142,68 @@ const MobileSheetNavigation = React.forwardRef(({
             
             {/* Main Menu Navigation */}
             <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-hide">
+              <div>
+                <motion.button
+                  onClick={() => setPlanningMenuOpen((prev) => !prev)}
+                  className={`w-full flex items-center space-x-3 rounded-xl px-4 py-3 transition-all ${
+                    isPlanningRoute
+                      ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20"
+                  }`}
+                  whileHover={{ x: isPlanningRoute ? 0 : 5 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span className={isPlanningRoute ? "text-white" : "text-primary dark:text-primary-light"}>
+                    {getIcon("FiClipboard")}
+                  </span>
+                  <span className="font-medium">Perencanaan</span>
+                  <span className="ml-auto">
+                    {planningMenuOpen ? (
+                      <FiChevronDown className={isPlanningRoute ? "text-white" : "text-gray-500 dark:text-gray-400"} />
+                    ) : (
+                      <FiChevronRight className={isPlanningRoute ? "text-white" : "text-gray-500 dark:text-gray-400"} />
+                    )}
+                  </span>
+                </motion.button>
+
+                <AnimatePresence initial={false}>
+                  {planningMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="ml-4 mt-2 space-y-1 overflow-hidden"
+                    >
+                      {planningMenuItems.map((item) => {
+                        const isActive = location.pathname === item.path
+                        return (
+                          <motion.button
+                            key={item.key}
+                            onClick={() => handleNavigation(item.path)}
+                            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
+                              isActive
+                                ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
+                                : "text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20"
+                            }`}
+                            whileHover={{ x: isActive ? 0 : 5 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <span className={isActive ? "text-white" : "text-primary dark:text-primary-light"}>
+                              {getIcon(item.iconName)}
+                            </span>
+                            <span className="font-medium text-sm">{item.label}</span>
+                            {isActive && (
+                              <span className="ml-auto h-2 w-2 rounded-full bg-white/80 animate-pulse" />
+                            )}
+                          </motion.button>
+                        )
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {mainMenuItems.map((item) => {
                 const isActive = location.pathname === item.path
                 return (

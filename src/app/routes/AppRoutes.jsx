@@ -15,6 +15,7 @@ import PlanningForm from "@/features/planning/components/PlanningForm";
 import ImplementasiForm from "@/features/implementation/components/ImplementasiForm";
 import MonitoringForm from "@/features/monitoring/components/MonitoringForm";
 import EvaluasiPage from "@/pages/evaluation/EvaluationPage";
+import PlanningListPage from "@/pages/planning/PlanningListPage";
 
 // User pages
 import DashboardUser from "@/pages/dashboard/UserDashboardPage";
@@ -76,6 +77,7 @@ export default function AppRoutes() {
       >
         <Route path="dashboard"    element={<Dashboard />} />
         <Route path="users"        element={<UserPage />} />
+        <Route path="perencanaan/all" element={<PlanningListPage />} />
         <Route path="perencanaan"  element={<PlanningForm />} />
         <Route path="implementasi" element={<ImplementasiForm />} />
         <Route path="monitoring"   element={<MonitoringForm />} />
@@ -98,6 +100,7 @@ export default function AppRoutes() {
         }
       >
         <Route path="dashboard"    element={<DashboardUser />} />
+        <Route path="perencanaan/all" element={<PlanningListPage />} />
         <Route path="perencanaan"  element={<PlanningForm />} />
         <Route path="implementasi" element={<ImplementasiForm />} />
         <Route path="monitoring"   element={<MonitoringForm />} />

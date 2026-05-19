@@ -15,6 +15,7 @@ const PlanningTable = ({
 }) => {
   const [sortField, setSortField] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
+  const hasActions = Boolean(onView || onEdit || onDelete);
 
   const handleSort = (field) => {
     const newDirection = sortField === field && sortDirection === 'asc' ? 'desc' : 'asc';
@@ -38,7 +39,7 @@ const PlanningTable = ({
 
   if (loading) {
     return (
-      <Card>
+      <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm">
         <CardContent className="p-6">
           <div className="flex items-center justify-center h-32">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -49,7 +50,7 @@ const PlanningTable = ({
   }
 
   return (
-    <Card>
+    <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Daftar Perencanaan</CardTitle>
       </CardHeader>
@@ -76,7 +77,6 @@ const PlanningTable = ({
                       )}
                     </div>
                   </th>
-                  <th className="text-left p-3 font-medium">PIC</th>
                   <th className="text-left p-3 font-medium">Kegiatan</th>
                   <th className="text-left p-3 font-medium">Lokasi</th>
                   <th 
@@ -93,7 +93,7 @@ const PlanningTable = ({
                   </th>
                   <th className="text-left p-3 font-medium">Jumlah Bibit</th>
                   <th className="text-left p-3 font-medium">Status</th>
-                  <th className="text-center p-3 font-medium">Aksi</th>
+                  {hasActions && <th className="text-center p-3 font-medium">Aksi</th>}
                 </tr>
               </thead>
               <tbody>
@@ -102,10 +102,6 @@ const PlanningTable = ({
                     <td className="p-3">
                       <div className="font-medium">{item.nama_perusahaan}</div>
                       <div className="text-sm text-gray-500">ID: {item.user_id}</div>
-                    </td>
-                    <td className="p-3">
-                      <div className="font-medium">{item.nama_pic}</div>
-                      <div className="text-sm text-gray-500">{item.narahubung}</div>
                     </td>
                     <td className="p-3">
                       <Badge variant="outline">
@@ -134,18 +130,20 @@ const PlanningTable = ({
                         {formatPlanningStatus(item.status)?.label || item.status}
                       </Badge>
                     </td>
-                    <td className="p-3">
-                      <div className="flex items-center justify-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onView(item)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {(userRole === 'admin' || item.user_id === parseInt(localStorage.getItem('userId'))) && (
-                          <>
+                    {hasActions && (
+                      <td className="p-3">
+                        <div className="flex items-center justify-center gap-2">
+                          {onView && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onView(item)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {onEdit && (userRole === 'admin' || item.user_id === parseInt(localStorage.getItem('userId'))) && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -154,6 +152,8 @@ const PlanningTable = ({
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
+                          )}
+                          {onDelete && (userRole === 'admin' || item.user_id === parseInt(localStorage.getItem('userId'))) && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -162,10 +162,10 @@ const PlanningTable = ({
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
-                          </>
-                        )}
-                      </div>
-                    </td>
+                          )}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

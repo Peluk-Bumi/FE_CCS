@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   FiX, FiSettings, FiLogOut, FiSun, FiMoon,
   FiHome, FiUsers, FiClipboard, FiCheckCircle,
-  FiActivity, FiBarChart2, FiFileText,
+  FiActivity, FiBarChart2, FiFileText, FiChevronDown, FiChevronRight,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/context/AuthContext";
@@ -31,6 +31,7 @@ export default function Sidebar({ isUser = false, onClose }) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [planningOpen, setPlanningOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   // isAdmin is the canonical flag used everywhere in this file
@@ -38,7 +39,16 @@ export default function Sidebar({ isUser = false, onClose }) {
 
   // ── Navigation data from single source of truth ──────────────────────────
   const menuItems        = navigationConfig.getMenuItems(isAdmin);
+  const planningItems    = navigationConfig.getPlanningMenuItems(isAdmin);
   const specialMenuItems = navigationConfig.getSpecialMenuItems(isAdmin);
+  const planningBasePath  = isAdmin ? "/admin/perencanaan" : "/user/perencanaan";
+  const isPlanningRoute   = location.pathname.startsWith(planningBasePath);
+
+  useEffect(() => {
+    if (isPlanningRoute) {
+      setPlanningOpen(true);
+    }
+  }, [isPlanningRoute]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -65,12 +75,12 @@ export default function Sidebar({ isUser = false, onClose }) {
   };
 
   // ── Shared nav button renderer ────────────────────────────────────────────
-  function NavButton({ path, iconName, label, isVerifikasi = false }) {
+  function NavButton({ path, iconName, label, isVerifikasi = false, isNested = false }) {
     const isActive = location.pathname === path;
     return (
       <motion.button
         onClick={() => handleNavigation(path)}
-        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
+        className={`w-full flex items-center space-x-3 rounded-xl px-4 py-3.5 transition-all ${
           isVerifikasi
             ? `border ${
                 isActive
@@ -87,7 +97,7 @@ export default function Sidebar({ isUser = false, onClose }) {
         <span className={isActive ? "text-white" : isVerifikasi ? "text-primary dark:text-primary-light" : "text-primary dark:text-primary-light"}>
           {getIcon(iconName)}
         </span>
-        <span className="font-medium">{label}</span>
+        <span className={`font-medium ${isNested ? "text-sm" : ""}`}>{label}</span>
         {isActive && (
           <span className="ml-auto h-2 w-2 rounded-full bg-white/80 animate-pulse" />
         )}
@@ -141,13 +151,63 @@ export default function Sidebar({ isUser = false, onClose }) {
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-hide">
 
         {/* Primary menu — driven entirely by navigationConfig */}
-        {menuItems.map((item) => (
-          <NavButton
-            key={item.path}
-            path={item.path}
-            iconName={item.iconName}
-            label={item.label}
-          />
+        {menuItems.map((item, index) => (
+          <div key={item.path}>
+            <NavButton
+              path={item.path}
+              iconName={item.iconName}
+              label={item.label}
+            />
+
+            {index === 0 && (
+              <div className="mt-2">
+                <motion.button
+                  onClick={() => setPlanningOpen((prev) => !prev)}
+                  className={`w-full flex items-center space-x-3 rounded-xl px-4 py-3.5 transition-all ${
+                    isPlanningRoute
+                      ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20"
+                  }`}
+                  whileHover={{ x: isPlanningRoute ? 0 : 5 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span className={isPlanningRoute ? "text-white" : "text-primary dark:text-primary-light"}>
+                    {getIcon("FiClipboard")}
+                  </span>
+                  <span className="font-medium">Perencanaan</span>
+                  <span className="ml-auto">
+                    {planningOpen ? (
+                      <FiChevronDown className={isPlanningRoute ? "text-white" : "text-gray-500 dark:text-gray-400"} />
+                    ) : (
+                      <FiChevronRight className={isPlanningRoute ? "text-white" : "text-gray-500 dark:text-gray-400"} />
+                    )}
+                  </span>
+                </motion.button>
+
+                <AnimatePresence initial={false}>
+                  {planningOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="ml-4 mt-2 space-y-1 overflow-hidden"
+                    >
+                      {planningItems.map((planningItem) => (
+                        <NavButton
+                          key={planningItem.key}
+                          path={planningItem.path}
+                          iconName={planningItem.iconName}
+                          label={planningItem.label}
+                          isNested
+                        />
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
         ))}
 
         {/* Divider */}

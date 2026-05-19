@@ -6,7 +6,6 @@ export const navigationConfig = {
   adminMenuItems: [
     { label: "Dashboard",    path: "/admin/dashboard",    iconName: "FiHome"        },
     { label: "Pengguna",     path: "/admin/users",        iconName: "FiUsers"       },
-    { label: "Perencanaan",  path: "/admin/perencanaan",  iconName: "FiClipboard"   },
     { label: "Implementasi", path: "/admin/implementasi", iconName: "FiCheckCircle" },
     { label: "Monitoring",   path: "/admin/monitoring",   iconName: "FiActivity"    },
     { label: "Evaluasi",     path: "/admin/evaluasi",     iconName: "FiBarChart2"   },
@@ -17,11 +16,25 @@ export const navigationConfig = {
   // No separate "Pengguna" item for user (they go to /user/profile via profile dropdown).
   userMenuItems: [
     { label: "Dashboard",    path: "/user/dashboard",    iconName: "FiHome"        },
-    { label: "Perencanaan",  path: "/user/perencanaan",  iconName: "FiClipboard"   },
     { label: "Implementasi", path: "/user/implementasi", iconName: "FiCheckCircle" },
     { label: "Monitoring",   path: "/user/monitoring",   iconName: "FiActivity"    },
     { label: "Evaluasi",     path: "/user/evaluasi",     iconName: "FiBarChart2"   },
   ],
+
+  planningMenu: {
+    label: "Perencanaan",
+    iconName: "FiClipboard",
+    items: {
+      all: {
+        label: "All Perencanaan",
+        getPath: (isAdmin) => isAdmin ? "/admin/perencanaan/all" : "/user/perencanaan/all",
+      },
+      create: {
+        label: "Buat Perencanaan",
+        getPath: (isAdmin) => isAdmin ? "/admin/perencanaan" : "/user/perencanaan",
+      },
+    },
+  },
 
   // ── Landing page nav items (public) ────────────────────────────────────────
   landingNavItems: [
@@ -67,6 +80,21 @@ export const navigationConfig = {
   // ── Helpers ─────────────────────────────────────────────────────────────────
   getMenuItems: (isAdmin) =>
     isAdmin ? navigationConfig.adminMenuItems : navigationConfig.userMenuItems,
+
+  getPlanningMenuItems: (isAdmin) => [
+    {
+      key: "all",
+      label: navigationConfig.planningMenu.items.all.label,
+      path: navigationConfig.planningMenu.items.all.getPath(isAdmin),
+      iconName: "FiClipboard",
+    },
+    {
+      key: "create",
+      label: navigationConfig.planningMenu.items.create.label,
+      path: navigationConfig.planningMenu.items.create.getPath(isAdmin),
+      iconName: "FiFileText",
+    },
+  ],
 
   getSpecialMenuItems: (isAdmin) => [
     navigationConfig.specialMenuItems.verifikasi,

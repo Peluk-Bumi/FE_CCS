@@ -17,6 +17,7 @@ export default function PdfPreviewModal({
 
   const implementasiDocs = parseStoredFiles?.(details?.implementasi?.dokumentasi_kegiatan) || [];
   const monitoringDocs = parseStoredFiles?.(details?.monitoring?.dokumentasi_monitoring) || [];
+  const kesesuaianDetail = details?.implementasi?.kesesuaian || {};
 
   const apiOrigin = getApiOrigin();
 
@@ -190,6 +191,24 @@ export default function PdfPreviewModal({
                 <ChecklistRow label="Jumlah Bibit" value={getKesesuaianValue("jumlah_bibit")} />
                 <ChecklistRow label="Jenis Bibit" value={getKesesuaianValue("jenis_bibit")} />
                 <ChecklistRow label="Tanggal" value={getKesesuaianValue("tanggal")} />
+                {!getKesesuaianValue("lokasi") && kesesuaianDetail.lokasi_detail && (
+                  <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 md:col-span-2">
+                    <p className="font-semibold mb-1 text-amber-800 dark:text-amber-300">Lokasi berbeda</p>
+                    <p className="text-sm text-amber-700 dark:text-amber-200">{kesesuaianDetail.lokasi_detail}</p>
+                  </div>
+                )}
+                {!getKesesuaianValue("tanggal") && kesesuaianDetail.tanggal_detail && (
+                  <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 md:col-span-2">
+                    <p className="font-semibold mb-1 text-amber-800 dark:text-amber-300">Tanggal berbeda</p>
+                    <p className="text-sm text-amber-700 dark:text-amber-200">
+                      {new Date(kesesuaianDetail.tanggal_detail).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                )}
                 <DocumentationGallery title="Dokumentasi Implementasi" files={implementasiDocs} />
               </>
             )}

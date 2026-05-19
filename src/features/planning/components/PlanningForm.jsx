@@ -368,32 +368,40 @@ const PerencanaanForm = () => {
                 Jenis Kegiatan
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {["Planting Mangrove", "Coral Transplanting"].map((option) => (
+                {[
+                  { label: "Planting Mangrove", disabled: false },
+                  { label: "Coral Transplanting", disabled: true },
+                ].map((option) => (
                   <motion.label
-                    key={option}
-                    className={`relative cursor-pointer group`}
+                    key={option.label}
+                    className={`relative group ${option.disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <input
                       type="radio"
                       name="jenis_kegiatan"
-                      value={option}
-                      checked={formik.values.jenis_kegiatan === option}
+                      value={option.label}
+                      checked={formik.values.jenis_kegiatan === option.label}
+                      disabled={option.disabled}
                       onChange={formik.handleChange}
                       className="peer sr-only"
                     />
                     <div className={`flex items-center gap-4 p-6 rounded-2xl border-2 transition-all duration-300 ${
-                      formik.values.jenis_kegiatan === option
+                      option.disabled
+                        ? "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                        : formik.values.jenis_kegiatan === option.label
                         ? "border-emerald-500 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 shadow-lg"
                         : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-emerald-300 dark:hover:border-emerald-700"
                     }`}>
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                        formik.values.jenis_kegiatan === option
+                        option.disabled
+                          ? "border-gray-300 dark:border-gray-600"
+                          : formik.values.jenis_kegiatan === option.label
                           ? "border-emerald-500 bg-emerald-500"
                           : "border-gray-300 dark:border-gray-500"
                       }`}>
-                        {formik.values.jenis_kegiatan === option && (
+                        {formik.values.jenis_kegiatan === option.label && !option.disabled && (
                           <motion.div
                             className="w-3 h-3 rounded-full bg-white"
                             initial={{ scale: 0 }}
@@ -403,16 +411,21 @@ const PerencanaanForm = () => {
                         )}
                       </div>
                       <span className={`font-semibold text-lg ${
-                        formik.values.jenis_kegiatan === option
+                        option.disabled
+                          ? "text-gray-500 dark:text-gray-400"
+                          : formik.values.jenis_kegiatan === option.label
                           ? "text-emerald-700 dark:text-emerald-300"
                           : "text-gray-700 dark:text-gray-300"
                       }`}>
-                        {option}
+                        {option.label}
                       </span>
                     </div>
                   </motion.label>
                 ))}
               </div>
+              <p className="mt-3 text-sm text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3">
+                Catatan: Coral Transplanting untuk kegiatan mendatang dan sementara tidak bisa dipilih.
+              </p>
               {formik.touched.jenis_kegiatan && formik.errors.jenis_kegiatan && (
                 <motion.p
                   className="text-red-500 text-sm mt-3 flex items-center gap-1"
