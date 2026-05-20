@@ -75,11 +75,19 @@ export function BlockchainProvider({ children }) {
         throw new Error('Blockchain service not ready');
       }
 
-      return await blockchainService.storeDocumentToBlockchain(formData, {
-        docType,
-        ...metadata,
-        walletAddress
-      });
+      const docHash = typeof formData === 'string'
+        ? formData
+        : formData?.docHash || formData?.hash || formData?.blockchain_doc_hash;
+
+      const payload = Object.keys(metadata || {}).length > 0
+        ? metadata
+        : (typeof formData === 'object' && formData !== null ? formData : {});
+
+      if (!docHash) {
+        throw new Error('Document hash is required');
+      }
+
+      return await blockchainService.storeDocument(docType, docHash, payload);
     } catch (error) {
       console.error('[BlockchainContext] Store error:', error);
       return {
@@ -98,9 +106,9 @@ export function BlockchainProvider({ children }) {
 
       // Check if it's a doc ID (number) or hash (0x...)
       if (typeof docIdOrHash === 'number' || /^\d+$/.test(docIdOrHash)) {
-        return await blockchainService.getDocumentById(docIdOrHash);
+        return await blockchainService.getDocument(Number(docIdOrHash));
       } else if (typeof docIdOrHash === 'string' && docIdOrHash.startsWith('0x')) {
-        return await blockchainService.verifyDocumentOnBlockchain(docIdOrHash);
+        return await blockchainService.searchDocumentByHash(docIdOrHash);
       } else {
         throw new Error('Invalid document ID or hash format');
       }
@@ -117,7 +125,18 @@ export function BlockchainProvider({ children }) {
         throw new Error('Blockchain service not ready');
       }
 
-      return await blockchainService.verifyDocumentOnBlockchain(docHash);
+      const document = await blockchainService.searchDocumentByHash(docHash);
+
+      return {
+        verified: true,
+        docId: document.docId,
+        docHash: document.docHash,
+        metadata: document.metadata,
+        uploader: document.uploader,
+        timestamp: document.timestamp,
+        timestampISO: document.timestampISO,
+        explorerUrl: document.explorerUrl
+      };
     } catch (error) {
       console.error('[BlockchainContext] Verification error:', error);
       return {
@@ -134,11 +153,11 @@ export function BlockchainProvider({ children }) {
         throw new Error('Blockchain service not ready');
       }
 
-      if (typeof blockchainService.fetchTransactionFromMainnet === 'function') {
-        return await blockchainService.fetchTransactionFromMainnet(txHash);
+      if (typeof blockchainService.getTransactionDetails === 'function') {
+        return await blockchainService.getTransactionDetails(txHash);
       }
 
-      return await blockchainService.fetchTransactionFromSepolia(txHash);
+      throw new Error('Transaction detail lookup is not available');
     } catch (error) {
       console.error('[BlockchainContext] Transaction proof error:', error);
       return null;
@@ -152,7 +171,24 @@ export function BlockchainProvider({ children }) {
         throw new Error('Blockchain service not ready');
       }
 
-      return await blockchainService.getAllDocuments(startId, limit);
+      const totalCount = await blockchainService.getDocumentCount();
+      const documents = [];
+
+      for (let id = Math.max(1, Number(startId) || 0); id <= totalCount && documents.length < limit; id += 1) {
+        try {
+          const document = await blockchainService.getDocument(id);
+          documents.push(document);
+        } catch (error) {
+          console.warn('[BlockchainContext] Skipping document during list fetch:', error.message);
+        }
+      }
+
+      return {
+        documents,
+        totalCount,
+        startId,
+        limit
+      };
     } catch (error) {
       console.error('[BlockchainContext] Get all documents error:', error);
       return {
@@ -190,6 +226,7 @@ export function BlockchainProvider({ children }) {
     walletStatus,
     account: walletAddress,
     balance: walletStatus?.balance || 0,
+    contract: blockchainService.contract,
     
     // Functions
     storeDocumentHash,

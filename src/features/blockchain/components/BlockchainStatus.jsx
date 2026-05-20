@@ -3,9 +3,9 @@ import { motion } from 'framer-motion';
 import { FiCheck, FiLoader, FiCopy, FiExternalLink, FiWifi, FiWifiOff, FiLink } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
-const EXPLORER_BASE_URL = import.meta.env.VITE_BLOCKCHAIN_EXPLORER_URL || 'https://sepolia.etherscan.io';
-const NETWORK_LABEL = import.meta.env.VITE_BLOCKCHAIN_NETWORK_LABEL || 'Sepolia Testnet';
-const CHAIN_ID = import.meta.env.VITE_BLOCKCHAIN_CHAIN_ID || '11155111';
+const EXPLORER_BASE_URL = import.meta.env.VITE_BLOCKCHAIN_EXPLORER_URL || 'https://polygonscan.com';
+const NETWORK_LABEL = import.meta.env.VITE_BLOCKCHAIN_NETWORK_LABEL || 'Polygon Mainnet';
+const CHAIN_ID = import.meta.env.VITE_BLOCKCHAIN_CHAIN_ID || '137';
 const TOKEN_SYMBOL = CHAIN_ID === '11155111' ? 'ETH' : 'MATIC';
 
 export default function BlockchainStatus() {

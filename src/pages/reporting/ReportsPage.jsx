@@ -26,7 +26,7 @@ import { getActivityColors, getActivityIcon, formatHash, getActivityDisplayName 
 import { buildLaporanPdfBlob } from "@/features/reporting/utils/reportPdf";
 const EXPLORER_BASE_URL =
   import.meta.env.VITE_BLOCKCHAIN_EXPLORER_URL ||
-  "https://sepolia.etherscan.io";
+  "https://polygonscan.com";
 const ACTIVITY_TYPES = [
   "ALL",
   "PERENCANAAN",

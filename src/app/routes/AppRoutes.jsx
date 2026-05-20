@@ -15,6 +15,7 @@ import PlanningForm from "@/features/planning/components/PlanningForm";
 import ImplementasiForm from "@/features/implementation/components/ImplementasiForm";
 import MonitoringForm from "@/features/monitoring/components/MonitoringForm";
 import EvaluasiPage from "@/pages/evaluation/EvaluationPage";
+import EvaluationInformationPage from "@/pages/evaluation/information/InformationPage";
 import PlanningListPage from "@/pages/planning/PlanningListPage";
 
 // User pages
@@ -82,6 +83,7 @@ export default function AppRoutes() {
         <Route path="implementasi" element={<ImplementasiForm />} />
         <Route path="monitoring"   element={<MonitoringForm />} />
         <Route path="evaluasi"     element={<EvaluasiPage />} />
+        <Route path="evaluasi/information" element={<EvaluationInformationPage />} />
         {/* laporan = PDF reports page; log-history = blockchain tx log */}
         {/* <Route path="laporan"      element={<LaporanPage />} /> */}
         <Route path="log-history"  element={<LaporanPage />} />
@@ -105,6 +107,7 @@ export default function AppRoutes() {
         <Route path="implementasi" element={<ImplementasiForm />} />
         <Route path="monitoring"   element={<MonitoringForm />} />
         <Route path="evaluasi"     element={<EvaluasiPage />} />
+        <Route path="evaluasi/information" element={<EvaluationInformationPage />} />
         {/* laporan = PDF reports; log-history = blockchain tx log */}
         {/* <Route path="laporan"      element={<LaporanPage />} /> */}
         <Route path="log-history"  element={<LaporanPage />} />

@@ -65,6 +65,7 @@ class BlockchainService {
       await this.initializeContract();
       
       this.isInitialized = true;
+      this.lastError = null;
       console.log('Blockchain service initialized successfully');
       return true;
     } catch (error) {
@@ -78,7 +79,10 @@ class BlockchainService {
     // Verify contract exists on network
     const code = await this.provider.getCode(this.config.contractAddress);
     if (code === '0x') {
-      throw new Error(`No contract deployed at ${this.config.contractAddress}`);
+      this.contract = null;
+      this.lastError = `No contract deployed at ${this.config.contractAddress}`;
+      console.warn(this.lastError);
+      return false;
     }
 
     // Create contract instance
@@ -87,6 +91,8 @@ class BlockchainService {
       CONTRACT_ABI,
       this.signer || this.provider
     );
+
+    return true;
   }
 
   async connectWallet() {
@@ -207,6 +213,10 @@ class BlockchainService {
     } catch (error) {
       throw new Error(`Failed to get transaction details: ${error.message}`);
     }
+  }
+
+  getLastError() {
+    return this.lastError;
   }
 
   async searchDocumentByHash(docHash) {

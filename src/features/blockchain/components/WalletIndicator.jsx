@@ -5,8 +5,8 @@ import { FiCopy, FiCheckCircle, FiAlertCircle, FiBriefcase, FiLock, FiWifiOff } 
 import { toast } from 'react-toastify';
 import { createPortal } from 'react-dom';
 
-const NETWORK_LABEL = import.meta.env.VITE_BLOCKCHAIN_NETWORK_LABEL || 'Sepolia Testnet';
-const CHAIN_ID_LABEL = import.meta.env.VITE_BLOCKCHAIN_CHAIN_ID || '11155111';
+const NETWORK_LABEL = import.meta.env.VITE_BLOCKCHAIN_NETWORK_LABEL || 'Polygon Mainnet';
+const CHAIN_ID_LABEL = import.meta.env.VITE_BLOCKCHAIN_CHAIN_ID || '137';
 
 export default function WalletIndicator() {
   const { isConnected, account, balance, isReady, error, loading, connectWallet } = useBlockchain();
@@ -22,6 +22,11 @@ export default function WalletIndicator() {
     : isReady
       ? 'Read-Only Mode'
       : 'Wallet Disconnected';
+  const statusLabel = isConnected
+    ? 'Connected'
+    : isReady
+      ? 'Read-Only'
+      : 'Disconnected';
 
   useEffect(() => {
     if (!showModal || !buttonRef.current) return;
@@ -131,6 +136,11 @@ export default function WalletIndicator() {
                         <FiCheckCircle className="w-4 h-4 text-emerald-500" />
                         <span>{NETWORK_LABEL}</span>
                       </>
+                    ) : isReady ? (
+                      <>
+                        <FiShield className="w-4 h-4 text-blue-500" />
+                        <span>Read-Only Mode</span>
+                      </>
                     ) : (
                       <>
                         <FiWifiOff className="w-4 h-4 text-amber-500" />
@@ -142,9 +152,9 @@ export default function WalletIndicator() {
 
                 {/* Status Badge */}
                 <div className="mb-6 flex items-center justify-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></div>
-                  <span className={`text-sm font-semibold ${isConnected ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
-                    {isConnected ? 'Connected' : 'Disconnected'}
+                  <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : isReady ? 'bg-blue-500' : 'bg-amber-500'}`}></div>
+                  <span className={`text-sm font-semibold ${isConnected ? 'text-emerald-600 dark:text-emerald-400' : isReady ? 'text-blue-600 dark:text-blue-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                    {statusLabel}
                   </span>
                 </div>
 
