@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getApiBaseUrl } from '@/app/config/apiConfig';
 import PropTypes from 'prop-types';
 
 const FAQList = ({ 
@@ -6,6 +7,7 @@ const FAQList = ({
   projectStatus = null, 
   maxItems = null,
   showSearch = true,
+  groupByCategory = false,
   className = '',
 }) => {
   const [faqs, setFaqs] = useState([]);
@@ -22,28 +24,45 @@ const FAQList = ({
     try {
       setLoading(true);
       setError(null);
-      
-      let url = '/api/faqs';
+
+      // Primary: try backend API (use configured API base URL)
+      const base = getApiBaseUrl();
+      let url = base ? `${base}/faqs` : '/api/faqs';
       const params = new URLSearchParams();
-      
+
       if (category) {
         params.append('category', category);
       }
-      
+
       if (projectStatus) {
         params.append('project_status', projectStatus);
       }
-      
+
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
-      
-      const response = await fetch(url);
-      
-      if (!response.ok) {
+
+      let response;
+      try {
+        response = await fetch(url);
+      } catch (err) {
+        response = null;
+      }
+
+      // If backend failed, try static fallback shipped with frontend
+      if (!response || !response.ok) {
+        // attempt static JSON fallback
+        try {
+          response = await fetch('/api/faqs.json');
+        } catch (err) {
+          response = null;
+        }
+      }
+
+      if (!response || !response.ok) {
         throw new Error('Failed to fetch FAQs');
       }
-      
+
       const data = await response.json();
       setFaqs(data.data || []);
     } catch (err) {
@@ -82,7 +101,7 @@ const FAQList = ({
     );
   });
 
-  const displayFAQs = maxItems ? filteredFAQs.slice(0, maxItems) : filteredFAQs;
+  const displayFAQs = maxItems && !groupByCategory ? filteredFAQs.slice(0, maxItems) : filteredFAQs;
 
   if (loading) {
     return (
@@ -157,77 +176,116 @@ const FAQList = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          
-          <div className="flex justify-between items-center text-sm text-gray-600">
-            <span>
-              {filteredFAQs.length} {filteredFAQs.length === 1 ? 'FAQ' : 'FAQs'} found
-            </span>
-            <div className="flex gap-2">
-              <button
-                onClick={expandAll}
-                className="text-blue-600 hover:text-blue-700 transition-colors"
-              >
-                Expand All
-              </button>
-              <span className="text-gray-400">|</span>
-              <button
-                onClick={collapseAll}
-                className="text-blue-600 hover:text-blue-700 transition-colors"
-              >
-                Collapse All
-              </button>
-            </div>
-          </div>
         </div>
       )}
 
       {/* FAQ Items */}
       <div className="space-y-3">
-        {displayFAQs.map((faq) => (
-          <div
-            key={faq.id}
-            className="border border-gray-200 rounded-lg overflow-hidden transition-all duration-200"
-          >
-            <button
-              onClick={() => toggleExpanded(faq.id)}
-              className="w-full px-4 py-3 text-left bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+        {groupByCategory ? (
+          // Group FAQs by category_label (or category)
+          Object.entries(
+            displayFAQs.reduce((acc, faq) => {
+              const key = faq.category_label || faq.category || 'General';
+              acc[key] = acc[key] || [];
+              acc[key].push(faq);
+              return acc;
+            }, {})
+          ).map(([groupLabel, faqs]) => (
+            <div key={groupLabel} className="">
+              <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-800">{groupLabel}</h3>
+                  <span className="text-sm text-gray-500">{faqs.length} pertanyaan</span>
+                </div>
+
+                <div className="space-y-3">
+                  {faqs.map((faq) => (
+                    <div key={faq.id} className="border border-gray-100 rounded-lg overflow-hidden transition-all duration-200">
+                      <button
+                        onClick={() => toggleExpanded(faq.id)}
+                        className="w-full px-4 py-3 text-left bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 pr-4">
+                            <h4 className="font-medium text-gray-900">{faq.question}</h4>
+                          
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <svg
+                              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${expandedItems.has(faq.id) ? 'transform rotate-180' : ''}`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </div>
+                      </button>
+
+                      {expandedItems.has(faq.id) && (
+                        <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
+                          <div className="prose prose-sm max-w-none">
+                            <p className="text-gray-700 whitespace-pre-wrap">{faq.answer}</p>
+                          </div>
+                          <div className="mt-3 text-xs text-gray-500">
+                            Last updated: {faq.updated_at ? new Date(faq.updated_at).toLocaleDateString() : ''}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          displayFAQs.map((faq) => (
+            <div
+              key={faq.id}
+              className="border border-gray-200 rounded-lg overflow-hidden transition-all duration-200"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex-1 pr-4">
-                  <h3 className="font-medium text-gray-900">{faq.question}</h3>
-                  {faq.category_label && (
-                    <span className="inline-block mt-1 px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded">
-                      {faq.category_label}
-                    </span>
-                  )}
+              <button
+                onClick={() => toggleExpanded(faq.id)}
+                className="w-full px-4 py-3 text-left bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 pr-4">
+                    <h3 className="font-medium text-gray-900">{faq.question}</h3>
+                    {faq.category_label && (
+                      <span className="inline-block mt-1 px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded">
+                        {faq.category_label}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <svg
+                      className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                        expandedItems.has(faq.id) ? 'transform rotate-180' : ''
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <svg
-                    className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-                      expandedItems.has(faq.id) ? 'transform rotate-180' : ''
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+              </button>
+              
+              {expandedItems.has(faq.id) && (
+                <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                  <div className="prose prose-sm max-w-none">
+                    <p className="text-gray-700 whitespace-pre-wrap">{faq.answer}</p>
+                  </div>
+                  <div className="mt-3 text-xs text-gray-500">
+                    Last updated: {new Date(faq.updated_at).toLocaleDateString()}
+                  </div>
                 </div>
-              </div>
-            </button>
-            
-            {expandedItems.has(faq.id) && (
-              <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
-                <div className="prose prose-sm max-w-none">
-                  <p className="text-gray-700 whitespace-pre-wrap">{faq.answer}</p>
-                </div>
-                <div className="mt-3 text-xs text-gray-500">
-                  Last updated: {new Date(faq.updated_at).toLocaleDateString()}
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
+              )}
+            </div>
+          ))
+        )}
       </div>
 
       {/* Show more indicator */}
@@ -247,6 +305,7 @@ FAQList.propTypes = {
   projectStatus: PropTypes.string,
   maxItems: PropTypes.number,
   showSearch: PropTypes.bool,
+  groupByCategory: PropTypes.bool,
   className: PropTypes.string,
 };
 

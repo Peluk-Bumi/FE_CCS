@@ -25,6 +25,7 @@ import DashboardUser from "@/pages/dashboard/UserDashboardPage";
 import LandingPage from "@/pages/public/LandingPage";
 import About from "@/pages/public/About";
 import Contact from "@/pages/public/Contact";
+import FAQPage from '@/pages/faq/FAQPage';
 import VerifikasiPublicPage from "@/pages/verification/VerificationPage";
 import MonitoringAccess from "@/pages/public/MonitoringAccess";
 import NotFound from "@/pages/public/NotFound";
@@ -60,6 +61,7 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/about" element={<About />} />
+      <Route path="/faqs" element={<FAQPage />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/monitoring-access/:perencanaanId" element={<MonitoringAccess />} />
       <Route path="/kebijakan-privasi" element={<PolicyPage />} />

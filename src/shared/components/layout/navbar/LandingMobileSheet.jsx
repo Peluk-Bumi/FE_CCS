@@ -1,7 +1,7 @@
 import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  FiX, FiHome, FiInfo, FiCheckCircle,
+  FiX, FiHome, FiInfo, FiHelpCircle, FiCheckCircle,
   FiGrid, FiSettings, FiLogOut, FiUser,
   FiSun, FiMoon,
 } from "react-icons/fi"
@@ -13,6 +13,7 @@ import navigationConfig from "@/app/config/navigationConfig"
 const ICON_MAP = {
   FiHome:        <FiHome />,
   FiInfo:        <FiInfo />,
+  FiHelpCircle:  <FiHelpCircle />,
   FiCheckCircle: <FiCheckCircle />,
 }
 
