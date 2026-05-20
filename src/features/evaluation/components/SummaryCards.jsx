@@ -4,7 +4,7 @@ import { FiTrendingUp, FiActivity, FiAward, FiCheckCircle } from "react-icons/fi
 /**
  * Komponen untuk menampilkan ringkasan data evaluasi dalam bentuk card
  */
-export default function SummaryCards({ report, survivalStatus, healthStatus }) {
+export default function SummaryCards({ report, survivalStatus, healthStatus, isAvg36 = false }) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -29,6 +29,8 @@ export default function SummaryCards({ report, survivalStatus, healthStatus }) {
     switch (status) {
       case "BERHASIL":
         return { bg: "bg-green-50 dark:bg-green-900/20", border: "border-green-200 dark:border-green-800", text: "text-green-700 dark:text-green-300", icon: "text-green-600 dark:text-green-400" };
+      case "BAIK":
+        return { bg: "bg-emerald-50 dark:bg-emerald-900/20", border: "border-emerald-200 dark:border-emerald-800", text: "text-emerald-700 dark:text-emerald-300", icon: "text-emerald-600 dark:text-emerald-400" };
       case "PERLU_PERHATIAN":
         return { bg: "bg-yellow-50 dark:bg-yellow-900/20", border: "border-yellow-200 dark:border-yellow-800", text: "text-yellow-700 dark:text-yellow-300", icon: "text-yellow-600 dark:text-yellow-400" };
       case "GAGAL":
@@ -56,8 +58,12 @@ export default function SummaryCards({ report, survivalStatus, healthStatus }) {
           <div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Tingkat Keberhasilan</p>
             <p className={`text-3xl font-bold ${survivalColor.text}`}>{report.survivalRate}</p>
-            <p className={`text-xs mt-2 ${survivalColor.text}`}>
+            <p className="text-xs mt-2 text-gray-600 dark:text-gray-400">
+              {isAvg36 ? "Rata-rata survival rate monitoring bulan 3 dan 6" : "Survival rate (data akhir)"}
+            </p>
+            <p className={`text-xs mt-1 ${survivalColor.text}`}>
               {survivalStatus === "BERHASIL" && "✓ Berhasil"}
+              {survivalStatus === "BAIK" && "✓ Baik"}
               {survivalStatus === "PERLU_PERHATIAN" && "⚠ Perlu Perhatian"}
               {survivalStatus === "GAGAL" && "✗ Gagal"}
             </p>

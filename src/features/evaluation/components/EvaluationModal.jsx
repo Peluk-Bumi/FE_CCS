@@ -6,12 +6,12 @@ import api from "@/shared/services/api";
 import SummaryCards from "./SummaryCards";
 import RecommendationsSection from "./RecommendationsSection";
 import IntroductionSection from "./IntroductionSection";
-import MethodologySection from "./MethodologySection";
 import MonitoringSection from "./MonitoringSection";
 import { buildEvaluasiPdfBlob } from "@/features/evaluation/utils/evaluationPdf";
 import { buildLaporanPdfBlob } from "@/features/reporting/utils/reportPdf";
 import { generateFullNarrative, getRecommendations } from "@/features/evaluation/utils/evaluationNarrator";
 import { getSuccessStatus } from "@/features/evaluation/utils/evaluationNarrator";
+import { getMonitoringListFromAnyShape, resolveMonitoringDate, leafConditionScore, getHealthLabel, parseNumber, deriveSurvivalRate, mean } from "@/shared/utils/evaluationEngine";
 
 const downloadBlob = (blob, fileName) => {
   const url = window.URL.createObjectURL(blob);
@@ -36,6 +36,55 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
     if (apiOrigin) return `${apiOrigin}/${normalized}`;
     return `/${normalized}`;
   };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "-";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "-";
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const getMonitoringDates = () => {
+    const raw = report?.monitoring || report?.monitoringItems || [];
+    const monitoringItems = getMonitoringListFromAnyShape(raw);
+    const dates = {};
+
+    monitoringItems.forEach((m) => {
+      const month = Number(m?.bulan_monitoring || m?.bulan);
+      if ([3, 6].includes(month)) {
+        const resolved = resolveMonitoringDate(m);
+        dates[month] = formatDate(resolved);
+      }
+    });
+
+    return dates;
+  };
+
+  const monitoringDates = getMonitoringDates();
+
+  // Build monitoring items array for calculations
+  const monitoringItems = getMonitoringListFromAnyShape(report?.monitoring || report?.monitoringItems || []);
+
+  // Compute health label from monitoring items (average across monitorings)
+  const healthScores = monitoringItems.map((m) => leafConditionScore(m));
+  const computedHealthLabel = getHealthLabel(healthScores);
+
+  // Compute average survival rate specifically for monitoring bulan 3 & 6
+  const survivalValues36 = monitoringItems
+    .map((m) => {
+      const month = Number(m?.bulan_monitoring || m?.bulan);
+      if (![3, 6].includes(month)) return null;
+      const val = parseNumber(m?.survival_rate) ?? deriveSurvivalRate(m);
+      return val;
+    })
+    .filter((v) => v !== null && v !== undefined);
+
+  const survivalAvg36 = survivalValues36.length ? mean(survivalValues36) : null;
+  const survivalDisplay = survivalAvg36 !== null ? `${survivalAvg36.toFixed(2)}%` : report.survivalRate;
 
   // Generate narratives and recommendations when report changes
   useEffect(() => {
@@ -158,9 +207,10 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
             <div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Ringkasan Data</h3>
               <SummaryCards 
-                report={report}
-                survivalStatus={getSuccessStatus(report.survivalRate)}
-                healthStatus={report.healthCondition}
+                report={{ ...report, healthCondition: computedHealthLabel, survivalRate: survivalDisplay }}
+                survivalStatus={getSuccessStatus(survivalAvg36 !== null ? survivalAvg36 : report.survivalRate)}
+                healthStatus={computedHealthLabel}
+                isAvg36={survivalAvg36 !== null}
               />
             </div>
 
@@ -186,7 +236,14 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
                 </div>
                 <div>
                   <p className="text-gray-600 dark:text-gray-400">Tanggal Monitoring</p>
-                  <p className="font-medium text-gray-900 dark:text-gray-100 mt-1">{report.monitoringDate}</p>
+                  <div className="space-y-1 mt-1">
+                    {monitoringDates[3] && (
+                      <p className="text-xs font-medium text-gray-900 dark:text-gray-100">Bulan 3: {monitoringDates[3]}</p>
+                    )}
+                    {monitoringDates[6] && (
+                      <p className="text-xs font-medium text-gray-900 dark:text-gray-100">Bulan 6: {monitoringDates[6]}</p>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <p className="text-gray-600 dark:text-gray-400">Geotagging</p>
@@ -197,9 +254,6 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
 
             {/* Introduction Section */}
             <IntroductionSection report={report} />
-
-            {/* Methodology Section */}
-            <MethodologySection report={report} />
 
             {/* Monitoring Section */}
             <MonitoringSection report={report} toAbsoluteFileUrl={toAbsoluteFileUrl} />

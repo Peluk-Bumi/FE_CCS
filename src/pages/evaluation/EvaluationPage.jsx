@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiRefreshCw, FiAlertCircle, FiBarChart2 } from "react-icons/fi";
 import { useAuth } from "@/app/context/AuthContext";
@@ -11,6 +12,7 @@ import PageTitle from "@/shared/components/common/PageTitle";
 
 export default function EvaluasiPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
 
   const {
@@ -68,7 +70,14 @@ export default function EvaluasiPage() {
         >
           <div className="p-8 md:p-12">
             {/* Refresh Button */}
-            <div className="flex items-center justify-end mb-6">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mb-6">
+              <button
+                onClick={() => navigate("information")}
+                type="button"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-sm"
+              >
+                Informasi Metode Pengamatan
+              </button>
               <button
                 onClick={refetch}
                 type="button"

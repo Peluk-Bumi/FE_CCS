@@ -80,13 +80,16 @@ export const generateHealthNarrative = (healthCondition, monitoringData = {}) =>
 
 export const getSurvivalCategory = (survivalRate) => {
   if (survivalRate >= 80) return "sangat baik";
-  if (survivalRate >= 50) return "baik (perlu perawatan ekstra)";
+  if (survivalRate >= 60) return "baik";
+  if (survivalRate >= 50) return "cukup (perlu perhatian)";
   return "kurang memuaskan (perlu penanaman ulang)";
 };
 
 export const getSuccessStatus = (survivalRate) => {
   const rate = parseFloat(survivalRate);
+  if (Number.isNaN(rate)) return "UNKNOWN";
   if (rate >= 80) return "BERHASIL";
+  if (rate >= 60) return "BAIK";
   if (rate >= 50) return "PERLU_PERHATIAN";
   return "GAGAL";
 };
@@ -157,7 +160,9 @@ export const getRecommendations = (report, monitoringData = {}) => {
 
 export const getSuccessColor = (survivalRate) => {
   const rate = parseFloat(survivalRate);
+  if (Number.isNaN(rate)) return { bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-700", badge: "bg-gray-100 text-gray-800" };
   if (rate >= 80) return { bg: "bg-green-50", border: "border-green-200", text: "text-green-700", badge: "bg-green-100 text-green-800" };
+  if (rate >= 60) return { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700", badge: "bg-emerald-100 text-emerald-800" };
   if (rate >= 50) return { bg: "bg-yellow-50", border: "border-yellow-200", text: "text-yellow-700", badge: "bg-yellow-100 text-yellow-800" };
   return { bg: "bg-red-50", border: "border-red-200", text: "text-red-700", badge: "bg-red-100 text-red-800" };
 };
