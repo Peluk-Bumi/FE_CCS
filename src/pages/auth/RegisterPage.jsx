@@ -169,10 +169,16 @@ export default function Register() {
               }}
             >
               Buat Akun Baru <motion.span 
-                className="inline-block"
-                animate={{ scale: [1, 1.2, 1] }}
+                className="inline-flex align-middle ml-2"
+                animate={{ scale: [1, 1.08, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
-              >✨</motion.span>
+              >
+                <img
+                  src="/logo/Icon.png"
+                  alt="Logo"
+                  className="h-7 w-7 object-contain"
+                />
+              </motion.span>
             </motion.h2>
             <motion.p 
               className="text-primary-dark text-sm mt-2"

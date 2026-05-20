@@ -176,12 +176,17 @@ export default function Login() {
             Selamat Datang Kembali
           </motion.h1>
           <motion.p 
-            className="text-primary/90 dark:text-primary-light/90 mb-6"
+            className="text-primary/90 dark:text-primary-light/90 mb-6 leading-relaxed"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            Sistem Manajemen CCS yang aman dan efisien untuk kebutuhan bisnis Anda
+            <span className="block">
+              Gerakan lingkungan yang sedang bertumbuh melalui aksi nyata dan transparansi data
+            </span>
+            <span className="mt-1 block font-semibold tracking-wide text-primary dark:text-primary-light">
+              Tanam • Rawat • Pantau
+            </span>
           </motion.p>
           <div className="space-y-4">
             {[
