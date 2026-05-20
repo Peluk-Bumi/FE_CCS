@@ -31,32 +31,29 @@ const getMockLaporanDetail = (id) => {
 // ✅ Fungsi baru untuk fetch dari Polygon Blockchain
 const fetchFromBlockchain = async (docHash, blockchainContext) => {
   try {
-    if (!blockchainContext?.contract) {
-      console.warn('[Verifikasi] Blockchain contract not available');
+    if (!blockchainContext?.getDocument) {
+      console.warn('[Verifikasi] Blockchain service not available');
       return null;
     }
 
     console.log('[Verifikasi] Fetching from blockchain:', docHash);
 
-    // ✅ Call smart contract function untuk ambil document
-    const documentData = await blockchainContext.contract.getDocument(docHash);
+    // ✅ Use the context abstraction so fallback logic stays centralized
+    const documentData = await blockchainContext.getDocument(docHash);
 
     console.log('[Verifikasi] Blockchain data received:', documentData);
 
-    // ✅ Parse blockchain data
+    // ✅ Parse blockchain data from the shared service contract schema
     const parsedData = {
-      id: documentData.id?.toNumber?.() || documentData.id,
-      nama_perusahaan: documentData.nama_perusahaan,
-      nama_pic: documentData.nama_pic,
-      narahubung: documentData.narahubung,
-      jenis_kegiatan: documentData.jenis_kegiatan,
-      jenis_bibit: documentData.jenis_bibit,
-      jumlah_bibit: documentData.jumlah_bibit?.toNumber?.() || documentData.jumlah_bibit,
-      lokasi: documentData.lokasi,
-      tanggal_pelaksanaan: documentData.tanggal_pelaksanaan,
-      is_implemented: documentData.is_implemented || true,
-      blockchain_doc_hash: docHash,
-      blockchain_timestamp: documentData.timestamp?.toNumber?.() || Date.now(),
+      id: documentData.docId,
+      docType: documentData.docType,
+      docHash: documentData.docHash,
+      metadata: documentData.metadata,
+      uploader: documentData.uploader,
+      timestamp: documentData.timestamp,
+      timestampISO: documentData.timestampISO,
+      blockchain_doc_hash: documentData.docHash || docHash,
+      blockchain_timestamp: documentData.timestamp,
       blockchain_verified: true,
       source: 'BLOCKCHAIN_POLYGON'
     };
