@@ -254,7 +254,8 @@ const MonitoringForm = () => {
 
         const availableImplementasi = data.filter((item) => {
           const usedMonths = monitoringMap[String(item.id)] || [];
-          return usedMonths.length < 6;
+          const monitoringComplete = [3, 6].every((month) => usedMonths.includes(month));
+          return !monitoringComplete;
         });
         
         if (isMounted) {
@@ -276,7 +277,7 @@ const MonitoringForm = () => {
                 formik.setFieldValue("bulan_monitoring", String(nextMonth));
                 toast.info(`Monitoring diarahkan dari QR untuk bulan ke-${nextMonth}`);
               } else {
-                toast.warning("Implementasi ini sudah lengkap monitoring untuk 1,3,6 bulan");
+                toast.warning("Implementasi ini sudah lengkap monitoring untuk bulan 3 dan 6");
               }
             }
           }

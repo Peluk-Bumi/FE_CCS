@@ -21,6 +21,11 @@ export default function MonitoringSection({ report, toAbsoluteFileUrl }) {
     );
   }
 
+  // Filter to show only months 3 and 6, sorted by month
+  const filteredItems = monitoringItems
+    .filter((m) => [3, 6].includes(Number(m?.bulan_monitoring)))
+    .sort((a, b) => Number(a?.bulan_monitoring) - Number(b?.bulan_monitoring));
+
   return (
     <div>
       <motion.h3
@@ -32,7 +37,7 @@ export default function MonitoringSection({ report, toAbsoluteFileUrl }) {
         Hasil & Pembahasan
       </motion.h3>
       <div className="space-y-6 text-sm text-gray-700 dark:text-gray-300">
-        {monitoringItems.slice(0, 6).map((m, idx) => {
+        {filteredItems.map((m, idx) => {
           const date = formatDateId(m?.tanggal_monitoring || m?.monitoring_date || m?.tanggal || m?.created_at) || "-";
           const survivalVal = m?.survival_rate ?? deriveSurvivalRate(m);
           const survival =
@@ -67,7 +72,7 @@ export default function MonitoringSection({ report, toAbsoluteFileUrl }) {
             >
               {/* Header */}
               <div className="bg-gray-50 dark:bg-gray-800/40 px-4 py-3 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
-                <div className="text-xs font-semibold text-gray-600 dark:text-gray-300">Monitoring #{idx + 1}</div>
+                <div className="text-xs font-semibold text-gray-600 dark:text-gray-300">Monitoring Bulan #{m?.bulan_monitoring || idx + 1}</div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">{date}</div>
               </div>
 
