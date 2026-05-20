@@ -15,7 +15,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className={`py-24 px-6 ${
+    <footer className={`py-12 px-4 sm:px-6 ${
       isDark ? 'bg-gray-900' : 'bg-gray-100'
     }`}>
       <div className="max-w-6xl mx-auto">
@@ -26,14 +26,14 @@ export default function Footer() {
           viewport={{ once: true }}
           className={`w-full rounded-3xl border border-white/15 dark:border-primary/10 bg-white/10 dark:bg-green-950/25 backdrop-blur-xl shadow-[0_24px_60px_-32px_rgba(81,118,64,0.45)] p-6 lg:p-8 overflow-hidden`}
         >
-          <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-12 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-6 mb-6">
             {/* Brand Section */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
               viewport={{ once: true }}
-              className="col-span-3 md:col-span-3 lg:col-span-5"
+              className="col-span-1 md:col-span-1 lg:col-span-5"
             >
               <motion.div 
                 className="flex items-center gap-3 mb-4"
@@ -43,7 +43,7 @@ export default function Footer() {
                 <motion.img
                   src="/logo/Logotype.png"
                   alt="Peluk Bumi Logo"
-                  className="h-16 w-16 object-contain"
+                  className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain"
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.2 }}
                 />
@@ -96,7 +96,7 @@ export default function Footer() {
               }`}>
                 Navigasi
               </h4>
-              <ul className="space-y-3">
+                <ul className="space-y-3 md:space-y-2">
                 {footerLinks.map((link, index) => (
                   <motion.li
                     key={index}
@@ -139,7 +139,7 @@ export default function Footer() {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               viewport={{ once: true }}
-              className="col-span-2 md:col-span-2 lg:col-span-5"
+                className="col-span-2 md:col-span-1 lg:col-span-5"
             >
               <h4 className={`font-semibold mb-4 ${
                 isDark ? 'text-white' : 'text-gray-900'
@@ -216,14 +216,14 @@ export default function Footer() {
               isDark ? 'border-gray-700' : 'border-gray-200'
             }`}
           >
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 w-full">
               <p className={`text-sm font-bold ${
                 isDark ? 'text-gray-500' : 'text-gray-500'
               }`}>
                 © {currentYear} <span className="text-primary font-extrabold">Peluk Bumi</span>. Gerakan konservasi berbasis dokumentasi terbuka.
               </p>
               <motion.div 
-                className="flex gap-6 text-sm"
+                className="flex gap-4 text-sm flex-wrap justify-center md:justify-end"
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
@@ -233,8 +233,8 @@ export default function Footer() {
                   <motion.a
                     key={link}
                     href={`/${link}`}
-                    className={`transition-colors hover:text-primary ${
-                      isDark ? 'text-gray-500' : 'text-gray-500'
+                    className={`transition-colors hover:text-primary px-2 ${
+                      isDark ? 'text-gray-400' : 'text-gray-600'
                     }`}
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
