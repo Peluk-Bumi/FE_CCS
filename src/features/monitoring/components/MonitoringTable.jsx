@@ -13,7 +13,8 @@ import {
   AlertTriangle,
   CheckCircle
 } from 'lucide-react';
-import { formatMonitoringStatus } from '../utils/monitoringUtils';
+import ProjectStatusBadge from '@/shared/components/common/ProjectStatusBadge';
+import { resolveProjectDisplay } from '@/shared/utils/projectDisplay';
 
 const MonitoringTable = ({ 
   data = [], 
@@ -61,7 +62,7 @@ const MonitoringTable = ({
 
   if (loading) {
     return (
-      <Card>
+      <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm">
         <CardContent className="p-6">
           <div className="flex items-center justify-center h-32">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -72,7 +73,7 @@ const MonitoringTable = ({
   }
 
   return (
-    <Card>
+    <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold">Data Monitoring</CardTitle>
@@ -90,11 +91,14 @@ const MonitoringTable = ({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
+            <table className="min-w-[1200px] w-full border-separate border-spacing-0">
+              <thead className="bg-gray-50/80 dark:bg-gray-800/60">
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <th className="text-left p-3 font-medium">Status</th>
+                  <th className="text-left p-3 font-medium">Nama Perusahaan</th>
+                  <th className="text-left p-3 font-medium">Lokasi</th>
                   <th 
-                    className="text-left p-3 font-medium cursor-pointer hover:bg-gray-50"
+                    className="text-left p-3 font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                     onClick={() => handleSort('bulan_monitoring')}
                   >
                     <div className="flex items-center gap-1">
@@ -105,9 +109,9 @@ const MonitoringTable = ({
                       )}
                     </div>
                   </th>
+                  <th className="text-left p-3 font-medium">Survival Rate</th>
                   <th className="text-left p-3 font-medium">Bibit Ditanam</th>
                   <th className="text-left p-3 font-medium">Bibit Mati</th>
-                  <th className="text-left p-3 font-medium">Survival Rate</th>
                   <th className="text-left p-3 font-medium">Tinggi (cm)</th>
                   <th className="text-left p-3 font-medium">Diameter (cm)</th>
                   <th className="text-left p-3 font-medium">Kondisi Daun</th>
@@ -116,50 +120,65 @@ const MonitoringTable = ({
               </thead>
               <tbody>
                 {sortedData.map((item) => {
-                  const SurvivalIcon = getSurvivalRateIcon(item.survival_rate);
-                  const survivalColor = getSurvivalRateColor(item.survival_rate);
+                  const { company, location, status } = resolveProjectDisplay(item);
+                  const survivalRateValue = Number(item.survival_rate || 0);
+                  const SurvivalIcon = getSurvivalRateIcon(survivalRateValue);
+                  const survivalColor = getSurvivalRateColor(survivalRateValue);
                   
                   return (
-                    <tr key={item.id} className="border-b hover:bg-gray-50">
-                      <td className="p-3">
+                    <tr key={item.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50/80 dark:hover:bg-gray-800/60">
+                      <td className="p-3 align-top">
+                        <ProjectStatusBadge status={status} size="small" />
+                      </td>
+                      <td className="p-3 align-top">
+                        <div className="font-medium text-gray-900 dark:text-gray-100">{company}</div>
+                        <div className="text-xs text-gray-500">Monitoring bulan {item.bulan_monitoring}</div>
+                      </td>
+                      <td className="p-3 align-top">
+                        <div className="flex items-start gap-1.5 text-sm text-gray-700 dark:text-gray-300">
+                          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                          <span className="leading-5">{location}</span>
+                        </div>
+                      </td>
+                      <td className="p-3 align-top">
                         <div className="font-medium">Bulan {item.bulan_monitoring}</div>
                         <div className="text-sm text-gray-500">
                           {new Date(item.created_at).toLocaleDateString('id-ID')}
                         </div>
                       </td>
-                      <td className="p-3">
-                        <div className="flex items-center gap-2">
-                          <Sprout className="h-4 w-4 text-green-600" />
-                          <span className="font-medium">{item.jumlah_bibit_ditanam.toLocaleString()}</span>
-                        </div>
-                      </td>
-                      <td className="p-3">
-                        <div className="flex items-center gap-2">
-                          <AlertTriangle className="h-4 w-4 text-red-600" />
-                          <span className="font-medium text-red-600">{item.jumlah_bibit_mati.toLocaleString()}</span>
-                        </div>
-                      </td>
-                      <td className="p-3">
+                      <td className="p-3 align-top">
                         <div className="flex items-center gap-2">
                           <SurvivalIcon className={`h-4 w-4 ${survivalColor}`} />
                           <div>
                             <div className={`font-medium ${survivalColor}`}>
-                              {item.survival_rate.toFixed(1)}%
+                              {survivalRateValue.toFixed(1)}%
                             </div>
                             <Progress 
-                              value={item.survival_rate} 
+                              value={survivalRateValue} 
                               className="w-16 h-2"
                             />
                           </div>
                         </div>
                       </td>
-                      <td className="p-3">
+                      <td className="p-3 align-top">
+                        <div className="flex items-center gap-2">
+                          <Sprout className="h-4 w-4 text-green-600" />
+                          <span className="font-medium">{Number(item.jumlah_bibit_ditanam || 0).toLocaleString('id-ID')}</span>
+                        </div>
+                      </td>
+                      <td className="p-3 align-top">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-red-600" />
+                          <span className="font-medium text-red-600">{Number(item.jumlah_bibit_mati || 0).toLocaleString('id-ID')}</span>
+                        </div>
+                      </td>
+                      <td className="p-3 align-top">
                         <span className="font-medium">{item.tinggi_bibit || '-'}</span>
                       </td>
-                      <td className="p-3">
+                      <td className="p-3 align-top">
                         <span className="font-medium">{item.diameter_batang || '-'}</span>
                       </td>
-                      <td className="p-3">
+                      <td className="p-3 align-top">
                         <div className="space-y-1">
                           {item.daun_mengering && (
                             <Badge variant="destructive" className="text-xs">
@@ -178,12 +197,12 @@ const MonitoringTable = ({
                           )}
                         </div>
                       </td>
-                      <td className="p-3">
+                      <td className="p-3 align-top">
                         <div className="flex items-center justify-center gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => onView(item)}
+                            onClick={() => onView?.(item)}
                             className="h-8 w-8 p-0"
                           >
                             <Eye className="h-4 w-4" />
@@ -193,7 +212,7 @@ const MonitoringTable = ({
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => onEdit(item)}
+                                onClick={() => onEdit?.(item)}
                                 className="h-8 w-8 p-0"
                               >
                                 <Edit className="h-4 w-4" />
@@ -201,7 +220,7 @@ const MonitoringTable = ({
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => onDelete(item)}
+                                onClick={() => onDelete?.(item)}
                                 className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
                               >
                                 <Trash2 className="h-4 w-4" />
