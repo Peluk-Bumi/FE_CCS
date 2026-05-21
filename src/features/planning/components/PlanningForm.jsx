@@ -99,12 +99,12 @@ const PerencanaanForm = () => {
     let mounted = true;
     (async () => {
       try {
-        const res = await api.get('/users', { params: { per_page: 100, role: 'user' } });
+        const res = await api.get('/users/dropdown', { params: { limit: 100 } });
         const list = res.data?.data || res.data || [];
         if (!mounted) return;
         setAdminUsers(list.map(u => ({
           id: u.id,
-          label: u.company_name || u.nama_perusahaan || u.name || u.username || u.email || `User ${u.id}`
+          label: u.label || u.name || u.company_name || u.nama_perusahaan || u.username || u.email || `User ${u.id}`
         })));
       } catch (err) {
         console.error('[PlanningForm] Failed to fetch users for admin dropdown', err);
@@ -320,25 +320,49 @@ const PerencanaanForm = () => {
                     {field.label}
                   </label>
                   <div className="relative">
-                    <input
-                      type={field.type || "text"}
-                      name={field.name}
-                      placeholder={field.placeholder}
-                      value={formik.values[field.name]}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      list={field.name === "jenis_bibit" ? "global-tree-species" : undefined}
-                      readOnly={field.name === "nama_perusahaan" && isUserCreator}
-                      className={`w-full px-4 py-3.5 rounded-xl border-2 bg-white dark:bg-gray-700 dark:text-gray-100 transition-all duration-300 ${
-                        field.name === "nama_perusahaan" && isUserCreator
-                          ? "bg-gray-50 dark:bg-gray-800 cursor-not-allowed"
-                          : ""
-                      } ${
-                        formik.touched[field.name] && formik.errors[field.name]
-                          ? "border-red-400 focus:ring-4 focus:ring-red-200"
-                          : "border-gray-200 dark:border-gray-600 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:focus:ring-emerald-900/50"
-                      }`}
-                    />
+                    {field.name === "nama_perusahaan" && isAdmin ? (
+                      <select
+                        name={field.name}
+                        value={adminUsers.find((item) => item.label === formik.values[field.name])?.id || ""}
+                        onChange={(event) => {
+                          const selectedUser = adminUsers.find((item) => String(item.id) === event.target.value);
+                          formik.setFieldValue(field.name, selectedUser?.label || "");
+                        }}
+                        onBlur={formik.handleBlur}
+                        className={`w-full px-4 py-3.5 rounded-xl border-2 bg-white dark:bg-gray-700 dark:text-gray-100 transition-all duration-300 ${
+                          formik.touched[field.name] && formik.errors[field.name]
+                            ? "border-red-400 focus:ring-4 focus:ring-red-200"
+                            : "border-gray-200 dark:border-gray-600 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:focus:ring-emerald-900/50"
+                        }`}
+                      >
+                        <option value="">Pilih nama user</option>
+                        {adminUsers.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type={field.type || "text"}
+                        name={field.name}
+                        placeholder={field.placeholder}
+                        value={formik.values[field.name]}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        list={field.name === "jenis_bibit" ? "global-tree-species" : undefined}
+                        readOnly={field.name === "nama_perusahaan" && isUserCreator}
+                        className={`w-full px-4 py-3.5 rounded-xl border-2 bg-white dark:bg-gray-700 dark:text-gray-100 transition-all duration-300 ${
+                          field.name === "nama_perusahaan" && isUserCreator
+                            ? "bg-gray-50 dark:bg-gray-800 cursor-not-allowed"
+                            : ""
+                        } ${
+                          formik.touched[field.name] && formik.errors[field.name]
+                            ? "border-red-400 focus:ring-4 focus:ring-red-200"
+                            : "border-gray-200 dark:border-gray-600 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:focus:ring-emerald-900/50"
+                        }`}
+                      />
+                    )}
                     {field.name === "jenis_bibit" && (
                       <datalist id="global-tree-species">
                         {treeSpeciesOptions.map((species) => (
@@ -349,6 +373,11 @@ const PerencanaanForm = () => {
                     {field.name === "nama_perusahaan" && isUserCreator && (
                       <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-300">
                         Diambil otomatis dari akun user yang sedang login.
+                      </p>
+                    )}
+                    {field.name === "nama_perusahaan" && isAdmin && (
+                      <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-300">
+                        Pilih nama user dari daftar untuk mengisi nama perusahaan.
                       </p>
                     )}
                   </div>
