@@ -3,7 +3,7 @@ import {
   deriveSurvivalRate,
   getHeightValue,
   leafConditionScore,
-  getHealthLabel,
+  getHealthLabel as getLeafHealthLabel,
   parseNumber,
 } from "@/shared/utils/evaluationEngine";
 import { parseStoredFiles } from "@/features/reporting/utils/reportPdf";
@@ -49,7 +49,7 @@ export default function MonitoringSection({ report, toAbsoluteFileUrl }) {
           const height = getHeightValue(m) ?? "-";
           const diameter = parseNumber(m?.diameter_batang) ?? (parseNumber(m?.diameter) ?? "-");
           const healthScore = leafConditionScore(m);
-          const healthLabel = healthScore !== null && healthScore !== undefined ? getHealthLabel([healthScore]) : "-";
+          const healthLabel = healthScore !== null && healthScore !== undefined ? getLeafHealthLabel([healthScore]) : "-";
 
           const files = parseStoredFiles(
             m?.dokumentasi_monitoring ||

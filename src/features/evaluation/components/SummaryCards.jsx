@@ -83,7 +83,14 @@ export default function SummaryCards({ report, survivalStatus, healthStatus, isA
           <div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Kondisi Kesehatan</p>
             <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{report.healthCondition}</p>
-            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2">Status kesehatan bibit</p>
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2">
+              {report.healthConditionDetail?.description || "Status kesehatan bibit berdasarkan survival rate"}
+            </p>
+            {report.healthConditionDetail?.action && (
+              <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mt-1">
+                Tindakan: {report.healthConditionDetail.action}
+              </p>
+            )}
           </div>
           <div className="p-3 rounded-lg bg-emerald-100 dark:bg-emerald-900/40">
             <FiActivity className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />

@@ -11,7 +11,7 @@ import { buildEvaluasiPdfBlob } from "@/features/evaluation/utils/evaluationPdf"
 import { buildLaporanPdfBlob } from "@/features/reporting/utils/reportPdf";
 import { generateFullNarrative, getRecommendations } from "@/features/evaluation/utils/evaluationNarrator";
 import { getSuccessStatus } from "@/features/evaluation/utils/evaluationNarrator";
-import { getMonitoringListFromAnyShape, resolveMonitoringDate, leafConditionScore, getHealthLabel, parseNumber, deriveSurvivalRate, mean } from "@/shared/utils/evaluationEngine";
+import { getMonitoringListFromAnyShape, resolveMonitoringDate, getSurvivalHealthLabel, getSurvivalHealthProfile, parseNumber, deriveSurvivalRate, mean } from "@/shared/utils/evaluationEngine";
 
 const downloadBlob = (blob, fileName) => {
   const url = window.URL.createObjectURL(blob);
@@ -69,9 +69,7 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
   // Build monitoring items array for calculations
   const monitoringItems = getMonitoringListFromAnyShape(report?.monitoring || report?.monitoringItems || []);
 
-  // Compute health label from monitoring items (average across monitorings)
-  const healthScores = monitoringItems.map((m) => leafConditionScore(m));
-  const computedHealthLabel = getHealthLabel(healthScores);
+  // Compute health label from survival rate (evaluation-specific)
 
   // Compute average survival rate specifically for monitoring bulan 3 & 6
   const survivalValues36 = monitoringItems
@@ -85,6 +83,8 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
 
   const survivalAvg36 = survivalValues36.length ? mean(survivalValues36) : null;
   const survivalDisplay = survivalAvg36 !== null ? `${survivalAvg36.toFixed(2)}%` : report.survivalRate;
+  const healthProfile = getSurvivalHealthProfile(survivalAvg36 !== null ? survivalAvg36 : report.survivalRate);
+  const computedHealthLabel = getSurvivalHealthLabel(survivalAvg36 !== null ? survivalAvg36 : report.survivalRate);
 
   // Generate narratives and recommendations when report changes
   useEffect(() => {
@@ -207,7 +207,7 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
             <div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Ringkasan Data</h3>
               <SummaryCards 
-                report={{ ...report, healthCondition: computedHealthLabel, survivalRate: survivalDisplay }}
+                report={{ ...report, healthCondition: computedHealthLabel, healthConditionDetail: healthProfile, survivalRate: survivalDisplay }}
                 survivalStatus={getSuccessStatus(survivalAvg36 !== null ? survivalAvg36 : report.survivalRate)}
                 healthStatus={computedHealthLabel}
                 isAvg36={survivalAvg36 !== null}

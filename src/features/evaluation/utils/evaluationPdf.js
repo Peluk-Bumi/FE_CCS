@@ -10,7 +10,8 @@ const safeText = (value) => String(value ?? "-");
 const getSuccessLabel = (survivalRate) => {
   const rate = Number.parseFloat(String(survivalRate).replace("%", ""));
   if (Number.isNaN(rate)) return "-";
-  if (rate >= 80) return "BERHASIL";
+  if (rate >= 85) return "BERHASIL";
+  if (rate >= 70) return "BAIK";
   if (rate >= 50) return "PERLU PERHATIAN";
   return "GAGAL";
 };
@@ -18,7 +19,8 @@ const getSuccessLabel = (survivalRate) => {
 const getSectionColor = (survivalRate) => {
   const rate = Number.parseFloat(String(survivalRate).replace("%", ""));
   if (Number.isNaN(rate) || rate < 50) return rgb(0.75, 0.12, 0.12);
-  if (rate < 80) return rgb(0.78, 0.53, 0.08);
+  if (rate < 70) return rgb(0.78, 0.53, 0.08);
+  if (rate < 85) return rgb(0.1, 0.52, 0.3);
   return rgb(0.1, 0.52, 0.3);
 };
 

@@ -37,10 +37,10 @@ export const generateDiameterNarrative = (avgDiameter) => {
 
 export const generateHealthNarrative = (healthCondition, monitoringData = {}) => {
   const baseNarrative = {
-    "Sangat Baik": "Secara umum, bibit berada dalam kondisi sangat sehat dengan minimal kehilangan daun atau gejala penyakit.",
-    "Baik": "Bibit berada dalam kondisi sehat, meskipun terdapat beberapa gejala minor yang tidak signifikan.",
-    "Perlu Perhatian": "Bibit menunjukkan beberapa gejala kesehatan yang memerlukan perhatian khusus dan tindakan preventif.",
-    "Kurang Sehat": "Bibit mengalami kondisi kesehatan yang lemah dan memerlukan intervensi segera.",
+    "Sangat Baik (Excellent)": "Bibit mangrove tumbuh sangat optimal dan cukup dipantau secara rutin tanpa intervensi khusus.",
+    "Baik (Good)": "Vegetasi tumbuh stabil namun mulai memerlukan pemeliharaan ringan seperti pembersihan gulma atau sampah di sekitar bibit.",
+    "Kurang Sehat / Sakit (Fair/Stressed)": "Bibit menunjukkan stres lingkungan dan memerlukan pengawasan ketat serta persiapan penyulaman parsial.",
+    "Kritis / Buruk (Critical/Poor)": "Terjadi kegagalan tumbuh skala besar sehingga perlu investigasi mendalam dan tindakan replanting.",
     "Data kesehatan belum tersedia": "Data kesehatan belum tersedia untuk analisis mendalam.",
   };
 
@@ -79,17 +79,17 @@ export const generateHealthNarrative = (healthCondition, monitoringData = {}) =>
 };
 
 export const getSurvivalCategory = (survivalRate) => {
-  if (survivalRate >= 80) return "sangat baik";
-  if (survivalRate >= 60) return "baik";
-  if (survivalRate >= 50) return "cukup (perlu perhatian)";
-  return "kurang memuaskan (perlu penanaman ulang)";
+  if (survivalRate >= 85) return "sangat baik (excellent)";
+  if (survivalRate >= 70) return "baik (good)";
+  if (survivalRate >= 50) return "kurang sehat / sakit (fair/stressed)";
+  return "kritis / buruk (critical/poor)";
 };
 
 export const getSuccessStatus = (survivalRate) => {
   const rate = parseFloat(survivalRate);
   if (Number.isNaN(rate)) return "UNKNOWN";
-  if (rate >= 80) return "BERHASIL";
-  if (rate >= 60) return "BAIK";
+  if (rate >= 85) return "BERHASIL";
+  if (rate >= 70) return "BAIK";
   if (rate >= 50) return "PERLU_PERHATIAN";
   return "GAGAL";
 };
@@ -102,14 +102,20 @@ export const getRecommendations = (report, monitoringData = {}) => {
   if (survivalRate < 50) {
     recommendations.push({
       level: "KRITIS",
-      text: "Tingkat keberhasilan sangat rendah. Rekomendasi: evaluasi ulang metode penanaman, kondisi tanah, dan sumber air. Pertimbangkan penanaman ulang dengan spesies yang lebih sesuai.",
+      text: "Status kesehatan kritis. Rekomendasi: investigasi kualitas air dan tanah, evaluasi ulang metode penanaman, lalu lakukan replanting atau penyulaman total.",
       icon: "alert",
     });
-  } else if (survivalRate < 80) {
+  } else if (survivalRate < 70) {
     recommendations.push({
       level: "TINGGI",
-      text: "Beberapa bibit tidak bertahan. Rekomendasi: tingkatkan frekuensi pemantauan, perhatikan masalah drainase, dan pertahankan level air yang optimal.",
+      text: "Status kesehatan kurang sehat. Rekomendasi: tingkatkan pengawasan, cek hama/arus/nutrisi, dan siapkan penyulaman parsial bila diperlukan.",
       icon: "warning",
+    });
+  } else if (survivalRate < 85) {
+    recommendations.push({
+      level: "SEDANG",
+      text: "Status kesehatan baik namun belum optimal. Rekomendasi: lakukan pemeliharaan ringan seperti pembersihan gulma, sampah plastik, dan pemantauan rutin berkala.",
+      icon: "info",
     });
   }
 
@@ -150,7 +156,7 @@ export const getRecommendations = (report, monitoringData = {}) => {
   if (recommendations.length === 0) {
     recommendations.push({
       level: "BAIK",
-      text: "Kondisi bibit secara keseluruhan baik. Rekomendasi: lanjutkan pemantauan berkala, pemeliharaan rutin, dan pencatatan data berkala.",
+      text: "Kondisi bibit sangat baik. Rekomendasi: lanjutkan pemantauan rutin berkala tanpa intervensi khusus, sambil tetap mencatat perubahan lapangan.",
       icon: "check",
     });
   }
@@ -161,8 +167,8 @@ export const getRecommendations = (report, monitoringData = {}) => {
 export const getSuccessColor = (survivalRate) => {
   const rate = parseFloat(survivalRate);
   if (Number.isNaN(rate)) return { bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-700", badge: "bg-gray-100 text-gray-800" };
-  if (rate >= 80) return { bg: "bg-green-50", border: "border-green-200", text: "text-green-700", badge: "bg-green-100 text-green-800" };
-  if (rate >= 60) return { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700", badge: "bg-emerald-100 text-emerald-800" };
+  if (rate >= 85) return { bg: "bg-green-50", border: "border-green-200", text: "text-green-700", badge: "bg-green-100 text-green-800" };
+  if (rate >= 70) return { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700", badge: "bg-emerald-100 text-emerald-800" };
   if (rate >= 50) return { bg: "bg-yellow-50", border: "border-yellow-200", text: "text-yellow-700", badge: "bg-yellow-100 text-yellow-800" };
   return { bg: "bg-red-50", border: "border-red-200", text: "text-red-700", badge: "bg-red-100 text-red-800" };
 };

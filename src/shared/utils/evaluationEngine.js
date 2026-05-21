@@ -56,7 +56,7 @@ export const leafConditionScore = (monitoring) => {
   return scores.length ? mean(scores) : null;
 };
 
-// Health condition label
+// Health condition label based on leaf observations (monitoring-only)
 export const getHealthLabel = (scores) => {
   const avg = mean(scores.filter((value) => value !== null));
   if (avg === null) return "Data kesehatan belum tersedia";
@@ -64,6 +64,59 @@ export const getHealthLabel = (scores) => {
   if (avg <= 1.5) return "Baik";
   if (avg <= 2.3) return "Perlu Perhatian";
   return "Kurang Sehat";
+};
+
+// Health condition label based on survival rate (evaluation-only)
+export const getSurvivalHealthLabel = (survivalRate) => {
+  const rate = Number.parseFloat(String(survivalRate ?? "").replace("%", ""));
+
+  if (Number.isNaN(rate)) return "Data kesehatan belum tersedia";
+  if (rate >= 85) return "Sangat Baik (Excellent)";
+  if (rate >= 70) return "Baik (Good)";
+  if (rate >= 50) return "Kurang Sehat / Sakit (Fair/Stressed)";
+  return "Kritis / Buruk (Critical/Poor)";
+};
+
+export const getSurvivalHealthProfile = (survivalRate) => {
+  const rate = Number.parseFloat(String(survivalRate ?? "").replace("%", ""));
+
+  if (Number.isNaN(rate)) {
+    return {
+      label: "Data kesehatan belum tersedia",
+      description: "Data survival rate belum tersedia untuk menentukan status kesehatan.",
+      action: "",
+    };
+  }
+
+  if (rate >= 85) {
+    return {
+      label: "Sangat Baik (Excellent)",
+      description: "Bibit mangrove tumbuh sangat optimal dan cukup dipantau secara rutin tanpa intervensi khusus.",
+      action: "Pemantauan rutin berkala",
+    };
+  }
+
+  if (rate >= 70) {
+    return {
+      label: "Baik (Good)",
+      description: "Vegetasi tumbuh stabil namun mulai memerlukan pemeliharaan ringan seperti pembersihan gulma atau sampah di sekitar bibit.",
+      action: "Pemeliharaan ringan",
+    };
+  }
+
+  if (rate >= 50) {
+    return {
+      label: "Kurang Sehat / Sakit (Fair/Stressed)",
+      description: "Bibit menunjukkan stres lingkungan dan memerlukan pengawasan ketat serta persiapan penyulaman parsial.",
+      action: "Pengawasan ketat dan persiapan penyulaman parsial",
+    };
+  }
+
+  return {
+    label: "Kritis / Buruk (Critical/Poor)",
+    description: "Terjadi kegagalan tumbuh skala besar sehingga perlu investigasi kualitas air dan tanah serta tindakan replanting.",
+    action: "Investigasi mendalam dan replanting",
+  };
 };
 
 // Monitoring list normalization
@@ -215,7 +268,9 @@ export const buildCompanyReport = (perencanaan, implementasiList, monitoringList
     survivalRate: survivalValues.length ? `${mean(survivalValues).toFixed(2)}%` : "-",
     avgHeight: heightValues.length ? mean(heightValues).toFixed(2) : "-",
     avgDiameter: diameterValues.length ? mean(diameterValues).toFixed(2) : "-",
-    healthCondition: getHealthLabel(healthScores),
+    healthCondition: getSurvivalHealthLabel(survivalValues.length ? mean(survivalValues) : null),
+    healthConditionDetail: getSurvivalHealthProfile(survivalValues.length ? mean(survivalValues) : null),
+    leafHealthCondition: getHealthLabel(healthScores),
     monitoringItems: monitoringItems,
   };
 };

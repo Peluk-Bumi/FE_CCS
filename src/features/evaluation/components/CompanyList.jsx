@@ -2,10 +2,10 @@ import { motion } from "framer-motion";
 import { FiAlertCircle } from "react-icons/fi";
 
 const getHealthBadgeColor = (healthCondition) => {
-  if (healthCondition === "Sangat Baik") return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300";
-  if (healthCondition === "Baik") return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300";
-  if (healthCondition === "Perlu Perhatian") return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300";
-  if (healthCondition === "Kurang Sehat") return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300";
+  if (healthCondition?.includes("Sangat Baik")) return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300";
+  if (healthCondition?.includes("Baik (Good)")) return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300";
+  if (healthCondition?.includes("Kurang Sehat")) return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300";
+  if (healthCondition?.includes("Kritis")) return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300";
   return "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300";
 };
 
