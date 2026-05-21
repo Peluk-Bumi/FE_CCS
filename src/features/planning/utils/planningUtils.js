@@ -88,6 +88,41 @@ export const formatPlanningStatus = (status) => {
       variant: 'secondary',
       color: 'text-blue-600'
     },
+    'monitoring_1': {
+      label: 'Monitoring Bulan 1',
+      variant: 'outline',
+      color: 'text-green-600'
+    },
+    'monitoring_2': {
+      label: 'Monitoring Bulan 2',
+      variant: 'outline',
+      color: 'text-green-600'
+    },
+    'monitoring_3': {
+      label: 'Monitoring Bulan 3',
+      variant: 'outline',
+      color: 'text-green-600'
+    },
+    'monitoring_4': {
+      label: 'Monitoring Bulan 4',
+      variant: 'outline',
+      color: 'text-green-600'
+    },
+    'monitoring_5': {
+      label: 'Monitoring Bulan 5',
+      variant: 'outline',
+      color: 'text-green-600'
+    },
+    'monitoring_6': {
+      label: 'Monitoring Bulan 6',
+      variant: 'outline',
+      color: 'text-purple-600'
+    },
+    'evaluation': {
+      label: 'Evaluasi',
+      variant: 'secondary',
+      color: 'text-orange-600'
+    },
     'completed': {
       label: 'Selesai',
       variant: 'default',
@@ -241,7 +276,7 @@ export const formatCoordinates = (lat, long) => {
 // Generate company name for user context
 export const generateUserCompanyName = (userId, userName = null) => {
   if (userName) {
-    return `USER_${userId}_${userName.replace(/\s+/g, '_').toUpperCase()}`;
+    return userName;
   }
   return `USER_${userId}`;
 };

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { Trash2, Edit, Eye, MapPin, Calendar, Building, Download } from 'lucide-react';
-import { formatPlanningStatus } from '../utils/planningUtils';
+import ProjectStatusBadge from '@/shared/components/common/ProjectStatusBadge';
+import { resolveProjectDisplay } from '@/shared/utils/projectDisplay';
 
 const PlanningTable = ({ 
   data = [], 
@@ -63,25 +64,26 @@ const PlanningTable = ({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
+            <table className="min-w-[980px] w-full border-separate border-spacing-0">
+              <thead className="bg-gray-50/80 dark:bg-gray-800/60">
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <th className="text-left p-3 font-medium">Status</th>
                   <th 
-                    className="text-left p-3 font-medium cursor-pointer hover:bg-gray-50"
+                    className="text-left p-3 font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                     onClick={() => handleSort('nama_perusahaan')}
                   >
                     <div className="flex items-center gap-1">
                       <Building className="h-4 w-4" />
-                      Perusahaan
+                      Nama Perusahaan
                       {sortField === 'nama_perusahaan' && (
                         <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                       )}
                     </div>
                   </th>
-                  <th className="text-left p-3 font-medium">Kegiatan</th>
                   <th className="text-left p-3 font-medium">Lokasi</th>
+                  <th className="text-left p-3 font-medium">Kegiatan</th>
                   <th 
-                    className="text-left p-3 font-medium cursor-pointer hover:bg-gray-50"
+                    className="text-left p-3 font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                     onClick={() => handleSort('tanggal_pelaksanaan')}
                   >
                     <div className="flex items-center gap-1">
@@ -93,46 +95,49 @@ const PlanningTable = ({
                     </div>
                   </th>
                   <th className="text-left p-3 font-medium">Jumlah Bibit</th>
-                  <th className="text-left p-3 font-medium">Status</th>
                   {hasActions && <th className="text-center p-3 font-medium">Aksi</th>}
                 </tr>
               </thead>
               <tbody>
                 {sortedData.map((item) => (
-                  <tr key={item.id} className="border-b hover:bg-gray-50">
-                    <td className="p-3">
-                      <div className="font-medium">{item.nama_perusahaan}</div>
-                      <div className="text-sm text-gray-500">ID: {item.user_id}</div>
-                    </td>
-                    <td className="p-3">
-                      <Badge variant="outline">
-                        {item.jenis_kegiatan}
-                      </Badge>
-                    </td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm">{item.lokasi}</span>
-                      </div>
-                    </td>
-                    <td className="p-3">
-                      <div className="text-sm">
-                        {new Date(item.tanggal_pelaksanaan).toLocaleDateString('id-ID')}
-                      </div>
-                    </td>
-                    <td className="p-3">
-                      <div className="text-sm font-medium">{item.jumlah_bibit.toLocaleString()}</div>
-                      <div className="text-xs text-gray-500">{item.jenis_bibit}</div>
-                    </td>
-                    <td className="p-3">
-                      <Badge 
-                        variant={formatPlanningStatus(item.status)?.variant || 'default'}
-                      >
-                        {formatPlanningStatus(item.status)?.label || item.status}
-                      </Badge>
-                    </td>
+                  <tr key={item.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50/80 dark:hover:bg-gray-800/60">
+                    {(() => {
+                      const { company, location, status } = resolveProjectDisplay(item);
+
+                      return (
+                        <>
+                          <td className="p-3 align-top">
+                            <ProjectStatusBadge status={status} size="small" />
+                          </td>
+                          <td className="p-3 align-top">
+                            <div className="font-medium text-gray-900 dark:text-gray-100">{company}</div>
+                            <div className="text-sm text-gray-500">ID: {item.user_id}</div>
+                          </td>
+                          <td className="p-3 align-top">
+                            <div className="flex items-start gap-1.5 text-sm text-gray-700 dark:text-gray-300">
+                              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                              <span className="leading-5">{location}</span>
+                            </div>
+                          </td>
+                          <td className="p-3 align-top">
+                            <Badge variant="outline">
+                              {item.jenis_kegiatan}
+                            </Badge>
+                          </td>
+                          <td className="p-3 align-top">
+                            <div className="text-sm">
+                              {new Date(item.tanggal_pelaksanaan).toLocaleDateString('id-ID')}
+                            </div>
+                          </td>
+                          <td className="p-3 align-top">
+                            <div className="text-sm font-medium">{Number(item.jumlah_bibit || 0).toLocaleString('id-ID')}</div>
+                            <div className="text-xs text-gray-500">{item.jenis_bibit}</div>
+                          </td>
+                        </>
+                      );
+                    })()}
                     {hasActions && (
-                      <td className="p-3">
+                      <td className="p-3 align-top">
                         <div className="flex items-center justify-center gap-2">
                           {onView && (
                             <Button

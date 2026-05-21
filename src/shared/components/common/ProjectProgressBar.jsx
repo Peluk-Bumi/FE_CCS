@@ -30,7 +30,8 @@ const ProjectProgressBar = ({
     const phases = [
       'planning', 'implementation', 
       'monitoring_1', 'monitoring_2', 'monitoring_3', 
-      'monitoring_4', 'monitoring_5', 'monitoring_6', 
+      'monitoring_4', 'monitoring_5', 'monitoring_6',
+      'evaluation',
       'completed'
     ];
     

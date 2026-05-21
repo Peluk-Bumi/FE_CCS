@@ -60,6 +60,13 @@ const ProjectStatusBadge = ({ status, size = 'medium', showLabel = true }) => {
         textColor: 'text-purple-800',
         borderColor: 'border-purple-200',
       },
+      evaluation: {
+        label: 'Evaluasi',
+        color: 'orange',
+        bgColor: 'bg-orange-100',
+        textColor: 'text-orange-800',
+        borderColor: 'border-orange-200',
+      },
       completed: {
         label: 'Selesai',
         color: 'gray',

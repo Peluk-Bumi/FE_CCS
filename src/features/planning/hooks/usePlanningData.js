@@ -38,9 +38,9 @@ export const usePlanningData = (userRole = 'user', userId = null) => {
         return false;
       }
 
-      // Auto-fill company name for regular users
+      // Keep any company name already provided by the form or auth layer.
       if (userRole !== 'admin' && userId) {
-        planningData.nama_perusahaan = `USER_${userId}`;
+        planningData.nama_perusahaan = planningData.nama_perusahaan || planningData.user_name || planningData.user?.name || `USER_${userId}`;
         planningData.user_id = userId;
       }
 
