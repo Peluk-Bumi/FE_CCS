@@ -18,6 +18,7 @@ import {
   FiGlobe,
   FiSearch,
   FiLink,
+  FiHash,
 } from "react-icons/fi";
 import WalletIndicator from '@/features/blockchain/components/WalletIndicator';
 import { PieChart, BarChart } from "@/shared/components/charts/Charts";
