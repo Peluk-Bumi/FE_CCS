@@ -42,6 +42,17 @@ const createSaplingMarkerIcon = (accentColor, leafColor) => {
 // ✅ Bibit pohon marker untuk lokasi yang sudah ada dan yang dipilih
 const existingMarkerIcon = createSaplingMarkerIcon('#16a34a', '#22c55e');
 const selectedMarkerIcon = createSaplingMarkerIcon('#15803d', '#86efac');
+const DOCUMENTATION_MAX_FILES = 10;
+const DOCUMENTATION_MAX_FILE_SIZE_MB = 10;
+const DOCUMENTATION_MAX_FILE_SIZE_BYTES = DOCUMENTATION_MAX_FILE_SIZE_MB * 1024 * 1024;
+const DOCUMENTATION_SUPPORTED_FORMATS = [
+  'JPG',
+  'JPEG',
+  'PNG',
+  'SVG',
+  'HEIC',
+];
+const DOCUMENTATION_ACCEPT = '.jpg,.jpeg,.png,.svg,.heic,image/*';
 
 const getLocalTodayString = () => {
   const today = new Date();
@@ -261,6 +272,12 @@ const ImplementasiForm = () => {
       const isHeic = name.endsWith('.heic') || name.endsWith('.heif') || /heic|heif/.test(file.type);
       const isImage = file.type && file.type.startsWith('image/');
       const isVideo = file.type && file.type.startsWith('video/');
+      const isSupportedByExtension = name.match(/\.(jpg|jpeg|png|gif|webp|heic|heif|mp4|mov|webm|ogg)$/);
+
+      if (file.size > DOCUMENTATION_MAX_FILE_SIZE_BYTES) {
+        toast.error(`❌ ${file.name} melebihi ${DOCUMENTATION_MAX_FILE_SIZE_MB} MB`);
+        continue;
+      }
 
       if (isHeic) {
         try {
@@ -285,22 +302,34 @@ const ImplementasiForm = () => {
       if (isImage || isVideo) {
         accepted.push(file);
       } else {
-        if (name.match(/\.(png|jpe?g|gif|svg|bmp|webp|mp4|mov|webm|ogg)$/)) {
+        if (isSupportedByExtension) {
           accepted.push(file);
         }
       }
     }
 
     if (accepted.length === 0) {
-      toast.error('❌ Silakan pilih file gambar atau video!');
+      toast.error('❌ Silakan pilih file JPG, JPEG, PNG, WEBP, GIF, HEIC, HEIF, MP4, MOV, WEBM, atau OGG!');
       return;
     }
 
     const currentFiles = formik.values.dokumentasi || [];
-    const newFiles = [...currentFiles, ...accepted];
+    const availableSlots = Math.max(DOCUMENTATION_MAX_FILES - currentFiles.length, 0);
+
+    if (availableSlots === 0) {
+      toast.error(`❌ Maksimal ${DOCUMENTATION_MAX_FILES} file dokumentasi`);
+      return;
+    }
+
+    const newFiles = [...currentFiles, ...accepted.slice(0, availableSlots)];
     formik.setFieldValue('dokumentasi', newFiles);
     setShowUploadModal(false);
-    toast.success(`✅ ${accepted.length} file berhasil ditambahkan!`);
+
+    if (accepted.length > availableSlots) {
+      toast.warning(`⚠️ Hanya ${availableSlots} file yang ditambahkan karena batas maksimal ${DOCUMENTATION_MAX_FILES} file`);
+    } else {
+      toast.success(`✅ ${accepted.length} file berhasil ditambahkan!`);
+    }
   };
 
   // ✅ HANDLE FILE INPUT
@@ -796,6 +825,9 @@ const ImplementasiForm = () => {
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
                 Dokumentasi Implementasi <span className="text-red-500">*</span>
               </label>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                Format: {DOCUMENTATION_SUPPORTED_FORMATS.join(', ')}. Maks {DOCUMENTATION_MAX_FILE_SIZE_MB} MB per file, maksimal {DOCUMENTATION_MAX_FILES} file.
+              </p>
 
               {/* ✅ DRAG DROP AREA */}
               <div
@@ -813,7 +845,7 @@ const ImplementasiForm = () => {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*,video/*"
+                  accept={DOCUMENTATION_ACCEPT}
                   multiple
                   onChange={handleFileSelect}
                   className="sr-only"
@@ -823,7 +855,7 @@ const ImplementasiForm = () => {
                 <input
                   ref={cameraInputRef}
                   type="file"
-                  accept="image/*,video/*"
+                  accept={DOCUMENTATION_ACCEPT}
                   capture="environment"
                   onChange={handleCameraCapture}
                   className="sr-only"
@@ -1001,7 +1033,7 @@ const ImplementasiForm = () => {
                     Upload Dokumentasi
                   </h2>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Pilih sumber gambar untuk dokumentasi
+                    Pilih sumber dokumentasi. Format {DOCUMENTATION_SUPPORTED_FORMATS.join(', ')} | Maks {DOCUMENTATION_MAX_FILE_SIZE_MB} MB/file | Maks {DOCUMENTATION_MAX_FILES} file
                   </p>
                 </div>
 
