@@ -43,6 +43,14 @@ const createSaplingMarkerIcon = (accentColor, leafColor) => {
 const existingMarkerIcon = createSaplingMarkerIcon('#16a34a', '#22c55e');
 const selectedMarkerIcon = createSaplingMarkerIcon('#15803d', '#86efac');
 
+const getLocalTodayString = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const ImplementasiForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -58,6 +66,7 @@ const ImplementasiForm = () => {
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const { user } = useAuth();
+  const minDateValue = getLocalTodayString();
 
   const validationSchema = Yup.object({
     perencanaan_id: Yup.string().required("Wajib pilih perencanaan"),
@@ -91,6 +100,15 @@ const ImplementasiForm = () => {
     onSubmit: async (values) => {
       setSubmitting(true);
       try {
+        if (values.kesesuaian?.tanggal === false) {
+          const tanggalDetail = values.kesesuaian?.tanggal_detail;
+          if (tanggalDetail && tanggalDetail < minDateValue) {
+            toast.error("Tanggal tidak boleh sebelum hari ini");
+            setSubmitting(false);
+            return;
+          }
+        }
+
         const formData = new FormData();
         formData.append("perencanaan_id", values.perencanaan_id);
         formData.append("kesesuaian", JSON.stringify(values.kesesuaian));
@@ -720,6 +738,7 @@ const ImplementasiForm = () => {
                         {item.type === 'date' ? (
                           <input
                             type="date"
+                            min={minDateValue}
                             value={formik.values.kesesuaian[`${item.field}_detail`]}
                             onChange={(e) => formik.setFieldValue(`kesesuaian.${item.field}_detail`, e.target.value)}
                             className="w-full rounded px-2 py-2"

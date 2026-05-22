@@ -71,6 +71,14 @@ function MapViewUpdater({ center, zoom }) {
   return null;
 }
 
+const getLocalTodayString = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const PerencanaanForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -92,6 +100,7 @@ const PerencanaanForm = () => {
   ).trim();
   const isAdmin = user?.role === 'admin';
   const [adminUsers, setAdminUsers] = useState([]);
+  const minDateValue = getLocalTodayString();
 
   // Fetch user list for admin to choose company name
   useEffect(() => {
@@ -124,7 +133,12 @@ const PerencanaanForm = () => {
     lng: Yup.number().required("Longitude diperlukan"),
     jumlah_bibit: Yup.number().required("Wajib diisi").positive("Harus positif"),
     jenis_bibit: Yup.string().required("Wajib diisi"),
-    tanggal_pelaksanaan: Yup.date().required("Wajib diisi"),
+    tanggal_pelaksanaan: Yup.string()
+      .required("Wajib diisi")
+      .test("not-backdate", "Tanggal pelaksanaan tidak boleh sebelum hari ini", (value) => {
+        if (!value) return false;
+        return value >= minDateValue;
+      }),
   });
 
   const formik = useFormik({
@@ -350,6 +364,7 @@ const PerencanaanForm = () => {
                         value={formik.values[field.name]}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
+                        min={field.type === "date" ? minDateValue : undefined}
                         list={field.name === "jenis_bibit" ? "global-tree-species" : undefined}
                         readOnly={field.name === "nama_perusahaan" && isUserCreator}
                         className={`w-full px-4 py-3.5 rounded-xl border-2 bg-white dark:bg-gray-700 dark:text-gray-100 transition-all duration-300 ${
