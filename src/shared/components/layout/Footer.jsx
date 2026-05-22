@@ -66,22 +66,6 @@ export default function Footer() {
               }`}>
                 Gerakan lingkungan yang sedang bertumbuh melalui aksi nyata dan transparansi proses dokumentasi.
               </p>
-              <motion.div 
-                className="flex gap-3"
-                whileHover={{ gap: 4 }}
-                transition={{ duration: 0.2 }}
-              >
-                <motion.a 
-                  href="https://instagram.com/pelukbumi" 
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                    isDark ? 'bg-white/10' : 'bg-gray-200/50'
-                  } animate-pulse transition-transform hover:scale-110`}
-                  whileHover={{ scale: 1.15 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <FiInstagram className={`w-4 h-4 ${isDark ? 'text-white' : 'text-gray-900'}`} />
-                </motion.a>
-              </motion.div>
             </motion.div>
 
             {/* Navigation Section */}
@@ -149,7 +133,26 @@ export default function Footer() {
               </h4>
               <div className="space-y-1.5">
                 <motion.a 
-                  href="mailto:pelukbumi.community@gmail.com" 
+                  href="https://instagram.com/pelukbumi" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center gap-2 p-1.5 rounded-lg transition-colors hover:bg-primary/10 ${
+                    isDark ? 'text-gray-400' : 'text-gray-600'
+                  }`}
+                  whileHover={{ scale: 1.05, x: 5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <motion.div 
+                    className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center ${isDark ? 'bg-white/10' : 'bg-gray-300/50'} animate-pulse`}
+                    whileHover={{ rotate: 15 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <FiInstagram className={`w-4 h-4 ${isDark ? 'text-white' : 'text-gray-900'}`} />
+                  </motion.div>
+                  <span className="text-sm">@pelukbumi</span>
+                </motion.a>
+                <motion.a 
+                  href="mailto:info@pelukbumi.id" 
                   className={`flex items-center gap-2 p-1.5 rounded-lg transition-colors hover:bg-primary/10 ${
                     isDark ? 'text-gray-400' : 'text-gray-600'
                   }`}
