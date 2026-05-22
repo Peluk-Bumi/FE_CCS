@@ -37,10 +37,10 @@ const defaultStats = {
   ],
 };
 
-export default function DashboardUser() {
+export default function UserDashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState(defaultStats);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const pollingRef = useRef(null);
@@ -56,16 +56,7 @@ export default function DashboardUser() {
       try {
         // Use correct localStorage method
         const token = localStorage.getItem('token');
-        if (!token) {
-          console.warn('[DashboardUser] No token found, user not authenticated');
-          setError('Sesi anda telah berakhir, silakan login kembali');
-          setLoading(false);
-          navigate('/login', { replace: true });
-          return;
-        }
-
-        setLoading(false);
-
+          
         const { data } = await api.get("/dashboard/stats", { timeout: DASHBOARD_REQUEST_TIMEOUT });
         if (isMounted) {
           // Extract stats from nested response structure
@@ -250,13 +241,6 @@ export default function DashboardUser() {
         }));
       }
       
-      if (kegiatanStats.length === 0) {
-        kegiatanStats = [
-          { label: "Planting Mangrove", value: statsData.total_perencanaan || 0 },
-          { label: "Coral Transplanting", value: Math.floor((statsData.total_perencanaan || 0) * 0.4) || 0 }
-        ];
-      }
-      
       let monthlyStats = [];
       if (chartsData?.perencanaan_per_hari && Array.isArray(chartsData.perencanaan_per_hari)) {
         const monthlyData = {};
@@ -271,17 +255,6 @@ export default function DashboardUser() {
           label,
           value: parseInt(value)
         }));
-      }
-      
-      if (monthlyStats.length === 0) {
-        monthlyStats = [
-          { label: "Jan", value: 0 },
-          { label: "Feb", value: 0 },
-          { label: "Mar", value: 0 },
-          { label: "Apr", value: 0 },
-          { label: "May", value: 0 },
-          { label: "Jun", value: 0 }
-        ];
       }
       
       setStats({
@@ -308,14 +281,25 @@ export default function DashboardUser() {
     }
   };
 
+  const calculateGrowth = (series = []) => {
+    if (!Array.isArray(series) || series.length < 2) return "+0%";
+    const recent = series[series.length - 1]?.count || 0;
+    const previous = series[series.length - 2]?.count || 0;
+    if (previous === 0) return recent > 0 ? "+100%" : "+0%";
+    const growth = ((recent - previous) / previous) * 100;
+    return `${growth >= 0 ? "+" : ""}${growth.toFixed(1)}%`;
+  };
+
+  const perencanaanGrowth = calculateGrowth(stats.charts?.perencanaan_per_hari || []);
+
   // Stat cards untuk user dashboard
   const statCards = [
     {
       title: "Aktivitas Direncanakan",
       value: stats.total_perencanaan || 0,
       icon: <FiCalendar className="w-5 h-5" />,
-      trend: "+12%",
-      trendUp: true,
+      trend: perencanaanGrowth,
+      trendUp: !!(perencanaanGrowth && perencanaanGrowth.startsWith('+')),
       subtitle: "Proses konservasi (Blockchain)",
       type: "default",
       navigateTo: "/user/perencanaan",

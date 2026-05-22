@@ -101,14 +101,6 @@ export default function Dashboard() {
             }));
           }
           
-          // Fallback dengan data demo
-          if (kegiatanStats.length === 0) {
-            kegiatanStats = [
-              { label: "Planting Mangrove", value: statsData.total_perencanaan || 8 },
-              { label: "Coral Transplanting", value: Math.floor((statsData.total_perencanaan || 8) * 0.4) || 3 }
-            ];
-          }
-          
           // FIXED: Transform monthly data untuk BarChart
           let monthlyStats = [];
           if (chartsData?.perencanaan_per_hari && Array.isArray(chartsData.perencanaan_per_hari)) {
@@ -125,18 +117,6 @@ export default function Dashboard() {
               label,
               value: parseInt(value)
             }));
-          }
-          
-          // Fallback monthly data dengan demo yang realistis
-          if (monthlyStats.length === 0) {
-            monthlyStats = [
-              { label: "Jan", value: 2 },
-              { label: "Feb", value: 3 },
-              { label: "Mar", value: 1 },
-              { label: "Apr", value: 4 },
-              { label: "May", value: 2 },
-              { label: "Jun", value: 5 }
-            ];
           }
           
           // Properly merge nested data dengan format yang benar
@@ -292,13 +272,6 @@ export default function Dashboard() {
         }));
       }
       
-      if (kegiatanStats.length === 0) {
-        kegiatanStats = [
-          { label: "Planting Mangrove", value: statsData.total_perencanaan || 8 },
-          { label: "Coral Transplanting", value: Math.floor((statsData.total_perencanaan || 8) * 0.4) || 3 }
-        ];
-      }
-      
       let monthlyStats = [];
       if (chartsData?.perencanaan_per_hari && Array.isArray(chartsData.perencanaan_per_hari)) {
         const monthlyData = {};
@@ -313,17 +286,6 @@ export default function Dashboard() {
           label,
           value: parseInt(value)
         }));
-      }
-      
-      if (monthlyStats.length === 0) {
-        monthlyStats = [
-          { label: "Jan", value: 2 },
-          { label: "Feb", value: 3 },
-          { label: "Mar", value: 1 },
-          { label: "Apr", value: 4 },
-          { label: "May", value: 2 },
-          { label: "Jun", value: 5 }
-        ];
       }
       
       setStats({

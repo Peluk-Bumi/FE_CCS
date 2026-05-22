@@ -54,6 +54,7 @@ function formatDate(value) {
 }
 export default function LaporanPage() {
   const [logs, setLogs] = useState([]);
+  const [transparency, setTransparency] = useState({});
   const [meta, setMeta] = useState({
     current_page: 1,
     last_page: 1,
@@ -68,6 +69,8 @@ export default function LaporanPage() {
   const [retryingId, setRetryingId] = useState(null);
   const [downloadingReportId, setDownloadingReportId] = useState(null);
   const [backfilling, setBackfilling] = useState(false);
+  const logsRef = useRef([]);
+  const transparencyRef = useRef({});
   // ✅ Polling ref at top level (React hook rules)
   const pollingRef = useRef();
   const fetchTransactionHistory = async (page = 1) => {
@@ -78,7 +81,12 @@ export default function LaporanPage() {
         params: { page, per_page: 50 },
         timeout: 30000,
       });
-      setLogs(response.data?.data || []);
+      const nextLogs = response.data?.data || [];
+      const nextTransparency = response.data?.transparency || {};
+      logsRef.current = nextLogs;
+      transparencyRef.current = nextTransparency;
+      setLogs(nextLogs);
+      setTransparency(nextTransparency);
       setMeta(
         response.data?.meta || {
           current_page: 1,
@@ -114,15 +122,22 @@ export default function LaporanPage() {
         });
         if (!isMounted) return;
         const newLogs = response.data?.data || [];
+        const nextTransparency = response.data?.transparency || {};
         
         // Only update if there are actual changes to prevent unnecessary re-renders
-        if (JSON.stringify(newLogs) !== JSON.stringify(logs)) {
+        if (JSON.stringify(newLogs) !== JSON.stringify(logsRef.current)) {
+          logsRef.current = newLogs;
           setLogs(newLogs);
           console.log('[LaporanPage] Transaction history updated:', {
             count: newLogs.length,
             hasDocHash: newLogs.some(log => log.blockchain_doc_hash),
             hasTxHash: newLogs.some(log => log.blockchain_tx_hash)
           });
+        }
+
+        if (JSON.stringify(nextTransparency) !== JSON.stringify(transparencyRef.current)) {
+          transparencyRef.current = nextTransparency;
+          setTransparency(nextTransparency);
         }
         
         setMeta(
@@ -153,7 +168,14 @@ export default function LaporanPage() {
         pollingRef.current = null;
       }
     };
-  }, [logs]); // Add logs dependency for change detection
+  }, []);
+
+  const formatAddress = (value) => {
+    if (!value) return "-";
+    if (value.length <= 14) return value;
+    return `${value.slice(0, 8)}...${value.slice(-6)}`;
+  };
+
   const filteredLogs = useMemo(() => {
     return logs.filter((item) => {
       const lowerSearch = searchTerm.toLowerCase();
@@ -164,6 +186,10 @@ export default function LaporanPage() {
         item.nama_perusahaan,
         item.blockchain_doc_hash,
         item.blockchain_tx_hash,
+        item.parent_perencanaan_id,
+        item.metadata?.actor?.name,
+        item.metadata?.actor?.email,
+        item.metadata?.blockchain_context?.contract_address,
         item.parent_perencanaan_id,
       ]
         .filter(Boolean)
@@ -348,6 +374,38 @@ export default function LaporanPage() {
         title="Log History Transaksi"
         description="Jejak transaksi on-chain untuk seluruh aktivitas, dengan penyimpanan txHash off-chain."
       />
+
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 mb-6"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, delay: 0.05 }}
+      >
+        <div className="rounded-2xl border border-primary/20 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl p-4 shadow-sm">
+          <p className="text-xs uppercase tracking-wide text-gray-500">Sumber Log</p>
+          <p className="mt-1 font-semibold text-gray-900 dark:text-gray-100">blockchain_transaction_logs</p>
+          <p className="text-xs text-gray-500 mt-1">Log sistem disimpan off-chain, hash dan status ditautkan ke blockchain.</p>
+        </div>
+        <div className="rounded-2xl border border-primary/20 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl p-4 shadow-sm">
+          <p className="text-xs uppercase tracking-wide text-gray-500">Jaringan</p>
+          <p className="mt-1 font-semibold text-gray-900 dark:text-gray-100">{transparency.network || 'Polygon Mainnet'}</p>
+          <p className="text-xs text-gray-500 mt-1">Chain ID {transparency.chain_id || 137}</p>
+        </div>
+        <div className="rounded-2xl border border-primary/20 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl p-4 shadow-sm">
+          <p className="text-xs uppercase tracking-wide text-gray-500">Contract</p>
+          <p className="mt-1 font-semibold text-gray-900 dark:text-gray-100 font-mono text-sm break-all">
+            {formatAddress(transparency.contract_address)}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">{transparency.explorer_url || EXPLORER_BASE_URL}</p>
+        </div>
+        <div className="rounded-2xl border border-primary/20 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl p-4 shadow-sm">
+          <p className="text-xs uppercase tracking-wide text-gray-500">Broadcaster</p>
+          <p className="mt-1 font-semibold text-gray-900 dark:text-gray-100 font-mono text-sm break-all">
+            {formatAddress(transparency.broadcaster_wallet)}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">Wallet penulis TX pada semua kegiatan.</p>
+        </div>
+      </motion.div>
       
       <motion.div
         className="glass bg-white/90 dark:bg-gray-900 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 dark:border-gray-700/50 overflow-hidden p-8 md:p-12 mb-6"
@@ -420,7 +478,7 @@ export default function LaporanPage() {
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Cari perusahaan, hash..."
+              placeholder="Cari perusahaan, hash, wallet, atau ID..."
               className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary transition-all"
             />
           </div>
@@ -549,6 +607,9 @@ export default function LaporanPage() {
                             </span>
                             <span className="text-xs">
                               ID: {item.parent_perencanaan_id || "-"}
+                            </span>
+                            <span className="text-xs font-mono text-gray-400 truncate">
+                              Doc: {shortHash(item.blockchain_doc_hash, 8)}
                             </span>
                           </div>
                         </td>
@@ -697,6 +758,29 @@ export default function LaporanPage() {
                           </a>
                         </div>
                       )}
+
+                      {item.blockchain_doc_hash && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1">
+                            <FiHash className="w-3 h-3" /> Document Hash
+                          </p>
+                          <p className="text-xs text-gray-600 dark:text-gray-300 font-mono bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded break-all">
+                            {item.blockchain_doc_hash}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="space-y-1 pt-1 border-t border-gray-100 dark:border-gray-700">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1">
+                          <FiLink className="w-3 h-3" /> Transparansi
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-300">
+                          Source: blockchain_transaction_logs
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-300">
+                          Contract: <span className="font-mono">{formatAddress(transparency.contract_address)}</span>
+                        </p>
+                      </div>
 
                       {/* Timestamp */}
                       <div className="space-y-1 pt-1 border-t border-gray-100 dark:border-gray-700">
