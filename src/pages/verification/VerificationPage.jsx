@@ -1,5 +1,5 @@
 // src/pages/public/Verifikasi.jsx
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
@@ -92,22 +92,26 @@ export default function Verifikasi() {
   const [ScannerComponent, setScannerComponent] = useState(null);
   const [qrDataParsed, setQrDataParsed] = useState(null);
 
+  // Keep current media stream reference so it can be stopped reliably.
+  const streamRef = useRef(null);
+
+  const stopCameraStream = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current?.srcObject) {
+      videoRef.current.srcObject = null;
+    }
+  }, []);
+
   // ✅ Cleanup camera saat component unmount atau halaman berubah
   useEffect(() => {
     return () => {
       console.log('[Verifikasi] Component unmounting, stopping camera...');
-      // ✅ Stop semua video tracks
-      if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => {
-          console.log('[Verifikasi] Stopping track:', track.label);
-          track.stop();
-        });
-        videoRef.current.srcObject = null;
-      }
-      // ✅ Reset scanning state
-      setScanning(false);
+      stopCameraStream();
     };
-  }, []);
+  }, [stopCameraStream]);
 
   // ✅ Handle visibility change (user switch tab/app)
   useEffect(() => {
@@ -115,10 +119,7 @@ export default function Verifikasi() {
       if (document.hidden) {
         console.log('[Verifikasi] Page hidden, stopping camera');
         setScanning(false);
-        if (videoRef.current?.srcObject) {
-          videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-          videoRef.current.srcObject = null;
-        }
+        stopCameraStream();
       } else {
         console.log('[Verifikasi] Page visible again, resuming camera if was scanning');
         if (scanResult && laporanDetail) {
@@ -133,7 +134,7 @@ export default function Verifikasi() {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [scannerReady, useManualInput, scanResult, laporanDetail]);
+  }, [scannerReady, useManualInput, scanResult, laporanDetail, stopCameraStream]);
 
   // ✅ Function untuk beep sound dengan beberapa varian
   const playBeepSound = (type = 'success') => {
@@ -188,6 +189,19 @@ export default function Verifikasi() {
   // ✅ Video ref untuk camera
   const videoRef = useRef(null);
 
+  // Start camera automatically when entering verification page.
+  useEffect(() => {
+    if (scannerReady && !useManualInput && !scanResult) {
+      setScanning(true);
+      return;
+    }
+
+    if (useManualInput || scanResult) {
+      setScanning(false);
+      stopCameraStream();
+    }
+  }, [scannerReady, useManualInput, scanResult, stopCameraStream]);
+
   // ✅ Load Scanner Component dengan QR-Scanner (lebih stabil)
   useEffect(() => {
     const loadScanner = async () => {
@@ -215,10 +229,6 @@ export default function Verifikasi() {
         if (videoDevices.length > 0) {
           const backCamera = videoDevices.find(d => d.label.toLowerCase().includes('back'));
           setDeviceId(backCamera?.deviceId || videoDevices[0].deviceId);
-
-          if (scannerReady && !useManualInput) {
-            setScanning(true);
-          }
         }
       } catch (err) {
         console.error('[Verifikasi] Error getting devices:', err);
@@ -234,7 +244,12 @@ export default function Verifikasi() {
 
   // ✅ Start camera stream ketika scanning dimulai
   useEffect(() => {
-    if (!scanning || !scannerReady || !videoRef.current) return;
+    if (!scanning || !scannerReady || useManualInput || scanResult || !videoRef.current) {
+      stopCameraStream();
+      return;
+    }
+
+    let isActive = true;
 
     const startCamera = async () => {
       try {
@@ -242,15 +257,23 @@ export default function Verifikasi() {
 
         const constraints = {
           video: {
-            facingMode: "environment",
+            ...(deviceId ? { deviceId: { exact: deviceId } } : { facingMode: "environment" }),
             width: { ideal: 1280 },
             height: { ideal: 720 }
           },
           audio: false
         };
 
+        stopCameraStream();
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         const video = videoRef.current;
+
+        if (!isActive) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+
+        streamRef.current = stream;
 
         if (video) {
           video.srcObject = stream;
@@ -269,14 +292,10 @@ export default function Verifikasi() {
     startCamera();
 
     return () => {
-      // Stop camera when component unmounts or scanning stops
-      if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => {
-          track.stop();
-        });
-      }
+      isActive = false;
+      stopCameraStream();
     };
-  }, [scanning, scannerReady, deviceId]);
+  }, [scanning, scannerReady, deviceId, useManualInput, scanResult, stopCameraStream]);
 
   // ✅ Get available cameras
   useEffect(() => {
@@ -908,6 +927,7 @@ export default function Verifikasi() {
     setLaporanDetail(null);
     setBlockchainData(null);
     setQrDataParsed(null);
+    setUseManualInput(false);
     setScanning(true);
     setError(null);
     setExpandedInfo(false);
@@ -1037,18 +1057,18 @@ export default function Verifikasi() {
     }
   };
 
-  const containerClass = "w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-6";
+  const containerClass = "w-full px-3 sm:px-6 lg:px-8 xl:px-10 py-4 sm:py-6";
 
-  const innerContainerClass = "max-w-7xl mx-auto";
+  const innerContainerClass = "max-w-[1500px] mx-auto";
 
   return (
     <div className={containerClass}>
       <div className={innerContainerClass}>
         {/* Main Grid */}
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10 items-start">
           {/* Scanner Section */}
           <motion.div
-            className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 sm:p-8 border border-green-100 dark:border-gray-700"
+            className="lg:col-span-7 2xl:col-span-8 bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 sm:p-8 border border-green-100 dark:border-gray-700"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -1098,7 +1118,7 @@ export default function Verifikasi() {
               {!useManualInput && scannerReady && scanning && !scanResult ? (
                 <motion.div
                   key="scanner"
-                  className="relative rounded-2xl overflow-hidden border-4 border-green-500 shadow-2xl bg-gray-900 mb-6"
+                  className="relative mx-auto w-full lg:max-w-[420px] xl:max-w-[460px] rounded-2xl overflow-hidden border-4 border-green-500 shadow-2xl bg-gray-900 mb-6"
                   style={{ aspectRatio: '1/1' }}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -1118,7 +1138,7 @@ export default function Verifikasi() {
 
                   {/* Scanning Frame */}
                   <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                    <div className="absolute inset-8 border-2 border-green-400 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]"></div>
+                    <div className="absolute inset-8 border-2 border-green-400 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.4)] lg:hidden"></div>
                     <motion.div
                       className="absolute w-48 h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent rounded-full"
                       animate={{ y: [-60, 60] }}
@@ -1450,7 +1470,7 @@ export default function Verifikasi() {
           {/* Instructions (jika belum scan) */}
           {!laporanDetail && (
             <motion.div
-              className="lg:col-span-1 space-y-6"
+              className="lg:col-span-5 2xl:col-span-4 space-y-6"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}

@@ -31,11 +31,11 @@ export default function InformationPage() {
         >
           <div className="p-8 md:p-10 space-y-6 text-sm leading-7 text-gray-700 dark:text-gray-300">
             <p>
-              Kegiatan monitoring dilakukan pada tanggal <strong className="text-gray-900 dark:text-gray-100">19 Mei 2026</strong> pada titik geotagging <strong className="text-gray-900 dark:text-gray-100">(-6.11200000, 106.77800000)</strong> di area <strong className="text-gray-900 dark:text-gray-100">Pantai Kamal Muara, Jakarta Utara</strong>. Kawasan ini dikelola oleh Balai Konservasi Sumber Daya Alam (BKSDA) DKI Jakarta di bawah Kementerian Lingkungan Hidup dan Kehutanan.
+              Kegiatan monitoring dilakukan secara berkala pada lokasi implementasi yang tercatat dalam sistem, dengan titik geotagging yang berbeda sesuai area pengamatan masing-masing. Pendekatan ini dirancang agar metode pengamatan dapat diterapkan lintas wilayah dan lintas jenis program konservasi.
             </p>
 
             <p>
-              Dalam pelaksanaan monitoring, digunakan metode kuantitatif lapangan dengan pendekatan observasi langsung. Alat yang digunakan pada pengamatan bibit mangrove yang telah ditanam antara lain:
+              Dalam pelaksanaan monitoring, digunakan metode kuantitatif lapangan dengan pendekatan observasi langsung. Peralatan berikut digunakan untuk mendukung proses pengukuran, dokumentasi, dan pencatatan data secara konsisten:
             </p>
 
             <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
@@ -60,7 +60,7 @@ export default function InformationPage() {
                     <FiMapPin size={18} />
                     <h3 className="font-bold">Lokasi Pengamatan</h3>
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Pantai Kamal Muara, Jakarta Utara</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Menyesuaikan lokasi kegiatan yang dipilih pada setiap pelaporan monitoring.</p>
                 </div>
 
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5">
@@ -68,7 +68,7 @@ export default function InformationPage() {
                     <FiClock size={18} />
                     <h3 className="font-bold">Tanggal Monitoring</h3>
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">19 Mei 2026</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Menyesuaikan jadwal monitoring aktual pada masing-masing kegiatan.</p>
                 </div>
 
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5">
@@ -76,7 +76,7 @@ export default function InformationPage() {
                     <FiBarChart2 size={18} />
                     <h3 className="font-bold">Jumlah Data</h3>
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Total data monitoring tersedia: <strong>6</strong> data pengamatan</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Jumlah data pengamatan bersifat dinamis dan mengikuti data monitoring yang tersedia di sistem.</p>
                 </div>
               </div>
             </div>
