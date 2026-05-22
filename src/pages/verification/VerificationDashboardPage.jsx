@@ -21,6 +21,7 @@ export default function VerifikasiDashboardPage() {
     deviceId,
     devices,
     laporanDetail,
+    showDetailModal,
     loadingLaporan,
     scannerReady,
     useManualInput,
@@ -29,6 +30,7 @@ export default function VerifikasiDashboardPage() {
   const {
     setDeviceId,
     setLaporanDetail,
+    setShowDetailModal,
     resetScan,
     handleFileUpload,
   } = actions;
@@ -74,8 +76,11 @@ export default function VerifikasiDashboardPage() {
 
       {/* Laporan Detail Modal */}
       <LaporanDetailModal
-        isOpen={!!laporanDetail}
-        onClose={() => setLaporanDetail(null)}
+        isOpen={showDetailModal}
+        onClose={() => {
+          setShowDetailModal(false);
+          setLaporanDetail(null);
+        }}
         laporanDetail={laporanDetail}
         loadingLaporan={loadingLaporan}
         blockchainData={state.blockchainData}

@@ -26,6 +26,7 @@ export const useVerification = () => {
   const [useManualInput, setUseManualInput] = useState(false);
   const [manualQRCode, setManualQRCode] = useState("");
   const [laporanDetail, setLaporanDetail] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [loadingLaporan, setLoadingLaporan] = useState(false);
   const [blockchainReady, setBlockchainReady] = useState(false);
   const [blockchainError, setBlockchainError] = useState(null);
@@ -299,6 +300,7 @@ export const useVerification = () => {
 
           if (laporan) {
             setLaporanDetail(laporan);
+            setShowDetailModal(true);
             toast.success("🔗 Data berhasil diambil dari Polygon Blockchain!");
             setLoadingLaporan(false);
             return;
@@ -329,6 +331,7 @@ export const useVerification = () => {
           }
 
           setLaporanDetail(laporan);
+          setShowDetailModal(true);
           toast.success("📊 Detail laporan berhasil dimuat dari server!");
           setLoadingLaporan(false);
           return;
@@ -359,6 +362,7 @@ export const useVerification = () => {
             }
 
             setLaporanDetail(laporan);
+            setShowDetailModal(true);
             toast.success("📊 Detail laporan berhasil dimuat!");
             setLoadingLaporan(false);
             return;
@@ -378,6 +382,7 @@ export const useVerification = () => {
         }
 
         setLaporanDetail(laporan);
+        setShowDetailModal(true);
         toast.info("💡 Menampilkan data dari QR Code", { autoClose: 2000 });
         setLoadingLaporan(false);
         return;
@@ -387,6 +392,7 @@ export const useVerification = () => {
       if (mockLaporan) {
         laporan = mockLaporan;
         setLaporanDetail(laporan);
+        setShowDetailModal(true);
         toast.info("💡 Menampilkan data demo", { autoClose: 2000 });
         setLoadingLaporan(false);
         return;
@@ -525,6 +531,7 @@ export const useVerification = () => {
           if (parsed.data && Object.keys(parsed.data).length > 0) {
             setParsedData(parsed.data);
             setLaporanDetail(parsed.data);
+            setShowDetailModal(true);
             toast.info("📊 Showing data from QR code", { autoClose: 2000 });
           } else {
             const minimalData = {
@@ -536,6 +543,7 @@ export const useVerification = () => {
             };
             setParsedData(minimalData);
             setLaporanDetail(minimalData);
+            setShowDetailModal(true);
           }
 
           if (parsed.verification?.docHash && blockchainContext?.isReady) {
@@ -564,6 +572,7 @@ export const useVerification = () => {
           setBlockchainData(bcData);
           setParsedData(bcData);
           setLaporanDetail(bcData);
+          setShowDetailModal(true);
           setQrDataParsed(parsed);
 
           toast.info("📊 Blockchain data from QR code", { autoClose: 2000 });
@@ -592,6 +601,7 @@ export const useVerification = () => {
 
           setParsedData(parsed);
           setLaporanDetail(parsed);
+          setShowDetailModal(true);
 
           if (parsed.id) {
             await fetchLaporanDetail(parsed.id);
@@ -636,8 +646,21 @@ export const useVerification = () => {
               blockchain_tx_hash: txHash,
             });
 
-            toast.success('✅ QR terdeteksi, mengarahkan ke akses monitoring...');
-            window.location.href = trimmedData;
+            setLaporanDetail({
+              id: perencanaanId,
+              type: 'MONITORING_ACCESS_URL',
+              monitoringAccessUrl: trimmedData,
+              blockchain_doc_hash: docHash,
+              blockchain_tx_hash: txHash,
+              source: 'MONITORING_ACCESS_URL',
+            });
+            setShowDetailModal(true);
+
+            toast.success('✅ QR terdeteksi, menampilkan detail di modal...');
+
+            if (perencanaanId) {
+              await fetchLaporanDetail(perencanaanId);
+            }
             return;
           }
         } catch (urlErr) {
@@ -683,6 +706,7 @@ export const useVerification = () => {
                 source: 'BLOCKCHAIN_DIRECT'
               };
               setLaporanDetail(laporanFromBlockchain);
+              setShowDetailModal(true);
               setBlockchainData(bcData);
               toast.success("🔗 Data loaded from blockchain!");
               return;
@@ -700,6 +724,7 @@ export const useVerification = () => {
       setParsedData({ raw: trimmedData, type: 'TEXT' });
       setScanning(false);
       setError(null);
+      setShowDetailModal(true);
 
     } catch (err) {
       toast.error('❌ Error processing QR data: ' + err.message);
@@ -712,6 +737,7 @@ export const useVerification = () => {
     setLaporanDetail(null);
     setBlockchainData(null);
     setQrDataParsed(null);
+    setShowDetailModal(false);
     setScanning(true);
     setError(null);
     setManualQRCode("");
@@ -829,6 +855,7 @@ export const useVerification = () => {
       useManualInput,
       manualQRCode,
       laporanDetail,
+      showDetailModal,
       loadingLaporan,
       blockchainReady,
       blockchainError,
@@ -841,6 +868,7 @@ export const useVerification = () => {
       setUseManualInput,
       setManualQRCode,
       setLaporanDetail,
+      setShowDetailModal,
       resetScan,
       copyToClipboard,
       handleManualQRSubmit,
