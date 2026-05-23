@@ -73,10 +73,10 @@ class SecurityGuard {
       );
     }
     
-    // Validate RPC URL
-    if (!config.rpcUrl || !this.isValidRpcUrl(config.rpcUrl)) {
+    // Validate RPC URL (Optional in v2 if using BC_CCS)
+    if (config.rpcUrl && config.rpcUrl.trim() !== '' && !this.isValidRpcUrl(config.rpcUrl)) {
       throw new Error(
-        `Invalid RPC URL: ${config.rpcUrl}\n` +
+        `Invalid RPC URL format: "${config.rpcUrl}"\n` +
         'RPC URL must be a valid HTTP/HTTPS endpoint'
       );
     }

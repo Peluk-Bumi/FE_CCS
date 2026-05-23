@@ -57,8 +57,8 @@ export const navigationConfig = {
   landingNavItems: [
     { label: "Beranda",    path: "/",       iconName: "FiHome"        },
     { label: "Tentang",    path: "/about",  iconName: "FiInfo"        },
-    { label: "FAQ",        path: "/faqs",   iconName: "FiHelpCircle"  },
     { label: "Verifikasi", path: "/verifikasi", iconName: "FiCheckCircle" },
+    { label: "FAQ",        path: "/faqs",   iconName: "FiHelpCircle"  },
   ],
 
   // ── Mobile bottom tabs (< md) — quick access + Menu opens full sheet ───────
@@ -72,8 +72,8 @@ export const navigationConfig = {
 
   adminMobileTabs: [
     { id: "home",     label: "Dashboard",    path: "/admin/dashboard",   iconName: "FiHome"      },
-    { id: "pengguna", label: "Pengguna",     path: "/admin/users",       iconName: "FiUsers"     },
-    { id: "monitoring", label: "Monitoring", path: "/admin/monitoring",  iconName: "FiActivity"  },
+    { id: "perencanaan", label: "Perencanaan", path: "/admin/perencanaan",  iconName: "FiClipboard"   },
+    { id: "implementasi", label: "Implementasi", path: "/admin/implementasi", iconName: "FiCheckCircle" },
     { id: "menu",     label: "Menu",         action: "menu",             iconName: "FiMenu"      },
   ],
 
