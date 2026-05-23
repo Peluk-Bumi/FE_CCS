@@ -16,6 +16,7 @@ import ImplementasiForm from "@/features/implementation/components/ImplementasiF
 import MonitoringForm from "@/features/monitoring/components/MonitoringForm";
 import EvaluasiPage from "@/pages/evaluation/EvaluationPage";
 import EvaluationInformationPage from "@/pages/evaluation/information/InformationPage";
+import EvaluationParameterPage from "@/pages/evaluation/parameter/ParameterPage";
 import PlanningListPage from "@/pages/planning/PlanningListPage";
 
 // User pages
@@ -41,7 +42,8 @@ import Register from "@/pages/auth/RegisterPage";
 import Settings from "@/pages/settings/Settings";
 
 // Demo - moved to /docs/examples/ for documentation purposes
-import { ButtonTypesDemo, DashboardCardDemo } from '@/features/demo';
+import { ButtonTypesDemo, DashboardCardDemo, InputDemo } from '@/features/demo';
+import DemoBadges from "@/pages/demo/DemoBadges";
 
 // Protected Route
 import ProtectedRoute from "./ProtectedRoute";
@@ -86,6 +88,7 @@ export default function AppRoutes() {
         <Route path="monitoring"   element={<MonitoringForm />} />
         <Route path="evaluasi"     element={<EvaluasiPage />} />
         <Route path="evaluasi/information" element={<EvaluationInformationPage />} />
+        <Route path="evaluasi/parameter" element={<EvaluationParameterPage />} />
         {/* laporan = PDF reports page; log-history = blockchain tx log */}
         {/* <Route path="laporan"      element={<LaporanPage />} /> */}
         <Route path="log-history"  element={<LaporanPage />} />
@@ -110,6 +113,7 @@ export default function AppRoutes() {
         <Route path="monitoring"   element={<MonitoringForm />} />
         <Route path="evaluasi"     element={<EvaluasiPage />} />
         <Route path="evaluasi/information" element={<EvaluationInformationPage />} />
+        <Route path="evaluasi/parameter" element={<EvaluationParameterPage />} />
         {/* laporan = PDF reports; log-history = blockchain tx log */}
         {/* <Route path="laporan"      element={<LaporanPage />} /> */}
         <Route path="log-history"  element={<LaporanPage />} />
@@ -125,6 +129,8 @@ export default function AppRoutes() {
       {/* Demo routes disabled - demo files moved to /docs/examples/ */}
       <Route path="/demo/buttons" element={<ButtonTypesDemo />} />
       <Route path="/demo/cards"   element={<DashboardCardDemo />} />
+      <Route path="/demo/inputs"  element={<InputDemo />} />
+      <Route path="/demo/badges"  element={<DemoBadges />} />
       <Route path="/demo/*" element={<Navigate to=".." replace />} />
     </Routes>
   );
