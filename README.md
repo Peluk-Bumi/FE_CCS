@@ -1,10 +1,25 @@
 # FE_CCS — Frontend Peluk Bumi CCS
 
-Aplikasi web **Peluk Bumi Environmental Monitoring System (EMS)**: dashboard konservasi (perencanaan, implementasi, monitoring, evaluasi), pelaporan PDF/QR, integrasi blockchain, dan **verifikasi publik** tanpa login.
+Aplikasi web **Peluk Bumi Environmental Monitoring System (EMS)**: dashboard konservasi dinamis, analisis intelijen (ESG & Tren), pelaporan PDF/QR, integrasi blockchain activity, dan **verifikasi publik** tanpa login.
 
-- **Stack:** React 19, Vite 5, Tailwind CSS, Ethers.js  
-- **Versi:** 1.5.0 (`package.json`)
+- **Stack:** React 19, Vite 5, Tailwind CSS, Chart.js, Ethers.js
+- **Versi:** 1.6.0 (Intelligence & Dynamic Rounds Update)
 - **Mobile UI:** v1.5.0 dengan MobileHeader, BottomTabBar, responsive design
+
+## Fitur Utama V2
+
+### 🧠 Intelligence Dashboard
+- **Survival Rate Trend**: Visualisasi tren kelangsungan hidup bibit antar ronde.
+- **ESG Score Analytics**: Perhitungan skor Environmental, Social, dan Governance secara real-time.
+- **Anomaly Detection**: Peringatan dini jika terdeteksi data yang tidak wajar di lapangan.
+
+### 🔄 Dynamic Monitoring
+- Mendukung konfigurasi `durasi_proyek` dan `monitoring_interval` yang fleksibel.
+- Form monitoring yang otomatis menyesuaikan ronde berdasarkan jadwal proyek.
+
+### 🔗 Blockchain Activity Monitoring
+- Status sinkronisasi blockchain per aktivitas (Perencanaan, Implementasi, Monitoring).
+- Deep link ke Blockchain Explorer untuk audit trail publik.
 
 ## Quick start
 
