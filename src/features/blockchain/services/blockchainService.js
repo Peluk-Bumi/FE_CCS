@@ -187,13 +187,13 @@ class BlockchainService {
       let tx;
       const typeUpper = documentType.toUpperCase();
       
-      if (typeUpper === 'PLANNING' && typeof this.contract.recordPlanning === 'function') {
+      if ((typeUpper === 'PLANNING' || typeUpper === 'PERENCANAAN') && typeof this.contract.recordPlanning === 'function') {
         tx = await this.contract.recordPlanning(docHash, metadataPayload);
-      } else if (typeUpper === 'IMPLEMENTATION' && typeof this.contract.recordImplementation === 'function') {
+      } else if ((typeUpper === 'IMPLEMENTATION' || typeUpper === 'IMPLEMENTASI') && typeof this.contract.recordImplementation === 'function') {
         tx = await this.contract.recordImplementation(docHash, metadataPayload);
       } else if (typeUpper === 'MONITORING' && typeof this.contract.recordMonitoring === 'function') {
         tx = await this.contract.recordMonitoring(docHash, metadataPayload);
-      } else if (typeUpper === 'VERIFICATION' && typeof this.contract.recordVerification === 'function') {
+      } else if ((typeUpper === 'VERIFICATION' || typeUpper === 'VERIFIKASI') && typeof this.contract.recordVerification === 'function') {
         tx = await this.contract.recordVerification(docHash, metadataPayload);
       } else {
         tx = await this.contract.storeDocument(documentType, docHash, metadataPayload);
