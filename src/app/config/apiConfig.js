@@ -1,6 +1,6 @@
 const API_TARGETS = {
-  local: "http://127.0.0.1:8000/api",
-  production: "https://apibeccs.nexcube-digital.com/api",
+  local: import.meta.env.VITE_API_URL_LOCAL || "http://127.0.0.1:8000/api",
+  production: import.meta.env.VITE_API_URL_PRODUCTION || "https://apibeems.pelukbumi.id/api",
 };
 
 const normalizeApiUrl = (value) => {
