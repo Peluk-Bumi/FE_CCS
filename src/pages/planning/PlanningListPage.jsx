@@ -112,7 +112,7 @@ export default function PlanningListPage() {
           <Input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Cari perusahaan, PIC, lokasi, atau status..."
+            placeholder="Cari lembaga, PIC, lokasi, bibit, atau status..."
             className="pl-10"
           />
         </div>

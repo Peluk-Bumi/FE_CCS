@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import { FiFeather, FiZap, FiShield } from "react-icons/fi";
 import { useAuth } from "@/app/context/AuthContext";
+import { Input } from "@/shared/components/ui/input";
+import { cn } from "@/shared/utils/utils";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -214,17 +216,12 @@ export default function Register() {
               <label className="block text-sm font-medium text-primary-dark mb-1">
                 Nama Lengkap
               </label>
-              <motion.input
+              <Input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 required
                 placeholder="Masukkan nama lengkap"
-                className="block w-full px-4 py-2 border border-primary-light rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none bg-white/90"
-                whileFocus={{ 
-                  borderColor: "#10B981",
-                  boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.2)"
-                }}
               />
             </motion.div>
 
@@ -237,17 +234,12 @@ export default function Register() {
               <label className="block text-sm font-medium text-primary-dark mb-1">
                 Email
               </label>
-              <motion.input
+              <Input
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 required
                 placeholder="Masukkan email Anda"
-                className="block w-full px-4 py-2 border border-primary-light rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none bg-white/90"
-                whileFocus={{ 
-                  borderColor: "#10B981",
-                  boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.2)"
-                }}
               />
             </motion.div>
 
@@ -261,17 +253,13 @@ export default function Register() {
                 Password
               </label>
               <div className="relative">
-                <motion.input
+                <Input
                   type={showPassword ? "text" : "password"}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required
                   placeholder="Masukkan password"
-                  className="block w-full px-4 py-2 border border-primary-light rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none pr-10 bg-white/90"
-                  whileFocus={{ 
-                    borderColor: "#10B981",
-                    boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.2)"
-                  }}
+                  className="pr-10"
                 />
                 <motion.button
                   type="button"
@@ -299,7 +287,7 @@ export default function Register() {
                 Konfirmasi Password
               </label>
               <div className="relative">
-                <motion.input
+                <Input
                   type={showConfirm ? "text" : "password"}
                   value={form.confirmPassword}
                   onChange={(e) =>
@@ -307,11 +295,7 @@ export default function Register() {
                   }
                   required
                   placeholder="Ulangi password"
-                  className="block w-full px-4 py-2 border border-primary-light rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none pr-10 bg-white/90"
-                  whileFocus={{ 
-                    borderColor: "#10B981",
-                    boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.2)"
-                  }}
+                  className="pr-10"
                 />
                 <motion.button
                   type="button"

@@ -357,7 +357,7 @@ export default function Dashboard() {
   // Enhanced stat cards with real API data
   const statCards = [
     {
-      title: "Kolaborator Terdaftar",
+      title: "Lembaga Terdaftar",
       value: stats.total_users || 0,
       icon: <FiUser className="w-5 h-5" />,
       trend: stats.user_growth || "+0%",
@@ -623,7 +623,7 @@ export default function Dashboard() {
                       });
                     };
 
-                    // Prioritize activity name over company name
+                    // Prioritize activity name over lembaga name
                     const activityName = activity.nama_kegiatan || activity.name || activity.jenis_kegiatan || activity.type || 'Aktivitas Sistem';
                     const activityTitle = activity.nama_perusahaan || activity.description || activityName;
 

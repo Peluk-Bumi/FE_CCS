@@ -7,6 +7,8 @@ import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import { FiAlertTriangle, FiLock, FiZap, FiFeather } from "react-icons/fi";
 import PageTitle from "@/shared/components/common/PageTitle";
 import api from "@/shared/services/api";
+import { Input } from "@/shared/components/ui/input";
+import { cn } from "@/shared/utils/utils";
 
 export default function Login() {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
@@ -388,7 +390,7 @@ export default function Login() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Alamat Email
                 </label>
-                <motion.input
+                <Input
                   type="email"
                   value={credentials.email}
                   onChange={(e) =>
@@ -396,11 +398,6 @@ export default function Login() {
                   }
                   required
                   placeholder="email@example.com"
-                  className="block w-full px-4 py-2.5 text-sm md:text-base border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all bg-white dark:bg-gray-700 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-                  whileFocus={{ 
-                    borderColor: "#10B981",
-                    boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.2)"
-                  }}
                 />
               </motion.div>
 
@@ -415,7 +412,7 @@ export default function Login() {
                   Password
                 </label>
                 <div className="relative">
-                  <motion.input
+                  <Input
                     type={showPassword ? "text" : "password"}
                     value={credentials.password}
                     onChange={(e) =>
@@ -426,11 +423,7 @@ export default function Login() {
                     }
                     required
                     placeholder="••••••••"
-                    className="block w-full px-4 py-2.5 text-sm md:text-base border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none pr-12 transition-all bg-white dark:bg-gray-700 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-                    whileFocus={{ 
-                      borderColor: "#10B981",
-                      boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.2)"
-                    }}
+                    className="pr-12"
                   />
                   <motion.button
                     type="button"

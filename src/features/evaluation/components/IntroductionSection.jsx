@@ -23,7 +23,7 @@ export default function IntroductionSection({ report }) {
         {/* Project Context - Always Visible */}
         <div className="bg-white dark:bg-gray-800 p-4 rounded border border-gray-200 dark:border-gray-700">
           <p className="text-sm leading-7 text-gray-700 dark:text-gray-300">
-            <strong className="text-gray-900 dark:text-gray-100">{report.namaPerusahaan}</strong> mempunyai CSR Program
+            <strong className="text-gray-900 dark:text-gray-100">{report.namaPerusahaan || report.nama_perusahaan}</strong> mempunyai CSR Program
             dan berkontribusi terhadap upaya restorasi coastal ecosystem terutama di Area Teluk Jakarta melalui kegiatan
             <strong className="text-gray-900 dark:text-gray-100"> {report.jenisKegiatan}</strong>. Pada tanggal{" "}
             <strong className="text-gray-900 dark:text-gray-100">{report.tanggalPelaksanaan}</strong> telah dilakukan

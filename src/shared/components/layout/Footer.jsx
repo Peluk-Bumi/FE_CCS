@@ -19,13 +19,13 @@ export default function Footer() {
     <footer className={`py-12 px-4 sm:px-6 ${
       isDark ? 'bg-gray-900' : 'bg-gray-100'
     }`}>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className={`w-full rounded-3xl border border-white/15 dark:border-primary/10 bg-white/10 dark:bg-green-950/25 backdrop-blur-xl shadow-[0_24px_60px_-32px_rgba(81,118,64,0.45)] p-6 lg:p-8 overflow-hidden`}
+          className={`w-full rounded-3xl border border-white/15 dark:border-primary/10 bg-white/10 dark:bg-green-950/25 backdrop-blur-xl shadow-[0_24px_60px_-32px_rgba(81,118,64,0.45)] p-6 lg:px-12 overflow-hidden`}
         >
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-6 mb-6">
             {/* Brand Section */}

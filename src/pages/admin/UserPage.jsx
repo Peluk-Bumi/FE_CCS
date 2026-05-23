@@ -9,6 +9,15 @@ import {
   FiFilter, FiDownload, FiRefreshCw
 } from "react-icons/fi";
 import PageTitle from "@/shared/components/common/PageTitle";
+import { Input } from "@/shared/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/shared/components/ui/select";
+import { cn } from "@/shared/utils/utils";
 export default function UserPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -256,11 +265,11 @@ export default function UserPage() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
           {/* Search */}
           <div className="md:col-span-5 relative">
-            <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
+            <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
+            <Input
               type="text"
               placeholder="Cari nama atau email..."
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="pl-12"
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -270,19 +279,23 @@ export default function UserPage() {
           </div>
           {/* Filter */}
           <div className="md:col-span-3 relative">
-            <FiFilter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <select
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none transition-all"
+            <FiFilter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
+            <Select
               value={filterRole}
-              onChange={(e) => {
-                setFilterRole(e.target.value);
+              onValueChange={(val) => {
+                setFilterRole(val);
                 setCurrentPage(1);
               }}
             >
-              <option value="all">Semua Role</option>
-              <option value="admin">Admin</option>
-              <option value="user">User</option>
-            </select>
+              <SelectTrigger className="pl-12">
+                <SelectValue placeholder="Semua Role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Role</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="user">User</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           {/* Actions */}
           <div className="md:col-span-4 flex gap-4">
@@ -496,10 +509,9 @@ export default function UserPage() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Nama Lengkap
                   </label>
-                  <input
+                  <Input
                     type="text"
                     placeholder="John Doe"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     required
@@ -509,10 +521,9 @@ export default function UserPage() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Email
                   </label>
-                  <input
+                  <Input
                     type="email"
                     placeholder="john@example.com"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                     required
@@ -522,24 +533,27 @@ export default function UserPage() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Role
                   </label>
-                  <select
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                  <Select
                     value={form.role}
-                    onChange={(e) => setForm({ ...form, role: e.target.value })}
+                    onValueChange={(val) => setForm({ ...form, role: val })}
                   >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                  </select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih Role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 {!editUser && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Password <span className="text-red-500">*</span>
                     </label>
-                    <input
+                    <Input
                       type="password"
                       placeholder="••••••••"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
                       value={form.password}
                       onChange={(e) => setForm({ ...form, password: e.target.value })}
                       required
@@ -551,10 +565,9 @@ export default function UserPage() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Password <span className="text-xs text-gray-500">(Kosongkan jika tidak ingin mengubah)</span>
                     </label>
-                    <input
+                    <Input
                       type="password"
                       placeholder="••••••••"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
                       value={form.password}
                       onChange={(e) => setForm({ ...form, password: e.target.value })}
                     />

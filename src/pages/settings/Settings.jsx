@@ -5,6 +5,8 @@ import { FiUser, FiMail, FiLock, FiSave, FiShield, FiCamera, FiSettings } from "
 import api from "@/shared/services/api";
 import { useAuth } from "@/app/context/AuthContext";
 import PageTitle from "@/shared/components/common/PageTitle";
+import { Input } from "@/shared/components/ui/input";
+import { cn } from "@/shared/utils/utils";
 
 export default function Settings() {
   const { user, refreshUserProfile } = useAuth();
@@ -197,11 +199,10 @@ export default function Settings() {
                 <FiUser className="w-4 h-4 text-primary" />
                 Nama
               </label>
-              <input
+              <Input
                 type="text"
                 value={form.name}
                 onChange={(e) => onChange("name", e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/20 dark:focus:ring-primary/50 transition-all"
                 placeholder="Nama lengkap"
               />
             </div>
@@ -211,11 +212,10 @@ export default function Settings() {
                 <FiMail className="w-4 h-4 text-primary" />
                 Email
               </label>
-              <input
+              <Input
                 type="email"
                 value={form.email}
                 onChange={(e) => onChange("email", e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/20 dark:focus:ring-primary/50 transition-all"
                 placeholder="nama@email.com"
               />
             </div>
@@ -226,11 +226,10 @@ export default function Settings() {
               <FiShield className="w-4 h-4 text-primary" />
               Role
             </label>
-            <input
+            <Input
               type="text"
               value={form.role || "user"}
               disabled
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700/70 dark:text-gray-200 cursor-not-allowed"
             />
           </div>
 
@@ -244,11 +243,10 @@ export default function Settings() {
                   <FiLock className="w-4 h-4 text-primary" />
                   Password Baru
                 </label>
-                <input
+                <Input
                   type="password"
                   value={form.password}
                   onChange={(e) => onChange("password", e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/20 dark:focus:ring-primary/50 transition-all"
                   placeholder="Minimal 6 karakter"
                 />
               </div>
@@ -258,11 +256,10 @@ export default function Settings() {
                   <FiLock className="w-4 h-4 text-primary" />
                   Konfirmasi Password
                 </label>
-                <input
+                <Input
                   type="password"
                   value={form.password_confirmation}
                   onChange={(e) => onChange("password_confirmation", e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/20 dark:focus:ring-primary/50 transition-all"
                   placeholder="Ulangi password baru"
                 />
               </div>

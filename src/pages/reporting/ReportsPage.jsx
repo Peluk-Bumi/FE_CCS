@@ -478,7 +478,7 @@ export default function LaporanPage() {
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Cari perusahaan, hash, wallet, atau ID..."
+              placeholder="Cari lembaga, hash, wallet, atau ID..."
               className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary transition-all"
             />
           </div>
@@ -569,7 +569,7 @@ export default function LaporanPage() {
                         Aktivitas
                       </th>
                       <th className="px-3 md:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300 text-xs md:text-sm">
-                        Perusahaan
+                        Lembaga / Dokumen
                       </th>
                       <th className="px-3 md:px-4 py-3 font-semibold text-gray-700 dark:text-gray-300 text-xs md:text-sm">
                         Tx Hash
@@ -732,7 +732,7 @@ export default function LaporanPage() {
                     <div className="p-3 space-y-3">
                       {/* Company Info */}
                       <div className="space-y-1">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Perusahaan</p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Lembaga</p>
                         <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 line-clamp-2">
                           {item.nama_perusahaan || "Tidak tercatat"}
                         </p>

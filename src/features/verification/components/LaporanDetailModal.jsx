@@ -97,7 +97,7 @@ const getStageState = (report) => {
 };
 
 const getPublicFields = (report) => [
-  { label: "Nama Perusahaan", value: pickValue(report?.nama_perusahaan, report?.perencanaan?.nama_perusahaan) },
+  { label: "Nama Lembaga", value: pickValue(report?.nama_perusahaan, report?.perusahaan, report?.perencanaan?.nama_perusahaan) },
   { label: "Jenis Kegiatan", value: pickValue(report?.jenis_kegiatan, report?.perencanaan?.jenis_kegiatan) },
   { label: "Lokasi", value: pickValue(report?.lokasi, report?.perencanaan?.lokasi) },
   { label: "Tanggal Pelaksanaan", value: formatDateId(pickValue(report?.tanggal_pelaksanaan, report?.perencanaan?.tanggal_pelaksanaan)) },
@@ -280,7 +280,7 @@ export default function LaporanDetailModal({
                           <h4 className="font-bold text-gray-900 dark:text-gray-100">Data Perencanaan</h4>
                         </div>
                         <div className="grid gap-4 sm:grid-cols-2">
-                          <InfoCard label="Nama Perusahaan" value={pickValue(report?.nama_perusahaan, report?.perencanaan?.nama_perusahaan)} />
+                          <InfoCard label="Nama Lembaga" value={pickValue(report?.nama_perusahaan, report?.perencanaan?.nama_perusahaan)} />
                           <InfoCard label="Tanggal Pelaksanaan" value={formatDateId(pickValue(report?.tanggal_pelaksanaan, report?.perencanaan?.tanggal_pelaksanaan))} />
                           <InfoCard label="Lokasi" value={pickValue(report?.lokasi, report?.perencanaan?.lokasi)} mono />
                           <InfoCard label="Jumlah Bibit" value={pickValue(report?.jumlah_bibit, report?.perencanaan?.jumlah_bibit)} />

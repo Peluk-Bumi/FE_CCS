@@ -9,13 +9,13 @@ const getHealthBadgeColor = (healthCondition) => {
   return "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300";
 };
 
-export default function CompanyList({ companyReports, onSelectCompany, loading, error }) {
+export default function LembagaList({ lembagaReports, onSelectLembaga, loading, error }) {
   if (loading) {
     return (
       <div className="py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Memuat daftar perusahaan...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Memuat daftar lembaga...</p>
         </div>
       </div>
     );
@@ -31,7 +31,7 @@ export default function CompanyList({ companyReports, onSelectCompany, loading, 
     );
   }
 
-  if (companyReports.length === 0) {
+  if (lembagaReports.length === 0) {
     return (
       <div className="rounded-2xl bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-700 p-8 text-center">
         <FiAlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
@@ -43,11 +43,11 @@ export default function CompanyList({ companyReports, onSelectCompany, loading, 
 
   return (
     <div className="space-y-3">
-      {companyReports.map((item) => (
+      {lembagaReports.map((item) => (
         <motion.button
           key={item.id}
           type="button"
-          onClick={() => onSelectCompany(item.id)}
+          onClick={() => onSelectLembaga(item.id)}
           className="w-full text-left rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-primary/10 dark:hover:bg-primary/20 px-6 py-5 transition-all duration-300 shadow-sm hover:shadow-md"
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
@@ -55,7 +55,7 @@ export default function CompanyList({ companyReports, onSelectCompany, loading, 
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <p className="font-bold text-gray-900 dark:text-gray-100 text-lg">{item.namaPerusahaan}</p>
+                <p className="font-bold text-gray-900 dark:text-gray-100 text-lg">{item.namaPerusahaan || item.namaLembaga || item.nama_perusahaan}</p>
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getHealthBadgeColor(item.healthCondition)}`}>
                   {item.healthCondition}
                 </span>

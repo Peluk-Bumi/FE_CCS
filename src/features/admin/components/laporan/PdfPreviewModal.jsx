@@ -68,7 +68,7 @@ export default function PdfPreviewModal({
   const previewRows = [
     ["ID", data.id],
     ["Tahap Saat Ini", progress?.currentStage],
-    ["Nama Perusahaan", data.nama_perusahaan],
+    ["Nama Lembaga", data.nama_perusahaan || "-"],
     ["Nama PIC", data.nama_pic || "-"],
     ["Narahubung", data.narahubung || "-"],
     ["Jenis Kegiatan", data.jenis_kegiatan || "-"],
@@ -172,7 +172,7 @@ export default function PdfPreviewModal({
             {previewRows.map(([label, value]) => (
               <div
                 key={label}
-                className={`p-3 rounded-lg bg-gray-50 dark:bg-gray-700/40 ${label === "Nama Perusahaan" || label === "Blockchain Doc Hash" || label === "Blockchain TX Hash" || label === "Status Verifikasi Blockchain" ? "md:col-span-2" : ""}`}
+                className={`p-3 rounded-lg bg-gray-50 dark:bg-gray-700/40 ${label === "Nama Lembaga" || label === "Blockchain Doc Hash" || label === "Blockchain TX Hash" || label === "Status Verifikasi Blockchain" ? "md:col-span-2" : ""}`}
               >
                 <span className="font-semibold">{label}:</span> {value}
               </div>
@@ -185,7 +185,7 @@ export default function PdfPreviewModal({
                 </div>
                 <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-700/40"><span className="font-semibold">PIC Koorlap:</span> {details?.implementasi?.pic_koorlap || "-"}</div>
                 <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-700/40"><span className="font-semibold">Geotagging:</span> {details?.implementasi?.geotagging || "-"}</div>
-                <ChecklistRow label="Nama Perusahaan" value={getKesesuaianValue("nama_perusahaan")} />
+                <ChecklistRow label="Nama Lembaga" value={getKesesuaianValue("nama_perusahaan")} />
                 <ChecklistRow label="Lokasi" value={getKesesuaianValue("lokasi")} />
                 <ChecklistRow label="Jenis Kegiatan" value={getKesesuaianValue("jenis_kegiatan")} />
                 <ChecklistRow label="Jumlah Bibit" value={getKesesuaianValue("jumlah_bibit")} />

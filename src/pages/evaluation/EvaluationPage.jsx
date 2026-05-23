@@ -7,13 +7,13 @@ import { useEvaluationData } from "@/features/evaluation/hooks/useEvaluationData
 import { buildAllCompanyReports } from "@/shared/utils/evaluationEngine";
 import { getApiOrigin } from "@/app/config/apiConfig";
 import EvaluationModal from "@/features/evaluation/components/EvaluationModal";
-import CompanyList from "@/features/evaluation/components/CompanyList";
+import LembagaList from "@/features/evaluation/components/LembagaList";
 import PageTitle from "@/shared/components/common/PageTitle";
 
 export default function EvaluasiPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [selectedCompanyId, setSelectedCompanyId] = useState(null);
+  const [selectedLembagaId, setSelectedLembagaId] = useState(null);
 
   const {
     loading,
@@ -29,24 +29,24 @@ export default function EvaluasiPage() {
     enablePolling: true,
   });
 
-  const companyReports = useMemo(() => {
+  const lembagaReports = useMemo(() => {
     return buildAllCompanyReports(perencanaanList, implementasiList, monitoringList);
   }, [perencanaanList, implementasiList, monitoringList]);
 
-  const selectedCompanyReport = useMemo(() => {
-    return companyReports.find((item) => String(item.id) === String(selectedCompanyId)) || null;
-  }, [companyReports, selectedCompanyId]);
+  const selectedLembagaReport = useMemo(() => {
+    return lembagaReports.find((item) => String(item.id) === String(selectedLembagaId)) || null;
+  }, [lembagaReports, selectedLembagaId]);
 
   const apiOrigin = getApiOrigin();
 
   // Pause polling when modal is open to save resources
-  const handleSelectCompany = (companyId) => {
-    setSelectedCompanyId(companyId);
+  const handleSelectLembaga = (lembagaId) => {
+    setSelectedLembagaId(lembagaId);
     pausePolling();
   };
 
   const handleCloseModal = () => {
-    setSelectedCompanyId(null);
+    setSelectedLembagaId(null);
     resumePolling();
   };
 
@@ -58,7 +58,7 @@ export default function EvaluasiPage() {
         badge="Evaluasi Hasil Laporan"
         badgeIcon={FiBarChart2}
         title="Evaluasi Hasil Laporan"
-        description="Pilih perusahaan untuk melihat template evaluasi otomatis berdasarkan data monitoring"
+        description="Pilih lembaga untuk melihat template evaluasi otomatis berdasarkan data monitoring"
       />
 
       <div className="max-w-5xl mx-auto">
@@ -72,13 +72,6 @@ export default function EvaluasiPage() {
             {/* Refresh Button */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mb-6">
               <button
-                onClick={() => navigate("information")}
-                type="button"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-sm"
-              >
-                Informasi Metode Pengamatan
-              </button>
-              <button
                 onClick={refetch}
                 type="button"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
@@ -87,10 +80,10 @@ export default function EvaluasiPage() {
               </button>
             </div>
 
-            {/* Company List */}
-            <CompanyList
-              companyReports={companyReports}
-              onSelectCompany={handleSelectCompany}
+            {/* Lembaga List */}
+            <LembagaList
+              lembagaReports={lembagaReports}
+              onSelectLembaga={handleSelectLembaga}
               loading={loading}
               error={error}
             />
@@ -99,9 +92,9 @@ export default function EvaluasiPage() {
       </div>
 
       <AnimatePresence>
-        {selectedCompanyReport && (
+        {selectedLembagaReport && (
           <EvaluationModal
-            report={selectedCompanyReport}
+            report={selectedLembagaReport}
             onClose={handleCloseModal}
             apiOrigin={apiOrigin}
           />

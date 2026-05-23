@@ -195,10 +195,10 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
           {/* Header */}
           <div className="mb-6">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Evaluasi Restorasi - {report.namaPerusahaan}
+              Laporan Evaluasi Restorasi - {report.namaPerusahaan || report.nama_perusahaan}
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Laporan evaluasi otomatis berdasarkan data monitoring.
+              Laporan evaluasi otomatis berdasarkan data monitoring terbaru.
             </p>
           </div>
 
@@ -214,7 +214,7 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
               />
             </div>
 
-            {/* Info Perusahaan */}
+            {/* Info Lembaga */}
             <div className="bg-gray-50 dark:bg-gray-900/40 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Informasi Proyek</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs">
