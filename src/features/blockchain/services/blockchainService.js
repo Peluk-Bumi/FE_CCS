@@ -10,6 +10,11 @@ const CONTRACT_ABI = [
   "function getDocumentCount() public view returns (uint256)",
   "function getDocument(uint256 _docId) public view returns (string memory docType, string memory docHash, string memory metadata, address uploader, uint256 timestamp)",
   "function storeDocument(string memory _docType, string memory _docHash, string memory _metadata) public returns (uint256)",
+  "function recordPlanning(string memory _docHash, string memory _metadata) public returns (uint256)",
+  "function recordImplementation(string memory _docHash, string memory _metadata) public returns (uint256)",
+  "function recordMonitoring(string memory _docHash, string memory _metadata) public returns (uint256)",
+  "function recordVerification(string memory _docHash, string memory _metadata) public returns (uint256)",
+  "event ActivityStored(uint256 indexed activityId, string activityType, string docHash, address indexed uploader, uint256 timestamp)",
   "event DocumentStored(uint256 indexed docId, string docType, string docHash, address indexed uploader, uint256 timestamp)"
 ];
 
@@ -178,7 +183,22 @@ class BlockchainService {
     try {
       const metadataPayload = typeof metadata === 'string' ? metadata : JSON.stringify(metadata);
       
-      const tx = await this.contract.storeDocument(documentType, docHash, metadataPayload);
+      // Select method based on documentType for better explorer visibility
+      let tx;
+      const typeUpper = documentType.toUpperCase();
+      
+      if (typeUpper === 'PLANNING' && typeof this.contract.recordPlanning === 'function') {
+        tx = await this.contract.recordPlanning(docHash, metadataPayload);
+      } else if (typeUpper === 'IMPLEMENTATION' && typeof this.contract.recordImplementation === 'function') {
+        tx = await this.contract.recordImplementation(docHash, metadataPayload);
+      } else if (typeUpper === 'MONITORING' && typeof this.contract.recordMonitoring === 'function') {
+        tx = await this.contract.recordMonitoring(docHash, metadataPayload);
+      } else if (typeUpper === 'VERIFICATION' && typeof this.contract.recordVerification === 'function') {
+        tx = await this.contract.recordVerification(docHash, metadataPayload);
+      } else {
+        tx = await this.contract.storeDocument(documentType, docHash, metadataPayload);
+      }
+
       const receipt = await tx.wait();
       
       return {
