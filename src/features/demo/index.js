@@ -4,6 +4,7 @@
 
 export { default as ButtonTypesDemo } from './ButtonTypesDemo';
 export { default as DashboardCardDemo } from './DashboardCardDemo';
+export { default as InputDemo } from './InputDemo';
 
 // Available demo components:
 // - ButtonTypesDemo: Comprehensive showcase of all button components
@@ -19,8 +20,13 @@ export { default as DashboardCardDemo } from './DashboardCardDemo';
 //   - ActivityStatusCard: Activity status cards
 //   - ProgressCard: Generic progress cards
 //
+// - InputDemo: Comprehensive showcase of all input components
+//   - Basic text and email inputs
+//   - Inputs with prefix
+//   - Inputs with suffix
+//
 // Usage:
-//   import { ButtonTypesDemo, DashboardCardDemo } from '@/features/demo';
+//   import { ButtonTypesDemo, DashboardCardDemo, InputDemo } from '@/features/demo';
 //
 // Purpose:
 //   - Development reference for component usage
