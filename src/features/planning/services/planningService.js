@@ -1,8 +1,8 @@
-import { api } from '@/shared/services/api';
+import api from '@/shared/services/api';
 
 // Base API endpoints
-const PLANNING_ENDPOINT = '/api/perencanaan';
-const USERS_ENDPOINT = '/api/users';
+const PLANNING_ENDPOINT = '/perencanaan';
+const USERS_ENDPOINT = '/users';
 
 // Fetch planning data
 export const fetchPlanningData = async (userRole = 'user', userId = null) => {
@@ -85,7 +85,7 @@ export const getPlanningById = async (id) => {
 // Get users for admin dropdown
 export const fetchUsersForDropdown = async () => {
   try {
-    const response = await api.get(`${USERS_ENDPOINT}?role=user&limit=100`);
+    const response = await api.get(`${USERS_ENDPOINT}/institution?limit=100`);
     const users = response.data.data || response.data;
     
     // Format for dropdown

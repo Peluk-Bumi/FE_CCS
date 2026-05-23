@@ -69,12 +69,12 @@ const PlanningTable = ({
                 <tr className="border-b border-gray-200 dark:border-gray-700">
                   <th className="text-left p-3 font-medium">Status</th>
                   <th 
-                    className="text-left p-3 font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                    className="group px-4 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     onClick={() => handleSort('nama_perusahaan')}
                   >
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center space-x-1">
                       <Building className="h-4 w-4" />
-                      Nama Perusahaan
+                      <span>Nama Lembaga</span>
                       {sortField === 'nama_perusahaan' && (
                         <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                       )}

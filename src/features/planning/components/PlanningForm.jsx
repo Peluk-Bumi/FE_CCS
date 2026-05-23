@@ -13,6 +13,16 @@ import PageTitle from "@/shared/components/common/PageTitle";
 import api from "@/shared/services/api";
 import { useAuth } from "@/app/context/AuthContext";
 import { FormButton } from "@/shared/components/ui/button/FormButton";
+import { Input } from "@/shared/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/shared/components/ui/select";
+import RadioCard from "@/shared/components/ui/radio-card";
+import { cn } from "@/shared/utils/utils";
 import QrCodeModal from "@/features/admin/components/laporan/QrCodeModal";
 import { downloadQrDataUrl, generatePlanningQrDataUrl } from "../utils/planningQr";
 
@@ -24,15 +34,31 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
 
-// ✅ Custom green marker for new locations
-const newMarkerIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+import { renderToStaticMarkup } from "react-dom/server";
+
+// ✅ Simple minimalist dot marker icon
+const createSimpleMarker = (color) => {
+  return L.divIcon({
+    className: "custom-div-icon",
+    html: renderToStaticMarkup(
+      <div className="relative flex items-center justify-center">
+        <div 
+          className="w-4 h-4 rounded-full border-2 border-white shadow-lg"
+          style={{ backgroundColor: color }}
+        />
+        <div 
+          className="absolute w-8 h-8 rounded-full animate-ping opacity-20"
+          style={{ backgroundColor: color }}
+        />
+      </div>
+    ),
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+    popupAnchor: [0, -10],
+  });
+};
+
+const newMarkerIcon = createSimpleMarker("#3b82f6"); // Blue for planning
 
 // ✅ Map click handler component
 function LocationMarker({ onLocationSelect, selectedLocation }) {
@@ -91,7 +117,7 @@ const PerencanaanForm = () => {
   const isUserCreator = user?.role === "user";
   const resolvedCompanyName = (
     user?.company_name ||
-    user?.nama_perusahaan ||
+    user?.nama_lembaga ||
     user?.organization ||
     user?.name ||
     user?.username ||
@@ -108,12 +134,12 @@ const PerencanaanForm = () => {
     let mounted = true;
     (async () => {
       try {
-        const res = await api.get('/users/dropdown', { params: { limit: 100 } });
+        const res = await api.get('/users/institution', { params: { limit: 100 } });
         const list = res.data?.data || res.data || [];
         if (!mounted) return;
         setAdminUsers(list.map(u => ({
           id: u.id,
-          label: u.label || u.name || u.company_name || u.nama_perusahaan || u.username || u.email || `User ${u.id}`
+          label: u.label || u.name || u.company_name || u.nama_lembaga || u.username || u.email || `User ${u.id}`
         })));
       } catch (err) {
         console.error('[PlanningForm] Failed to fetch users for admin dropdown', err);
@@ -123,7 +149,7 @@ const PerencanaanForm = () => {
   }, [isAdmin]);
 
   const validationSchema = Yup.object({
-    nama_perusahaan: Yup.string().required("Wajib diisi"),
+    nama_lembaga: Yup.string().required("Wajib diisi"),
     identitas_blok: Yup.string().required("Wajib diisi"),
     nama_pic: Yup.string().required("Wajib diisi"),
     narahubung: Yup.string().required("Wajib diisi"),
@@ -143,7 +169,7 @@ const PerencanaanForm = () => {
 
   const formik = useFormik({
     initialValues: {
-      nama_perusahaan: "",
+      nama_lembaga: "",
       identitas_blok: "",
       nama_pic: "",
       narahubung: "",
@@ -154,6 +180,8 @@ const PerencanaanForm = () => {
       jumlah_bibit: "",
       jenis_bibit: "",
       tanggal_pelaksanaan: "",
+      durasi_proyek: 6,
+      monitoring_interval: 3,
     },
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
@@ -161,11 +189,11 @@ const PerencanaanForm = () => {
       
       try {
         const payload = isUserCreator
-          ? { ...values, nama_perusahaan: resolvedCompanyName }
-          : values;
+          ? { ...values, nama_lembaga: resolvedCompanyName, nama_perusahaan: resolvedCompanyName }
+          : { ...values, nama_perusahaan: values.nama_lembaga };
 
-        if (isUserCreator && !payload.nama_perusahaan) {
-          toast.error("Nama perusahaan user belum tersedia. Silakan lengkapi profil akun Anda.");
+        if (isUserCreator && !payload.nama_lembaga) {
+          toast.error("Nama lembaga user belum tersedia. Silakan lengkapi profil akun Anda.");
           return;
         }
 
@@ -210,7 +238,7 @@ const PerencanaanForm = () => {
 
   useEffect(() => {
     if (isUserCreator && resolvedCompanyName) {
-      formik.setFieldValue("nama_perusahaan", resolvedCompanyName);
+      formik.setFieldValue("nama_lembaga", resolvedCompanyName);
     }
   }, [isUserCreator, resolvedCompanyName]);
 
@@ -250,13 +278,15 @@ const PerencanaanForm = () => {
   };
 
   const inputFields = [
-    { name: "nama_perusahaan", label: "Nama Perusahaan", icon: FiBriefcase, placeholder: "PT. Contoh Indonesia" },
+      { name: "nama_lembaga", label: "Nama Lembaga", icon: FiBriefcase, placeholder: "Yayasan Contoh Indonesia" },
     { name: "identitas_blok", label: "Identitas Blok", icon: FiLink, placeholder: "Blok A / Petak 03" },
     { name: "nama_pic", label: "Nama PIC", icon: FiUser, placeholder: "John Doe" },
-    { name: "narahubung", label: "Narahubung", icon: FiPhone, placeholder: "+62 812-3456-7890" },
-    { name: "jumlah_bibit", label: "Jumlah Bibit", icon: FiCheckCircle, type: "number", placeholder: "100" },
+    { name: "narahubung", label: "Narahubung", icon: FiPhone, placeholder: "812-3456-7890", prefix: "+62" },
+    { name: "jumlah_bibit", label: "Jumlah Bibit", icon: FiCheckCircle, type: "number", placeholder: "100", suffix: "bibit" },
     { name: "jenis_bibit", label: "Jenis Bibit", icon: FiCheckCircle, placeholder: "Pilih jenis pohon atau tulis manual" },
     { name: "tanggal_pelaksanaan", label: "Tanggal Pelaksanaan", icon: FiCalendar, type: "date" },
+    { name: "durasi_proyek", label: "Durasi Proyek", icon: FiCalendar, type: "number", disabled: true, readonly: true, suffix: "bulan" },
+    { name: "monitoring_interval", label: "Interval Monitoring", icon: FiCalendar, type: "number", disabled: true, readonly: true, suffix: "bulan" },
   ];
 
   const treeSpeciesOptions = [
@@ -334,30 +364,34 @@ const PerencanaanForm = () => {
                     {field.label}
                   </label>
                   <div className="relative">
-                    {field.name === "nama_perusahaan" && isAdmin ? (
-                      <select
-                        name={field.name}
+                    {field.name === "nama_lembaga" && isAdmin ? (
+                      <Select
                         value={adminUsers.find((item) => item.label === formik.values[field.name])?.id || ""}
-                        onChange={(event) => {
-                          const selectedUser = adminUsers.find((item) => String(item.id) === event.target.value);
+                        onValueChange={(val) => {
+                          const selectedUser = adminUsers.find((item) => String(item.id) === val);
                           formik.setFieldValue(field.name, selectedUser?.label || "");
                         }}
-                        onBlur={formik.handleBlur}
-                        className={`w-full px-4 py-3.5 rounded-xl border-2 bg-white dark:bg-gray-700 dark:text-gray-100 transition-all duration-300 ${
-                          formik.touched[field.name] && formik.errors[field.name]
-                            ? "border-red-400 focus:ring-4 focus:ring-red-200"
-                            : "border-gray-200 dark:border-gray-600 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:focus:ring-emerald-900/50"
-                        }`}
+                        disabled={field.disabled}
                       >
-                        <option value="">Pilih nama user</option>
-                        {adminUsers.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger
+                          className={cn(
+                            formik.touched[field.name] && formik.errors[field.name]
+                              ? "border-red-400"
+                              : ""
+                          )}
+                        >
+                          <SelectValue placeholder="Pilih Nama Lembaga" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {adminUsers.map((option) => (
+                            <SelectItem key={option.id} value={String(option.id)}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     ) : (
-                      <input
+                      <Input
                         type={field.type || "text"}
                         name={field.name}
                         placeholder={field.placeholder}
@@ -366,16 +400,15 @@ const PerencanaanForm = () => {
                         onBlur={formik.handleBlur}
                         min={field.type === "date" ? minDateValue : undefined}
                         list={field.name === "jenis_bibit" ? "global-tree-species" : undefined}
-                        readOnly={field.name === "nama_perusahaan" && isUserCreator}
-                        className={`w-full px-4 py-3.5 rounded-xl border-2 bg-white dark:bg-gray-700 dark:text-gray-100 transition-all duration-300 ${
-                          field.name === "nama_perusahaan" && isUserCreator
-                            ? "bg-gray-50 dark:bg-gray-800 cursor-not-allowed"
-                            : ""
-                        } ${
+                        disabled={field.disabled}
+                        readOnly={field.readonly || (field.name === "nama_lembaga" && isUserCreator)}
+                        prefix={field.prefix}
+                        suffix={field.suffix}
+                        className={cn(
                           formik.touched[field.name] && formik.errors[field.name]
-                            ? "border-red-400 focus:ring-4 focus:ring-red-200"
-                            : "border-gray-200 dark:border-gray-600 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:focus:ring-emerald-900/50"
-                        }`}
+                            ? "border-red-400"
+                            : ""
+                        )}
                       />
                     )}
                     {field.name === "jenis_bibit" && (
@@ -385,14 +418,14 @@ const PerencanaanForm = () => {
                         ))}
                       </datalist>
                     )}
-                    {field.name === "nama_perusahaan" && isUserCreator && (
+                    {field.name === "nama_lembaga" && isUserCreator && (
                       <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-300">
                         Diambil otomatis dari akun user yang sedang login.
                       </p>
                     )}
-                    {field.name === "nama_perusahaan" && isAdmin && (
+                    {field.name === "nama_lembaga" && isAdmin && (
                       <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-300">
-                        Pilih nama user dari daftar untuk mengisi nama perusahaan.
+                        Pilih nama user dari daftar untuk mengisi nama lembaga.
                       </p>
                     )}
                   </div>
@@ -423,58 +456,19 @@ const PerencanaanForm = () => {
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { label: "Planting Mangrove", disabled: false },
-                  { label: "Coral Transplanting", disabled: true },
+                  { label: "Planting Mangrove", value: "Planting Mangrove", disabled: false },
+                  { label: "Coral Transplanting", value: "Coral Transplanting", disabled: true },
                 ].map((option) => (
-                  <motion.label
-                    key={option.label}
-                    className={`relative group ${option.disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <input
-                      type="radio"
-                      name="jenis_kegiatan"
-                      value={option.label}
-                      checked={formik.values.jenis_kegiatan === option.label}
-                      disabled={option.disabled}
-                      onChange={formik.handleChange}
-                      className="peer sr-only"
-                    />
-                    <div className={`flex items-center gap-4 p-6 rounded-2xl border-2 transition-all duration-300 ${
-                      option.disabled
-                        ? "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
-                        : formik.values.jenis_kegiatan === option.label
-                        ? "border-emerald-500 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 shadow-lg"
-                        : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-emerald-300 dark:hover:border-emerald-700"
-                    }`}>
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                        option.disabled
-                          ? "border-gray-300 dark:border-gray-600"
-                          : formik.values.jenis_kegiatan === option.label
-                          ? "border-emerald-500 bg-emerald-500"
-                          : "border-gray-300 dark:border-gray-500"
-                      }`}>
-                        {formik.values.jenis_kegiatan === option.label && !option.disabled && (
-                          <motion.div
-                            className="w-3 h-3 rounded-full bg-white"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                          />
-                        )}
-                      </div>
-                      <span className={`font-semibold text-lg ${
-                        option.disabled
-                          ? "text-gray-500 dark:text-gray-400"
-                          : formik.values.jenis_kegiatan === option.label
-                          ? "text-emerald-700 dark:text-emerald-300"
-                          : "text-gray-700 dark:text-gray-300"
-                      }`}>
-                        {option.label}
-                      </span>
-                    </div>
-                  </motion.label>
+                  <RadioCard
+                    key={option.value}
+                    label={option.label}
+                    name="jenis_kegiatan"
+                    value={option.value}
+                    checked={formik.values.jenis_kegiatan === option.value}
+                    disabled={option.disabled}
+                    onChange={formik.handleChange}
+                    className="h-full"
+                  />
                 ))}
               </div>
               <p className="mt-3 text-sm text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3">
@@ -529,11 +523,11 @@ const PerencanaanForm = () => {
               {/* Map Controls */}
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 {/* Coordinates Display */}
-                <input
+                <Input
                   type="text"
                   value={formik.values.lokasi || "Belum ada lokasi yang ditandai"}
                   readOnly
-                  className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-gray-200 font-mono text-sm"
+                  className="flex-1 font-mono text-sm"
                 />
                 
                 {/* Center Map Button */}

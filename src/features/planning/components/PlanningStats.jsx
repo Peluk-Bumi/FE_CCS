@@ -32,7 +32,7 @@ const PlanningStats = ({ data = [], loading = false }) => {
   // Calculate statistics
   const totalPlans = data.length;
   const totalSeedlings = data.reduce((sum, item) => sum + (item.jumlah_bibit || 0), 0);
-  const uniqueCompanies = [...new Set(data.map(item => item.nama_perusahaan))].length;
+  const uniqueLembaga = [...new Set(data.map(item => item.nama_perusahaan))].length;
   const uniqueLocations = [...new Set(data.map(item => item.lokasi))].length;
   
   // Status breakdown
@@ -73,8 +73,8 @@ const PlanningStats = ({ data = [], loading = false }) => {
       bgColor: 'bg-green-100'
     },
     {
-      title: 'Perusahaan',
-      value: uniqueCompanies.toLocaleString(),
+      title: 'Lembaga',
+      value: uniqueLembaga.toLocaleString(),
       icon: Building2,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100'

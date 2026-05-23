@@ -1,7 +1,7 @@
-import { api } from '@/shared/services/api';
+import api from '@/shared/services/api';
 
 // Base API endpoints
-const MONITORING_ENDPOINT = '/api/monitoring';
+const MONITORING_ENDPOINT = '/monitoring';
 
 // Fetch monitoring data
 export const fetchMonitoringData = async (implementasiId, userRole = 'user') => {

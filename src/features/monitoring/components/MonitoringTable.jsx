@@ -95,7 +95,7 @@ const MonitoringTable = ({
               <thead className="bg-gray-50/80 dark:bg-gray-800/60">
                 <tr className="border-b border-gray-200 dark:border-gray-700">
                   <th className="text-left p-3 font-medium">Status</th>
-                  <th className="text-left p-3 font-medium">Nama Perusahaan</th>
+                  <th className="text-left p-3 font-medium">Nama Lembaga</th>
                   <th className="text-left p-3 font-medium">Lokasi</th>
                   <th 
                     className="text-left p-3 font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
