@@ -116,7 +116,7 @@ const MonitoringForm = () => {
 
   const validationSchema = Yup.object({
     implementasi_id: Yup.string().required("Wajib pilih implementasi terlebih dahulu"),
-    bulan_monitoring: Yup.number().required("Wajib pilih bulan monitoring").oneOf([3,6], 'Bulan monitoring harus salah satu dari 3 atau 6'),
+    bulan_monitoring: Yup.number().required("Wajib pilih bulan monitoring"),
     jumlah_bibit_ditanam: Yup.number().required("Wajib diisi").positive("Harus positif"),
     jumlah_bibit_mati: Yup.number().required("Wajib diisi").min(0, "Tidak boleh negatif"),
     tinggi_bibit: Yup.number().required("Wajib diisi").positive("Harus positif"),
@@ -274,7 +274,7 @@ const MonitoringForm = () => {
           const month = Number(item.bulan_monitoring);
           if (!monitoringMap[key]) monitoringMap[key] = [];
           if (!monitoringRecords[key]) monitoringRecords[key] = [];
-          if (!Number.isNaN(month) && [3,6].includes(month) && !monitoringMap[key].includes(month)) {
+          if (!Number.isNaN(month) && !monitoringMap[key].includes(month)) {
             monitoringMap[key].push(month);
           }
           monitoringRecords[key].push(item);
@@ -317,13 +317,24 @@ const MonitoringForm = () => {
 
             if (preselectedImplementasi) {
               const usedMonths = monitoringMap[String(preselectedImplementasi.id)] || [];
-              const nextMonth = [3, 6].find((month) => !usedMonths.includes(month));
+              const duration = Number(preselectedImplementasi.durasi_proyek || preselectedImplementasi.perencanaan?.durasi_proyek || 6);
+              const interval = Number(preselectedImplementasi.monitoring_interval || preselectedImplementasi.perencanaan?.monitoring_interval || 3);
+              const targetMonths = [];
+              if (interval > 0) {
+                for (let m = interval; m <= duration; m += interval) {
+                  targetMonths.push(m);
+                }
+              } else {
+                targetMonths.push(3, 6);
+              }
+
+              const nextMonth = targetMonths.find((month) => !usedMonths.includes(month));
               if (nextMonth) {
                 handleLocationSelect(preselectedImplementasi, monitoringMap);
                 formik.setFieldValue("bulan_monitoring", String(nextMonth));
                 toast.info(`Monitoring diarahkan dari QR untuk bulan ke-${nextMonth}`);
               } else {
-                toast.warning("Implementasi ini sudah lengkap monitoring untuk bulan 3 dan 6");
+                toast.warning(`Implementasi ini sudah lengkap monitoring untuk semua ronde (${targetMonths.join(", ")})`);
               }
             }
           }
@@ -383,7 +394,18 @@ const MonitoringForm = () => {
     }
 
     const usedMonths = monitoringMap[String(location.id)] || [];
-    const suggestedMonth = [3, 6].find((month) => !usedMonths.includes(month));
+    const duration = Number(location.durasi_proyek || location.perencanaan?.durasi_proyek || 6);
+    const interval = Number(location.monitoring_interval || location.perencanaan?.monitoring_interval || 3);
+    const targetMonths = [];
+    if (interval > 0) {
+      for (let m = interval; m <= duration; m += interval) {
+        targetMonths.push(m);
+      }
+    } else {
+      targetMonths.push(3, 6);
+    }
+
+    const suggestedMonth = targetMonths.find((month) => !usedMonths.includes(month));
     if (suggestedMonth) {
       formik.setFieldValue("bulan_monitoring", String(suggestedMonth));
     } else {
