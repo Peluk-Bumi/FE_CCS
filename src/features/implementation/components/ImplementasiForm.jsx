@@ -6,7 +6,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { FiCheck, FiX, FiUpload, FiCheckCircle, FiMapPin, FiAlertCircle, FiCamera, FiFolder } from "react-icons/fi";
+import { FiNavigation, FiX, FiUpload, FiCheckCircle, FiMapPin, FiAlertCircle, FiCamera, FiFolder } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
@@ -14,34 +14,55 @@ import PageTitle from "@/shared/components/common/PageTitle";
 import { FormButton } from "@/shared/components/ui/button/FormButton";
 import ProjectStatusBadge from "@/shared/components/common/ProjectStatusBadge";
 import { resolveProjectDisplay } from "@/shared/utils/projectDisplay";
+import { Input } from "@/shared/components/ui/input";
+import RadioCard from "@/shared/components/ui/radio-card";
+import { cn } from "@/shared/utils/utils";
+import { renderToStaticMarkup } from "react-dom/server";
+import { FaSeedling } from "react-icons/fa";
 
-const createSaplingMarkerIcon = (accentColor, leafColor) => {
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="44" height="60" viewBox="0 0 44 60" fill="none">
-      <path d="M22 58C22 58 10 44.5 10 31.5C10 20.6 16.4 12 22 12C27.6 12 34 20.6 34 31.5C34 44.5 22 58 22 58Z" fill="${accentColor}" opacity="0.18"/>
-      <path d="M22 55C22 55 12.5 43.7 12.5 32.7C12.5 24.1 17.5 17 22 17C26.5 17 31.5 24.1 31.5 32.7C31.5 43.7 22 55 22 55Z" fill="${accentColor}"/>
-      <path d="M22 45V27" stroke="#7a4e2d" stroke-width="3.2" stroke-linecap="round"/>
-      <path d="M22 35.5C19.5 33.8 16.9 32.8 13.8 32.4C15.4 36.4 18.5 38.6 22 39.5" fill="none" stroke="${leafColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M22 31.8C24.2 29.5 27.2 28.1 31 27.6C29.5 31.6 26.5 34.1 22 35.1" fill="none" stroke="${leafColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M22 28.2C20.2 25.8 17.6 24.3 14.3 23.9C15.7 27.4 18 29.7 22 30.6" fill="none" stroke="${leafColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M22 24.8C24 22.1 26.8 20.5 30.4 20.2C29.1 23.6 26.4 25.8 22 26.7" fill="none" stroke="${leafColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M13 52H31" stroke="#6b4b2a" stroke-width="3.2" stroke-linecap="round" opacity="0.9"/>
-    </svg>
-  `;
+// ✅ Enhanced transparent minimalist marker icon using CSS variables
+const createIconMarker = (isSelected = false) => {
+  const opacity = isSelected ? 0.95 : 0.75;
+  // Use CSS variable for primary color with opacity
+  const backgroundColor = `rgba(16, 185, 129, ${opacity})`; // Fallback to emerald-500
+  const primaryColor = isSelected ? "var(--primary-dark, #059669)" : "var(--primary, #10b981)";
 
-  return new L.Icon({
-    iconUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-    iconSize: [44, 60],
-    iconAnchor: [22, 58],
-    popupAnchor: [0, -50],
-    shadowSize: [41, 41],
+  return L.divIcon({
+    className: "custom-div-icon",
+    html: renderToStaticMarkup(
+      <div className="relative flex items-center justify-center">
+        {/* Outer Glow for Selected */}
+        {isSelected && (
+          <div 
+            className="absolute w-12 h-12 rounded-full animate-ping opacity-20"
+            style={{ backgroundColor: primaryColor }}
+          />
+        )}
+        {/* Circular Background with Transparency */}
+        <div 
+          className={`flex items-center justify-center rounded-full border-2 border-white shadow-xl transition-all ${
+            isSelected ? "w-10 h-10 scale-110" : "w-8 h-8"
+          }`}
+          style={{ backgroundColor: primaryColor, opacity: opacity, backdropFilter: "blur(2px)" }}
+        >
+          <FaSeedling className="text-white w-1/2 h-1/2" />
+        </div>
+        {/* Bottom Pointer */}
+        <div 
+          className="absolute -bottom-1 w-2 h-2 rotate-45 border-r-2 border-b-2 border-white shadow-sm"
+          style={{ backgroundColor: primaryColor, opacity: opacity }}
+        />
+      </div>
+    ),
+    iconSize: isSelected ? [40, 40] : [32, 32],
+    iconAnchor: isSelected ? [20, 20] : [16, 16],
+    popupAnchor: [0, -20],
   });
 };
 
 // ✅ Bibit pohon marker untuk lokasi yang sudah ada dan yang dipilih
-const existingMarkerIcon = createSaplingMarkerIcon('#16a34a', '#22c55e');
-const selectedMarkerIcon = createSaplingMarkerIcon('#15803d', '#86efac');
+const existingMarkerIcon = createIconMarker(false);
+const selectedMarkerIcon = createIconMarker(true);
 const DOCUMENTATION_MAX_FILES = 10;
 const DOCUMENTATION_MAX_FILE_SIZE_MB = 10;
 const DOCUMENTATION_MAX_FILE_SIZE_BYTES = DOCUMENTATION_MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -447,8 +468,8 @@ const ImplementasiForm = () => {
                       <thead className="bg-gray-50/80 dark:bg-gray-800/60">
                         <tr className="border-b border-gray-200 dark:border-gray-700">
                           <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Status</th>
-                          <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Nama Perusahaan</th>
-                          <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Lokasi</th>
+                          <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Nama Lembaga</th>
+                          <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Lokasi & Geotagging</th>
                           <th className="p-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Aksi</th>
                         </tr>
                       </thead>
@@ -471,6 +492,10 @@ const ImplementasiForm = () => {
                               </td>
                               <td className="p-3 align-top">
                                 <div className="text-sm text-gray-700 dark:text-gray-300">{locationName}</div>
+                                <div className="text-[10px] font-mono text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
+                                  <FiNavigation className="w-2.5 h-2.5" />
+                                  LAT: {location.lat} | LONG: {location.long || location.lng}
+                                </div>
                               </td>
                               <td className="p-3 align-top text-center">
                                 <button
@@ -593,13 +618,13 @@ const ImplementasiForm = () => {
 
                   {/* Detail Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Perusahaan */}
+                    {/* Lembaga */}
                     <motion.div
                       className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700"
                       whileHover={{ translateY: -2 }}
                     >
                       <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Perusahaan
+                        Lembaga
                       </p>
                       <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
                         {selectedLocation.nama_perusahaan}
@@ -726,7 +751,7 @@ const ImplementasiForm = () => {
               </h3>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[
-                  { field: 'nama_perusahaan', label: 'Nama Perusahaan', type: 'text' },
+                  { field: 'nama_perusahaan', label: 'Nama Lembaga', type: 'text' },
                   { field: 'lokasi', label: 'Lokasi', type: 'text' },
                   { field: 'jenis_kegiatan', label: 'Jenis Kegiatan', type: 'text' },
                   { field: 'jumlah_bibit', label: 'Jumlah Bibit', type: 'number' },
@@ -745,40 +770,40 @@ const ImplementasiForm = () => {
                         <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">{item.label}</div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button
-                          type="button"
+                        <RadioCard
+                          label="Ya"
+                          checked={formik.values.kesesuaian[item.field] === true}
+                          onChange={() => formik.setFieldValue(`kesesuaian.${item.field}`, true)}
                           onClick={() => formik.setFieldValue(`kesesuaian.${item.field}`, true)}
-                          className={`px-3 py-1 rounded-lg text-sm font-semibold transition focus:outline-none ${formik.values.kesesuaian[item.field] === true ? 'bg-green-600 text-white shadow hover:bg-green-700' : 'bg-white border hover:bg-green-100 hover:text-green-800'}`}
-                        >
-                          Ya
-                        </button>
-                        <button
-                          type="button"
+                          className="w-16"
+                        />
+                        <RadioCard
+                          label="Tidak"
+                          checked={formik.values.kesesuaian[item.field] === false}
+                          onChange={() => formik.setFieldValue(`kesesuaian.${item.field}`, false)}
                           onClick={() => formik.setFieldValue(`kesesuaian.${item.field}`, false)}
-                          className={`px-3 py-1 rounded-lg text-sm font-semibold transition focus:outline-none ${formik.values.kesesuaian[item.field] === false ? 'bg-rose-600 text-white shadow hover:bg-rose-700' : 'bg-white border hover:bg-rose-100 hover:text-rose-800'}`}
-                        >
-                          Tidak
-                        </button>
+                          className="w-20"
+                        />
                       </div>
                     </div>
 
                     {formik.values.kesesuaian[item.field] === false && (
-                      <div className="mt-3 p-3 bg-amber-50 border-l-4 border-amber-400 rounded">
+                      <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 rounded">
                         {item.type === 'date' ? (
-                          <input
+                          <Input
                             type="date"
                             min={minDateValue}
                             value={formik.values.kesesuaian[`${item.field}_detail`]}
                             onChange={(e) => formik.setFieldValue(`kesesuaian.${item.field}_detail`, e.target.value)}
-                            className="w-full rounded px-2 py-2"
+                            className="w-full"
                           />
                         ) : (
-                          <input
+                          <Input
                             type={item.type}
                             placeholder={`Masukkan ${item.label.toLowerCase()} jika berbeda`}
                             value={formik.values.kesesuaian[`${item.field}_detail`]}
                             onChange={(e) => formik.setFieldValue(`kesesuaian.${item.field}_detail`, e.target.value)}
-                            className="w-full rounded px-2 py-2"
+                            className="w-full"
                           />
                         )}
                       </div>
@@ -798,17 +823,17 @@ const ImplementasiForm = () => {
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                 PIC Koorlap <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 id="pic_koorlap"
                 name="pic_koorlap"
                 placeholder="Masukkan nama PIC Koorlap"
                 value={formik.values.pic_koorlap}
                 onChange={formik.handleChange}
-                className={`w-full px-4 py-3.5 rounded-xl border-2 bg-white dark:bg-gray-700 dark:text-gray-100 transition-all ${
+                className={cn(
                   formik.touched.pic_koorlap && formik.errors.pic_koorlap
-                    ? "border-red-400 focus:ring-4 focus:ring-red-200"
-                    : "border-gray-200 dark:border-gray-600 focus:border-green-500 focus:ring-4 focus:ring-green-100"
-                }`}
+                    ? "border-red-400"
+                    : ""
+                )}
               />
               {formik.touched.pic_koorlap && formik.errors.pic_koorlap && (
                 <p className="text-red-500 text-sm mt-2">{formik.errors.pic_koorlap}</p>

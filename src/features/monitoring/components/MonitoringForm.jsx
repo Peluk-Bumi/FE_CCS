@@ -8,44 +8,65 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { renderToStaticMarkup } from "react-dom/server";
-import { FaTree } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
 import api from "@/shared/services/api";
 import { useAuth } from "@/app/context/AuthContext";
 import PageTitle from "@/shared/components/common/PageTitle";
+import { Input } from "@/shared/components/ui/input";
+import StatusBadge from "@/shared/components/ui/badge/StatusBadge";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/shared/components/ui/select";
+import RadioCard from "@/shared/components/ui/radio-card";
+import { cn } from "@/shared/utils/utils";
 
-const createTreeMarkerIcon = (isSelected = false) => {
-  const accentColor = isSelected ? "#15803d" : "#16a34a";
-  const iconColor = isSelected ? "#bbf7d0" : "#dcfce7";
+import { FaTree } from "react-icons/fa";
+
+// ✅ Enhanced transparent minimalist marker icon using CSS variables
+const createIconMarker = (isSelected = false) => {
+  const opacity = isSelected ? 0.95 : 0.75;
+  const primaryColor = isSelected ? "var(--primary-dark, #059669)" : "var(--primary, #10b981)";
 
   return L.divIcon({
-    className: "monitoring-tree-marker",
+    className: "custom-div-icon",
     html: renderToStaticMarkup(
-      <div
-        style={{
-          width: isSelected ? 52 : 46,
-          height: isSelected ? 52 : 46,
-          borderRadius: 9999,
-          background: accentColor,
-          border: "2px solid white",
-          boxShadow: "0 8px 18px rgba(0, 0, 0, 0.22)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <FaTree size={isSelected ? 25 : 22} color={iconColor} />
+      <div className="relative flex items-center justify-center">
+        {/* Outer Glow for Selected */}
+        {isSelected && (
+          <div 
+            className="absolute w-12 h-12 rounded-full animate-ping opacity-20"
+            style={{ backgroundColor: primaryColor }}
+          />
+        )}
+        {/* Circular Background with Transparency */}
+        <div 
+          className={`flex items-center justify-center rounded-full border-2 border-white shadow-xl transition-all ${
+            isSelected ? "w-10 h-10 scale-110" : "w-8 h-8"
+          }`}
+          style={{ backgroundColor: primaryColor, opacity: opacity, backdropFilter: "blur(2px)" }}
+        >
+          <FaTree className="text-white w-1/2 h-1/2" />
+        </div>
+        {/* Bottom Pointer */}
+        <div 
+          className="absolute -bottom-1 w-2 h-2 rotate-45 border-r-2 border-b-2 border-white shadow-sm"
+          style={{ backgroundColor: primaryColor, opacity: opacity }}
+        />
       </div>
     ),
-    iconSize: [isSelected ? 52 : 46, isSelected ? 52 : 46],
-    iconAnchor: [isSelected ? 26 : 23, isSelected ? 26 : 23],
-    popupAnchor: [0, isSelected ? -24 : -20],
+    iconSize: isSelected ? [40, 40] : [32, 32],
+    iconAnchor: isSelected ? [20, 20] : [16, 16],
+    popupAnchor: [0, -20],
   });
 };
 
-const implementationMarkerIcon = createTreeMarkerIcon(false);
-const selectedMarkerIcon = createTreeMarkerIcon(true);
+const implementationMarkerIcon = createIconMarker(false);
+const selectedMarkerIcon = createIconMarker(true);
 const DOCUMENTATION_MAX_FILES = 10;
 const DOCUMENTATION_MAX_FILE_SIZE_MB = 10;
 const DOCUMENTATION_MAX_FILE_SIZE_BYTES = DOCUMENTATION_MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -265,7 +286,21 @@ const MonitoringForm = () => {
 
         const availableImplementasi = data.filter((item) => {
           const usedMonths = monitoringMap[String(item.id)] || [];
-          const monitoringComplete = [3, 6].every((month) => usedMonths.includes(month));
+          // Get duration and interval from item or its planning
+          const duration = Number(item.durasi_proyek || item.perencanaan?.durasi_proyek || 6);
+          const interval = Number(item.monitoring_interval || item.perencanaan?.monitoring_interval || 3);
+          
+          // Generate target months: e.g. if interval 3, duration 6 -> [3, 6]
+          const targetMonths = [];
+          if (interval > 0) {
+            for (let m = interval; m <= duration; m += interval) {
+              targetMonths.push(m);
+            }
+          } else {
+            targetMonths.push(3, 6); // Fallback
+          }
+          
+          const monitoringComplete = targetMonths.length > 0 && targetMonths.every((month) => usedMonths.includes(month));
           return !monitoringComplete;
         });
         
@@ -491,28 +526,15 @@ const MonitoringForm = () => {
       </label>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {["<25%", "25–45%", "50–74%", ">75%"].map((option) => (
-          <motion.label
+          <RadioCard
             key={option}
-            className="relative cursor-pointer"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <input
-              type="radio"
-              name={`kondisi_daun.${name}`}
-              value={option}
-              checked={formik.values.kondisi_daun[name] === option}
-              onChange={(e) => formik.setFieldValue(`kondisi_daun.${name}`, e.target.value)}
-              className="peer sr-only"
-            />
-            <div className={`flex items-center justify-center p-4 rounded-xl border-2 font-semibold transition-all ${
-              formik.values.kondisi_daun[name] === option
-                ? "border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 text-green-700 dark:text-green-300 shadow-lg"
-                : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-green-300"
-            }`}>
-              {option}
-            </div>
-          </motion.label>
+            label={option}
+            name={`kondisi_daun.${name}`}
+            value={option}
+            checked={formik.values.kondisi_daun[name] === option}
+            onChange={(e) => formik.setFieldValue(`kondisi_daun.${name}`, e.target.value)}
+            readOnly={false}
+          />
         ))}
       </div>
       {formik.touched.kondisi_daun?.[name] && formik.errors.kondisi_daun?.[name] && (
@@ -591,6 +613,97 @@ const MonitoringForm = () => {
                   </div>
                 </div>
               </div>
+
+              {implementasis.length > 0 && (
+                <div className="mb-6 overflow-hidden rounded-2xl border border-gray-200/80 bg-white/90 shadow-sm dark:border-gray-700 dark:bg-gray-900/90">
+                  <div className="flex flex-col gap-1 border-b border-gray-200 px-4 py-4 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Daftar Lokasi Siap Monitoring</h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Pilih baris untuk menyorot lokasi di peta dan mengisi data secara otomatis.</p>
+                    </div>
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{existingLocations.length} lokasi tersedia</span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-[760px] w-full border-separate border-spacing-0">
+                      <thead className="bg-gray-50/80 dark:bg-gray-800/60">
+                        <tr className="border-b border-gray-200 dark:border-gray-700">
+                          <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Nama Lembaga</th>
+                          <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Lokasi & Geotagging</th>
+                          <th className="p-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Monitoring</th>
+                          <th className="p-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {existingLocations.map((impl) => {
+                          const isSelected = selectedLocation?.id === impl.id;
+                          const usedMonths = getMonitoringMonths(impl.id);
+                          const totalMonitoring = usedMonths.length;
+
+                          return (
+                            <tr
+                              key={impl.id}
+                              className={`border-b border-gray-100 dark:border-gray-800 transition-colors ${isSelected ? 'bg-green-50/80 dark:bg-green-900/20' : 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50'}`}
+                            >
+                              <td className="p-3 align-top">
+                                <div className="font-medium text-gray-900 dark:text-gray-100">{impl.nama_perusahaan}</div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">{impl.jenis_kegiatan}</div>
+                              </td>
+                              <td className="p-3 align-top">
+                                <div className="text-sm text-gray-700 dark:text-gray-300">{impl.lokasi || "Lokasi tidak bernama"}</div>
+                                <div className="text-[10px] font-mono text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
+                                  <FiNavigation className="w-2.5 h-2.5" />
+                                  LAT: {impl.lat} | LONG: {impl.long}
+                                </div>
+                              </td>
+                              <td className="p-3 align-top text-center">
+                                <div className="flex flex-col items-center gap-1">
+                                  <div className="flex flex-wrap justify-center gap-1">
+                                    {(() => {
+                                      const duration = Number(impl.durasi_proyek || impl.perencanaan?.durasi_proyek || 6);
+                                      const interval = Number(impl.monitoring_interval || impl.perencanaan?.monitoring_interval || 3);
+                                      const targetMonths = [];
+                                      if (interval > 0) {
+                                        for (let m = interval; m <= duration; m += interval) {
+                                          targetMonths.push(m);
+                                        }
+                                      } else {
+                                        targetMonths.push(3, 6);
+                                      }
+                                      
+                                      return targetMonths.map(m => (
+                                        <StatusBadge 
+                                          key={m} 
+                                          variant={usedMonths.includes(m) ? "success" : "default"}
+                                          label={`Bln ${m}`}
+                                          size="small"
+                                        />
+                                      ));
+                                    })()}
+                                  </div>
+                                  {totalMonitoring > 0 && (
+                                    <span className="text-[10px] font-medium text-primary-dark mt-1">
+                                      {totalMonitoring} Monitoring dilakukan
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="p-3 align-top text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => handleLocationSelect(impl)}
+                                  className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-xs font-semibold transition ${isSelected ? 'bg-green-600 text-white shadow hover:bg-green-700' : 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-200 dark:hover:bg-green-900/50'}`}
+                                >
+                                  {isSelected ? 'Dipilih' : 'Pilih'}
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
               {/* Map */}
               {loading ? (
@@ -733,13 +846,13 @@ const MonitoringForm = () => {
 
                   {/* Detail Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Perusahaan */}
+                    {/* Lembaga */}
                     <motion.div
                       className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-100 dark:border-green-800"
                       whileHover={{ translateY: -2 }}
                     >
                       <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Perusahaan
+                        Lembaga
                       </p>
                       <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
                         {selectedLocation.nama_perusahaan}
@@ -882,25 +995,41 @@ const MonitoringForm = () => {
 
               <div className="mb-6">
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                  Bulan Monitoring (3, 6) <span className="text-red-500">*</span>
+                  Bulan Monitoring <span className="text-red-500">*</span>
                 </label>
-                <select
-                  name="bulan_monitoring"
+                <Select
                   value={formik.values.bulan_monitoring}
-                  onChange={formik.handleChange}
+                  onValueChange={(val) => formik.setFieldValue("bulan_monitoring", val)}
                   disabled={!formik.values.implementasi_id}
-                  className="w-full md:w-72 px-4 py-3.5 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-gray-100 focus:border-green-500 focus:ring-4 focus:ring-green-100 dark:focus:ring-green-900/50 transition-all disabled:opacity-60"
                 >
-                  <option value="">Pilih bulan monitoring</option>
-                  {[3, 6].map((month) => {
-                    const used = selectedLocation ? getMonitoringMonths(selectedLocation.id).includes(month) : false;
-                    return (
-                      <option key={month} value={month} disabled={used}>
-                        Bulan ke-{month}{used ? " (sudah terisi)" : ""}
-                      </option>
-                    );
-                  })}
-                </select>
+                  <SelectTrigger className="w-full md:w-72">
+                    <SelectValue placeholder="Pilih bulan monitoring" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(() => {
+                      if (!selectedLocation) return null;
+                      const duration = Number(selectedLocation.durasi_proyek || selectedLocation.perencanaan?.durasi_proyek || 6);
+                      const interval = Number(selectedLocation.monitoring_interval || selectedLocation.perencanaan?.monitoring_interval || 3);
+                      const targetMonths = [];
+                      if (interval > 0) {
+                        for (let m = interval; m <= duration; m += interval) {
+                          targetMonths.push(m);
+                        }
+                      } else {
+                        targetMonths.push(3, 6);
+                      }
+
+                      return targetMonths.map((month) => {
+                        const used = getMonitoringMonths(selectedLocation.id).includes(month);
+                        return (
+                          <SelectItem key={month} value={String(month)} disabled={used}>
+                            Bulan ke-{month}{used ? " (sudah terisi)" : ""}
+                          </SelectItem>
+                        );
+                      });
+                    })()}
+                  </SelectContent>
+                </Select>
                 {formik.touched.bulan_monitoring && formik.errors.bulan_monitoring && (
                   <p className="text-red-500 text-sm mt-2">{formik.errors.bulan_monitoring}</p>
                 )}
@@ -908,12 +1037,12 @@ const MonitoringForm = () => {
 
               <div className="grid md:grid-cols-2 gap-6">
                 {[
-                  { name: "jumlah_bibit_ditanam", label: "Jumlah Bibit Ditanam (otomatis dari perencanaan)", placeholder: "100", icon: FiCheckCircle, readOnly: true },
-                  { name: "jumlah_bibit_mati", label: "Jumlah Bibit Mati", placeholder: "5", icon: FiAlertCircle },
-                  { name: "tinggi_bibit", label: "Tinggi Bibit (cm)", placeholder: "35.5", step: "0.1", icon: FiTrendingUp },
-                  { name: "diameter_batang", label: "Diameter Batang (cm)", placeholder: "2.5", step: "0.1", icon: FiActivity },
-                  { name: "jumlah_daun", label: "Jumlah Daun", placeholder: "20", icon: FiHash },
-                  { name: "survival_rate", label: "Survival Rate (%)", placeholder: "95", icon: FiTrendingUp },
+                  { name: "jumlah_bibit_ditanam", label: "Jumlah Bibit Ditanam", placeholder: "100", icon: FiCheckCircle, readOnly: true, suffix: "bibit" },
+                  { name: "jumlah_bibit_mati", label: "Jumlah Bibit Mati", placeholder: "5", icon: FiAlertCircle, suffix: "bibit" },
+                  { name: "tinggi_bibit", label: "Tinggi Bibit", placeholder: "35.5", step: "0.1", icon: FiTrendingUp, suffix: "cm" },
+                  { name: "diameter_batang", label: "Diameter Batang", placeholder: "2.5", step: "0.1", icon: FiActivity, suffix: "cm" },
+                  { name: "jumlah_daun", label: "Jumlah Daun", placeholder: "20", icon: FiHash, suffix: "helai" },
+                  { name: "survival_rate", label: "Survival Rate", placeholder: "95", icon: FiTrendingUp, suffix: "%" },
                 ].map((field, index) => (
                   <motion.div
                     key={field.name}
@@ -925,7 +1054,7 @@ const MonitoringForm = () => {
                       <field.icon className="w-4 h-4 inline mr-2 text-primary dark:text-primary-light" />
                       {field.label}
                     </label>
-                    <input
+                    <Input
                       type="number"
                       step={field.step}
                       name={field.name}
@@ -933,12 +1062,9 @@ const MonitoringForm = () => {
                       value={formik.values[field.name]}
                       onChange={formik.handleChange}
                       readOnly={field.readOnly || field.name === "survival_rate"}
+                      disabled={false}
                       tabIndex={(field.readOnly || field.name === "survival_rate") ? -1 : 0}
-                      className={`w-full px-4 py-3.5 rounded-xl border-2 dark:text-gray-100 focus:ring-4 transition-all ${
-                        field.readOnly || field.name === "survival_rate"
-                          ? "border-primary/20 bg-primary/5 text-primary/80 dark:border-primary/30 dark:bg-primary/10 dark:text-primary/70 cursor-not-allowed"
-                          : "border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-700 focus:border-primary focus:ring-primary/20 dark:focus:ring-primary/30"
-                      }`}
+                      suffix={field.suffix}
                     />
                       {(field.name === "jumlah_bibit_ditanam" || field.name === "survival_rate") && (
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
