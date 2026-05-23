@@ -1,12 +1,11 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  FiX, FiSettings, FiLogOut, FiSun, FiMoon,
+  FiX, FiSettings, FiLogOut,
   FiHome, FiUsers, FiClipboard, FiCheckCircle,
   FiActivity, FiBarChart2, FiFileText, FiChevronDown, FiChevronRight,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/context/AuthContext";
-import { useTheme } from "@/app/context/ThemeContext";
 import { useState, useRef, useEffect } from "react";
 import navigationConfig from "@/app/config/navigationConfig";
 
@@ -29,9 +28,9 @@ export default function Sidebar({ isUser = false, onClose }) {
   const navigate    = useNavigate();
   const location    = useLocation();
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [planningOpen, setPlanningOpen] = useState(false);
+  const [evaluationOpen, setEvaluationOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   // isAdmin is the canonical flag used everywhere in this file
@@ -40,15 +39,21 @@ export default function Sidebar({ isUser = false, onClose }) {
   // ── Navigation data from single source of truth ──────────────────────────
   const menuItems        = navigationConfig.getMenuItems(isAdmin);
   const planningItems    = navigationConfig.getPlanningMenuItems(isAdmin);
+  const evaluationItems  = navigationConfig.getEvaluationMenuItems(isAdmin);
   const specialMenuItems = navigationConfig.getSpecialMenuItems(isAdmin);
   const planningBasePath  = isAdmin ? "/admin/perencanaan" : "/user/perencanaan";
   const isPlanningRoute   = location.pathname.startsWith(planningBasePath);
+  const evaluationBasePath = isAdmin ? "/admin/evaluasi" : "/user/evaluasi";
+  const isEvaluationRoute = location.pathname.startsWith(evaluationBasePath);
 
   useEffect(() => {
     if (isPlanningRoute) {
       setPlanningOpen(true);
     }
-  }, [isPlanningRoute]);
+    if (isEvaluationRoute) {
+      setEvaluationOpen(true);
+    }
+  }, [isPlanningRoute, isEvaluationRoute]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -75,18 +80,16 @@ export default function Sidebar({ isUser = false, onClose }) {
   };
 
   // ── Shared nav button renderer ────────────────────────────────────────────
-  function NavButton({ path, iconName, label, isVerifikasi = false, isNested = false }) {
+  function NavButton({ path, iconName, label, isSpecial = false, isNested = false }) {
     const isActive = location.pathname === path;
     return (
       <motion.button
         onClick={() => handleNavigation(path)}
-        className={`w-full flex items-center space-x-3 rounded-xl px-4 py-3.5 transition-all ${
-          isVerifikasi
-            ? `border ${
-                isActive
-                  ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md border-primary"
-                  : "text-primary dark:text-primary-light bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/40 border-primary/20 dark:border-primary/80"
-              }`
+        className={`w-full flex items-center space-x-3 rounded-xl px-4 py-3.5 transition-all text-left ${
+          isSpecial
+            ? isActive
+              ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
+              : "text-primary dark:text-primary-light bg-primary/5 dark:bg-primary/10 hover:bg-primary/15 dark:hover:bg-primary/25"
             : isActive
             ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
             : "text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20"
@@ -94,13 +97,40 @@ export default function Sidebar({ isUser = false, onClose }) {
         whileHover={{ x: isActive ? 0 : 5 }}
         whileTap={{ scale: 0.98 }}
       >
-        <span className={isActive ? "text-white" : isVerifikasi ? "text-primary dark:text-primary-light" : "text-primary dark:text-primary-light"}>
+        <span className={isActive ? "text-white" : "text-primary dark:text-primary-light"}>
           {getIcon(iconName)}
         </span>
-        <span className={`font-medium ${isNested ? "text-sm" : ""}`}>{label}</span>
+        <span className={`font-medium leading-tight ${isNested ? "text-sm" : ""}`}>{label}</span>
         {isActive && (
-          <span className="ml-auto h-2 w-2 rounded-full bg-white/80 animate-pulse" />
+          <span className="ml-auto h-2 w-2 rounded-full bg-white/80 animate-pulse flex-shrink-0" />
         )}
+      </motion.button>
+    );
+  }
+
+  function DropdownButton({ isOpen, onClick, isActive, iconName, label }) {
+    return (
+      <motion.button
+        onClick={onClick}
+        className={`w-full flex items-center space-x-3 rounded-xl px-4 py-3.5 transition-all text-left ${
+          isActive
+            ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
+            : "text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20"
+        }`}
+        whileHover={{ x: isActive ? 0 : 5 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        <span className={isActive ? "text-white" : "text-primary dark:text-primary-light"}>
+          {getIcon(iconName)}
+        </span>
+        <span className="font-medium leading-tight">{label}</span>
+        <span className="ml-auto flex-shrink-0">
+          {isOpen ? (
+            <FiChevronDown className={isActive ? "text-white" : "text-gray-500 dark:text-gray-400"} />
+          ) : (
+            <FiChevronRight className={isActive ? "text-white" : "text-gray-500 dark:text-gray-400"} />
+          )}
+        </span>
       </motion.button>
     );
   }
@@ -120,14 +150,14 @@ export default function Sidebar({ isUser = false, onClose }) {
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="group flex items-end space-x-3 rounded-xl px-2 py-1 transition-all duration-300 hover:bg-primary/5"
+          className="group flex items-end space-x-3 rounded-xl px-2 py-1 transition-all duration-300 hover:bg-primary/5 text-left"
         >
           <img
             src="/logo/Logotype with Icon.png"
             alt="Logo"
             className="h-16 w-16 object-contain transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-105 group-hover:rotate-2"
           />
-          <div className="-translate-y-1.5 transition-transform duration-300 group-hover:-translate-y-2">
+          <div className="-translate-y-1.5 transition-transform duration-300 group-hover:-translate-y-2 text-left">
             <h2 className="bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-lg font-bold text-transparent">
               PELUK BUMI
             </h2>
@@ -149,84 +179,117 @@ export default function Sidebar({ isUser = false, onClose }) {
 
       {/* ── Main Navigation ─────────────────────────────────────────────────── */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-hide">
+        {/* 1. Dashboard */}
+        <NavButton
+          path={isAdmin ? "/admin/dashboard" : "/user/dashboard"}
+          iconName="FiHome"
+          label="Dashboard"
+        />
 
-        {/* Primary menu — driven entirely by navigationConfig */}
-        {menuItems.map((item, index) => (
-          <div key={item.path}>
-            <NavButton
-              path={item.path}
-              iconName={item.iconName}
-              label={item.label}
-            />
-
-            {index === 0 && (
-              <div className="mt-2">
-                <motion.button
-                  onClick={() => setPlanningOpen((prev) => !prev)}
-                  className={`w-full flex items-center space-x-3 rounded-xl px-4 py-3.5 transition-all ${
-                    isPlanningRoute
-                      ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20"
-                  }`}
-                  whileHover={{ x: isPlanningRoute ? 0 : 5 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <span className={isPlanningRoute ? "text-white" : "text-primary dark:text-primary-light"}>
-                    {getIcon("FiClipboard")}
-                  </span>
-                  <span className="font-medium">Perencanaan</span>
-                  <span className="ml-auto">
-                    {planningOpen ? (
-                      <FiChevronDown className={isPlanningRoute ? "text-white" : "text-gray-500 dark:text-gray-400"} />
-                    ) : (
-                      <FiChevronRight className={isPlanningRoute ? "text-white" : "text-gray-500 dark:text-gray-400"} />
-                    )}
-                  </span>
-                </motion.button>
-
-                <AnimatePresence initial={false}>
-                  {planningOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="ml-4 mt-2 space-y-1 overflow-hidden"
-                    >
-                      {planningItems.map((planningItem) => (
-                        <NavButton
-                          key={planningItem.key}
-                          path={planningItem.path}
-                          iconName={planningItem.iconName}
-                          label={planningItem.label}
-                          isNested
-                        />
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+        {/* 2. Perencanaan (Dropdown) */}
+        <div className="space-y-1">
+          <DropdownButton
+            label="Perencanaan"
+            iconName="FiClipboard"
+            isOpen={planningOpen}
+            isActive={isPlanningRoute}
+            onClick={() => setPlanningOpen(!planningOpen)}
+          />
+          <AnimatePresence initial={false}>
+            {planningOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="ml-4 space-y-1 overflow-hidden"
+              >
+                {planningItems.map((item) => (
+                  <NavButton
+                    key={item.key}
+                    path={item.path}
+                    iconName={item.iconName}
+                    label={item.label}
+                    isNested
+                  />
+                ))}
+              </motion.div>
             )}
-          </div>
-        ))}
+          </AnimatePresence>
+        </div>
+
+        {/* 3. Implementasi */}
+        <NavButton
+          path={isAdmin ? "/admin/implementasi" : "/user/implementasi"}
+          iconName="FiCheckCircle"
+          label="Implementasi"
+        />
+
+        {/* 4. Monitoring */}
+        <NavButton
+          path={isAdmin ? "/admin/monitoring" : "/user/monitoring"}
+          iconName="FiActivity"
+          label="Monitoring"
+        />
+
+        {/* 5. Evaluasi (Dropdown) */}
+        <div className="space-y-1">
+          <DropdownButton
+            label="Evaluasi"
+            iconName="FiBarChart2"
+            isOpen={evaluationOpen}
+            isActive={isEvaluationRoute}
+            onClick={() => setEvaluationOpen(!evaluationOpen)}
+          />
+          <AnimatePresence initial={false}>
+            {evaluationOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="ml-4 space-y-1 overflow-hidden"
+              >
+                {evaluationItems.map((item) => (
+                  <NavButton
+                    key={item.key}
+                    path={item.path}
+                    iconName={item.iconName}
+                    label={item.label}
+                    isNested
+                  />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* 6. Verifikasi */}
+        <NavButton
+          path="/verifikasi"
+          iconName="FiCheckCircle"
+          label="Verifikasi"
+          isSpecial
+        />
 
         {/* Divider */}
         <div className="my-2 border-t border-gray-100 dark:border-gray-800" />
 
-        {/* Special menu items — Verifikasi, Pengguna, Log History */}
-        {specialMenuItems.map((item) => {
-          const path  = item.getPath  ? item.getPath(isAdmin)  : item.path;
-          const label = item.getLabel ? item.getLabel(isAdmin) : item.label;
-          return (
-            <NavButton
-              key={item.label}
-              path={path}
-              iconName={item.iconName}
-              label={label}
-              isVerifikasi={item.label === "Verifikasi"}
-            />
-          );
-        })}
+        {/* 7. Pengguna (Admin Only) */}
+        {isAdmin && (
+          <NavButton
+            path="/admin/users"
+            iconName="FiUsers"
+            label="Pengguna"
+          />
+        )}
+
+        {/* 8. Log */}
+        <NavButton
+          path={isAdmin ? "/admin/log-history" : "/user/log-history"}
+          iconName="FiFileText"
+          label={isAdmin ? "Log Sistem" : "Log Aktivitas"}
+        />
       </nav>
 
       {/* ── User Profile ────────────────────────────────────────────────────── */}
@@ -299,19 +362,6 @@ export default function Sidebar({ isUser = false, onClose }) {
 
                 {/* Popup actions */}
                 <div className="p-2">
-                  {/* Theme toggle */}
-                  <motion.button
-                    onClick={toggleTheme}
-                    className="flex items-center gap-3 w-full px-3 py-2 text-left text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-all text-sm"
-                    whileHover={{ x: 4 }}
-                  >
-                    {theme === "dark" ? (
-                      <><FiSun className="w-4 h-4 text-peach" /><span className="font-medium">Mode Terang</span></>
-                    ) : (
-                      <><FiMoon className="w-4 h-4 text-gray-600" /><span className="font-medium">Mode Gelap</span></>
-                    )}
-                  </motion.button>
-
                   {/* Settings */}
                   <motion.button
                     onClick={() => {

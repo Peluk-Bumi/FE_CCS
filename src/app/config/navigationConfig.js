@@ -5,10 +5,9 @@ export const navigationConfig = {
   // ── Admin menu items ────────────────────────────────────────────────────────
   adminMenuItems: [
     { label: "Dashboard",    path: "/admin/dashboard",    iconName: "FiHome"        },
-    { label: "Pengguna",     path: "/admin/users",        iconName: "FiUsers"       },
     { label: "Implementasi", path: "/admin/implementasi", iconName: "FiCheckCircle" },
     { label: "Monitoring",   path: "/admin/monitoring",   iconName: "FiActivity"    },
-    { label: "Evaluasi",     path: "/admin/evaluasi",     iconName: "FiBarChart2"   },
+    { label: "Pengguna",     path: "/admin/users",        iconName: "FiUsers"       },
   ],
 
   // ── User menu items ─────────────────────────────────────────────────────────
@@ -18,7 +17,6 @@ export const navigationConfig = {
     { label: "Dashboard",    path: "/user/dashboard",    iconName: "FiHome"        },
     { label: "Implementasi", path: "/user/implementasi", iconName: "FiCheckCircle" },
     { label: "Monitoring",   path: "/user/monitoring",   iconName: "FiActivity"    },
-    { label: "Evaluasi",     path: "/user/evaluasi",     iconName: "FiBarChart2"   },
   ],
 
   planningMenu: {
@@ -32,6 +30,25 @@ export const navigationConfig = {
       create: {
         label: "Buat Perencanaan",
         getPath: (isAdmin) => isAdmin ? "/admin/perencanaan" : "/user/perencanaan",
+      },
+    },
+  },
+
+  evaluationMenu: {
+    label: "Evaluasi",
+    iconName: "FiBarChart2",
+    items: {
+      data: {
+        label: "Data Evaluasi",
+        getPath: (isAdmin) => isAdmin ? "/admin/evaluasi" : "/user/evaluasi",
+      },
+      informasi: {
+        label: "Informasi Pengamatan",
+        getPath: (isAdmin) => isAdmin ? "/admin/evaluasi/information" : "/user/evaluasi/information",
+      },
+      parameter: {
+        label: "Parameter Kondisi Kesehatan",
+        getPath: (isAdmin) => isAdmin ? "/admin/evaluasi/parameter" : "/user/evaluasi/parameter",
       },
     },
   },
@@ -94,6 +111,27 @@ export const navigationConfig = {
       label: navigationConfig.planningMenu.items.create.label,
       path: navigationConfig.planningMenu.items.create.getPath(isAdmin),
       iconName: "FiFileText",
+    },
+  ],
+
+  getEvaluationMenuItems: (isAdmin) => [
+    {
+      key: "data",
+      label: navigationConfig.evaluationMenu.items.data.label,
+      path: navigationConfig.evaluationMenu.items.data.getPath(isAdmin),
+      iconName: "FiBarChart2",
+    },
+    {
+      key: "informasi",
+      label: navigationConfig.evaluationMenu.items.informasi.label,
+      path: navigationConfig.evaluationMenu.items.informasi.getPath(isAdmin),
+      iconName: "FiFileText",
+    },
+    {
+      key: "parameter",
+      label: navigationConfig.evaluationMenu.items.parameter.label,
+      path: navigationConfig.evaluationMenu.items.parameter.getPath(isAdmin),
+      iconName: "FiActivity",
     },
   ],
 

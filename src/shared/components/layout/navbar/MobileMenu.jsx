@@ -65,7 +65,11 @@ export default function MobileMenu({
               {/* Verifikasi Button */}
               <motion.button
                 onClick={onVerifikasiNav}
-                className="w-full flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-2 border-green-600 hover:bg-green-200 dark:hover:bg-green-900/50 transition-all"
+                className={`w-full flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl font-semibold transition-all ${
+                  currentPath === "/verifikasi"
+                    ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-2 border-green-600"
+                    : "bg-green-50/50 dark:bg-green-900/10 text-green-700 dark:text-green-400 border-2 border-transparent hover:border-green-300 dark:hover:border-green-800"
+                }`}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
