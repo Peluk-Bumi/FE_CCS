@@ -24,9 +24,8 @@ import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import PageTitle from "@/shared/components/common/PageTitle";
 import { getActivityColors, getActivityIcon, formatHash, getActivityDisplayName } from "@/shared/constants/activityColors";
 import { buildLaporanPdfBlob } from "@/features/reporting/utils/reportPdf";
-const EXPLORER_BASE_URL =
-  import.meta.env.VITE_BLOCKCHAIN_EXPLORER_URL ||
-  "https://polygonscan.com";
+import blockchainConfig from "@/app/config/blockchainConfig";
+const EXPLORER_BASE_URL = blockchainConfig.explorerUrl;
 const ACTIVITY_TYPES = [
   "ALL",
   "PERENCANAAN",

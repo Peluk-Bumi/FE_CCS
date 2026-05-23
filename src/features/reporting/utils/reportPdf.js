@@ -1,7 +1,9 @@
 import QRCode from "qrcode";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
-const EXPLORER_BASE_URL = import.meta.env.VITE_BLOCKCHAIN_EXPLORER_BASE_URL || "https://polygonscan.com";
+import blockchainConfig from "@/app/config/blockchainConfig";
+
+const EXPLORER_BASE_URL = blockchainConfig.explorerUrl;
 
 export const getProgressInfo = (item) => {
   // Progress berdasarkan activity type yang sedang dilihat

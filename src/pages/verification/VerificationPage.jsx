@@ -14,7 +14,9 @@ import LaporanDetailModal from "@/features/verification/components/LaporanDetail
 import api from "@/shared/services/api";
 import "leaflet/dist/leaflet.css";
 
-const EXPLORER_BASE_URL = import.meta.env.VITE_BLOCKCHAIN_EXPLORER_BASE_URL || 'https://polygonscan.com';
+import blockchainConfig from "@/app/config/blockchainConfig";
+
+const EXPLORER_BASE_URL = blockchainConfig.explorerUrl;
 
 // ✅ Lazy load Scanner
 const Scanner = null;
