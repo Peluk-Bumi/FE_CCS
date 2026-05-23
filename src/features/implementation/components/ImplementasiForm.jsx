@@ -112,17 +112,19 @@ const ImplementasiForm = () => {
       perencanaan_id: "",
       kesesuaian: {
         nama_perusahaan: null,
-        nama_perusahaan_detail: "",
         lokasi: null,
-        lokasi_detail: "",
         jenis_kegiatan: null,
-        jenis_kegiatan_detail: "",
         jumlah_bibit: null,
-        jumlah_bibit_detail: "",
         jenis_bibit: null,
-        jenis_bibit_detail: "",
         tanggal: null,
-        tanggal_detail: "",
+        realisasi_aktual: {
+          nama_perusahaan: "",
+          lokasi: "",
+          jenis_kegiatan: "",
+          jumlah_bibit: "",
+          jenis_bibit: "",
+          tanggal: "",
+        },
       },
       pic_koorlap: "",
       dokumentasi: null,
@@ -133,7 +135,7 @@ const ImplementasiForm = () => {
       setSubmitting(true);
       try {
         if (values.kesesuaian?.tanggal === false) {
-          const tanggalDetail = values.kesesuaian?.tanggal_detail;
+          const tanggalDetail = values.kesesuaian?.realisasi_aktual?.tanggal;
           if (tanggalDetail && tanggalDetail < minDateValue) {
             toast.error("Tanggal tidak boleh sebelum hari ini");
             setSubmitting(false);
@@ -141,9 +143,22 @@ const ImplementasiForm = () => {
           }
         }
 
+        // Clean up realisasi_aktual: only send fields that are marked as false
+        const cleanedAktual = {};
+        Object.keys(values.kesesuaian).forEach(key => {
+          if (values.kesesuaian[key] === false && key !== 'realisasi_aktual') {
+            cleanedAktual[key] = values.kesesuaian.realisasi_aktual[key];
+          }
+        });
+
+        const payloadKesesuaian = {
+          ...values.kesesuaian,
+          realisasi_aktual: cleanedAktual
+        };
+
         const formData = new FormData();
         formData.append("perencanaan_id", values.perencanaan_id);
-        formData.append("kesesuaian", JSON.stringify(values.kesesuaian));
+        formData.append("kesesuaian", JSON.stringify(payloadKesesuaian));
         formData.append("pic_koorlap", values.pic_koorlap);
         if (Array.isArray(values.dokumentasi)) {
           values.dokumentasi.forEach((file) => formData.append("dokumentasi[]", file));
@@ -793,16 +808,16 @@ const ImplementasiForm = () => {
                           <Input
                             type="date"
                             min={minDateValue}
-                            value={formik.values.kesesuaian[`${item.field}_detail`]}
-                            onChange={(e) => formik.setFieldValue(`kesesuaian.${item.field}_detail`, e.target.value)}
+                            value={formik.values.kesesuaian.realisasi_aktual[item.field]}
+                            onChange={(e) => formik.setFieldValue(`kesesuaian.realisasi_aktual.${item.field}`, e.target.value)}
                             className="w-full"
                           />
                         ) : (
                           <Input
                             type={item.type}
                             placeholder={`Masukkan ${item.label.toLowerCase()} jika berbeda`}
-                            value={formik.values.kesesuaian[`${item.field}_detail`]}
-                            onChange={(e) => formik.setFieldValue(`kesesuaian.${item.field}_detail`, e.target.value)}
+                            value={formik.values.kesesuaian.realisasi_aktual[item.field]}
+                            onChange={(e) => formik.setFieldValue(`kesesuaian.realisasi_aktual.${item.field}`, e.target.value)}
                             className="w-full"
                           />
                         )}
