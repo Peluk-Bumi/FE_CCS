@@ -40,42 +40,53 @@ class BlockchainService {
       SecurityGuard.validateEnvironment();
       SecurityGuard.validateBlockchainConfig(this.config);
       
-      // Initialize providers using factory
-      this.primaryProvider = ProviderFactory.createPrimaryProvider(
-        this.config.rpcUrl, 
-        this.config.chainId
-      );
-      
-      this.fallbackProviders = ProviderFactory.createFallbackProviders(
-        this.config.fallbackRpcUrls, 
-        this.config.chainId
-      );
-      
-      // Find working provider
-      this.provider = await ProviderFactory.findWorkingProvider(
-        this.primaryProvider, 
-        this.fallbackProviders
-      );
-      
-      // Validate provider matches expected chain
-      await ProviderFactory.validateProvider(this.provider, this.config.chainId);
-      
-      // Check balance of hardcoded address
-      if (this.walletAddress) {
-        const balance = await this.provider.getBalance(this.walletAddress);
-        console.log(`Balance of ${this.walletAddress}: ${ethers.formatEther(balance)} ETH`);
+      // Initialize providers only if RPC URL is provided
+      if (this.config.rpcUrl) {
+        try {
+          // Initialize providers using factory
+          this.primaryProvider = ProviderFactory.createPrimaryProvider(
+            this.config.rpcUrl, 
+            this.config.chainId
+          );
+          
+          this.fallbackProviders = ProviderFactory.createFallbackProviders(
+            this.config.fallbackRpcUrls, 
+            this.config.chainId
+          );
+          
+          // Find working provider
+          this.provider = await ProviderFactory.findWorkingProvider(
+            this.primaryProvider, 
+            this.fallbackProviders
+          );
+          
+          // Validate provider matches expected chain
+          await ProviderFactory.validateProvider(this.provider, this.config.chainId);
+          
+          // Check balance of hardcoded address
+          if (this.walletAddress) {
+            const balance = await this.provider.getBalance(this.walletAddress);
+            console.log(`Balance of ${this.walletAddress}: ${ethers.formatEther(balance)} ETH`);
+          }
+          
+          // Initialize contract
+          await this.initializeContract();
+        } catch (rpcError) {
+          console.warn('Blockchain RPC initialization failed, falling back to BC_CCS service:', rpcError.message);
+          this.provider = null;
+          this.contract = null;
+        }
+      } else {
+        console.log('No direct RPC URL provided. Using BC_CCS service for all operations.');
       }
-      
-      // Initialize contract
-      await this.initializeContract();
       
       this.isInitialized = true;
       this.lastError = null;
-      console.log('Blockchain service initialized successfully');
+      console.log('Blockchain service initialized (BC_CCS Mode)');
       return true;
     } catch (error) {
       this.lastError = error.message;
-      console.error('Blockchain service initialization failed:', error);
+      console.error('Blockchain service critical failure:', error);
       throw error;
     }
   }

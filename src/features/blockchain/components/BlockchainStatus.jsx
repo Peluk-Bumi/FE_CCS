@@ -3,9 +3,11 @@ import { motion } from 'framer-motion';
 import { FiCheck, FiLoader, FiCopy, FiExternalLink, FiWifi, FiWifiOff, FiLink } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
-const EXPLORER_BASE_URL = import.meta.env.VITE_BLOCKCHAIN_EXPLORER_URL || 'https://polygonscan.com';
-const NETWORK_LABEL = import.meta.env.VITE_BLOCKCHAIN_NETWORK_LABEL || 'Polygon Mainnet';
-const CHAIN_ID = import.meta.env.VITE_BLOCKCHAIN_CHAIN_ID || '137';
+import blockchainConfig from '@/app/config/blockchainConfig';
+
+const EXPLORER_BASE_URL = blockchainConfig.explorerUrl;
+const NETWORK_LABEL = blockchainConfig.networkLabel;
+const CHAIN_ID = blockchainConfig.chainId.toString();
 const TOKEN_SYMBOL = CHAIN_ID === '11155111' ? 'ETH' : 'MATIC';
 
 export default function BlockchainStatus() {

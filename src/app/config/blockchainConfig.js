@@ -11,7 +11,6 @@ class BlockchainConfig {
   validateEnvironment() {
     const required = [
       'VITE_BLOCKCHAIN_CHAIN_ID',
-      'VITE_BLOCKCHAIN_RPC_URL', 
       'VITE_BLOCKCHAIN_CONTRACT_ADDRESS'
     ];
 
@@ -31,7 +30,7 @@ class BlockchainConfig {
     return {
       // Core blockchain settings
       chainId: BigInt(import.meta.env.VITE_BLOCKCHAIN_CHAIN_ID),
-      rpcUrl: import.meta.env.VITE_BLOCKCHAIN_RPC_URL,
+      rpcUrl: import.meta.env.VITE_BLOCKCHAIN_RPC_URL || '',
       contractAddress: import.meta.env.VITE_BLOCKCHAIN_CONTRACT_ADDRESS,
       explorerUrl: import.meta.env.VITE_BLOCKCHAIN_EXPLORER_URL || BlockchainConfig.getExplorerUrl(import.meta.env.VITE_BLOCKCHAIN_CHAIN_ID),
       networkLabel: import.meta.env.VITE_BLOCKCHAIN_NETWORK_LABEL || 'Unknown Network',
@@ -82,6 +81,7 @@ class BlockchainConfig {
       '11155111': 'https://sepolia.etherscan.io',
       '80002': 'https://amoy.polygonscan.com', 
       '137': 'https://polygonscan.com',
+      '31337': 'http://localhost:8545',
       '1': 'https://etherscan.io',
       '5': 'https://goerli.etherscan.io'
     };
