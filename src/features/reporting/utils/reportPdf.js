@@ -423,7 +423,7 @@ export const buildLaporanPdfBlob = async (item) => {
 
   addSection("DATA PERENCANAAN");
   addField("ID Laporan", item.id);
-  addField("Nama Perusahaan", item.nama_perusahaan);
+  addField("Nama Lembaga", item.nama_perusahaan);
   addField("Identitas Blok", item.identitas_blok || "-");
   addField("Nama PIC", item.nama_pic);
   addField("Narahubung", item.narahubung || "-");
@@ -449,7 +449,7 @@ export const buildLaporanPdfBlob = async (item) => {
     const implementasiDocs = parseStoredFiles(implementasi?.dokumentasi_kegiatan);
     addSection("DETAIL IMPLEMENTASI");
     addField("PIC Koorlap", implementasi?.pic_koorlap || "-");
-    addField("Kesesuaian Nama Perusahaan", boolLabel(getKesesuaianValue(implementasi, "nama_perusahaan")));
+    addField("Kesesuaian Nama Lembaga", boolLabel(getKesesuaianValue(implementasi, "nama_perusahaan")));
     addField("Kesesuaian Lokasi", boolLabel(getKesesuaianValue(implementasi, "lokasi")));
     addField("Kesesuaian Jenis Kegiatan", boolLabel(getKesesuaianValue(implementasi, "jenis_kegiatan")));
     addField("Kesesuaian Jumlah Bibit", boolLabel(getKesesuaianValue(implementasi, "jumlah_bibit")));

@@ -116,8 +116,8 @@ const PerencanaanForm = () => {
   const { user } = useAuth();
   const isUserCreator = user?.role === "user";
   const resolvedCompanyName = (
+    user?.nama_perusahaan ||
     user?.company_name ||
-    user?.nama_lembaga ||
     user?.organization ||
     user?.name ||
     user?.username ||
@@ -139,24 +139,24 @@ const PerencanaanForm = () => {
         if (!mounted) return;
         setAdminUsers(list.map(u => ({
           id: u.id,
-          label: u.label || u.name || u.company_name || u.nama_lembaga || u.username || u.email || `User ${u.id}`
+          label: u.label || u.name || u.company_name || u.nama_perusahaan || u.username || u.email || `User ${u.id}`
         })));
       } catch (err) {
-        console.error('[PlanningForm] Failed to fetch users for admin dropdown', err);
+        console.error("Failed to fetch institution users:", err);
       }
     })();
     return () => { mounted = false };
   }, [isAdmin]);
 
   const validationSchema = Yup.object({
-    nama_lembaga: Yup.string().required("Wajib diisi"),
-    identitas_blok: Yup.string().required("Wajib diisi"),
+    nama_perusahaan: Yup.string().required("Wajib diisi"),
+    identitas_blok: Yup.string().nullable(),
     nama_pic: Yup.string().required("Wajib diisi"),
     narahubung: Yup.string().required("Wajib diisi"),
     jenis_kegiatan: Yup.string().required("Pilih salah satu"),
-    lokasi: Yup.string().required("Wajib diisi - Klik pada peta untuk menandai lokasi"),
-    lat: Yup.number().required("Latitude diperlukan"),
-    lng: Yup.number().required("Longitude diperlukan"),
+    lokasi: Yup.string().required("Wajib diisi - Masukkan nama desa/wilayah"),
+    lat: Yup.number().required("Latitude diperlukan - Klik pada peta"),
+    lng: Yup.number().required("Longitude diperlukan - Klik pada peta"),
     jumlah_bibit: Yup.number().required("Wajib diisi").positive("Harus positif"),
     jenis_bibit: Yup.string().required("Wajib diisi"),
     tanggal_pelaksanaan: Yup.string()
@@ -169,7 +169,7 @@ const PerencanaanForm = () => {
 
   const formik = useFormik({
     initialValues: {
-      nama_lembaga: "",
+      nama_perusahaan: "",
       identitas_blok: "",
       nama_pic: "",
       narahubung: "",
@@ -189,10 +189,10 @@ const PerencanaanForm = () => {
       
       try {
         const payload = isUserCreator
-          ? { ...values, nama_lembaga: resolvedCompanyName, nama_perusahaan: resolvedCompanyName }
-          : { ...values, nama_perusahaan: values.nama_lembaga };
+          ? { ...values, nama_perusahaan: resolvedCompanyName }
+          : { ...values };
 
-        if (isUserCreator && !payload.nama_lembaga) {
+        if (isUserCreator && !payload.nama_perusahaan) {
           toast.error("Nama lembaga user belum tersedia. Silakan lengkapi profil akun Anda.");
           return;
         }
@@ -238,15 +238,13 @@ const PerencanaanForm = () => {
 
   useEffect(() => {
     if (isUserCreator && resolvedCompanyName) {
-      formik.setFieldValue("nama_lembaga", resolvedCompanyName);
+      formik.setFieldValue("nama_perusahaan", resolvedCompanyName);
     }
   }, [isUserCreator, resolvedCompanyName]);
 
   // ✅ Handle map click untuk menandai lokasi
   const handleLocationSelect = (latlng) => {
     setSelectedLocation(latlng);
-    const coords = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
-    formik.setFieldValue("lokasi", coords);
     formik.setFieldValue("lat", latlng.lat);
     formik.setFieldValue("lng", latlng.lng);
   };
@@ -278,8 +276,7 @@ const PerencanaanForm = () => {
   };
 
   const inputFields = [
-      { name: "nama_lembaga", label: "Nama Lembaga", icon: FiBriefcase, placeholder: "Yayasan Contoh Indonesia" },
-    { name: "identitas_blok", label: "Identitas Blok", icon: FiLink, placeholder: "Blok A / Petak 03" },
+    { name: "nama_perusahaan", label: "Nama Lembaga", icon: FiBriefcase, placeholder: "Yayasan Contoh Indonesia" },
     { name: "nama_pic", label: "Nama PIC", icon: FiUser, placeholder: "John Doe" },
     { name: "narahubung", label: "Narahubung", icon: FiPhone, placeholder: "812-3456-7890", prefix: "+62" },
     { name: "jumlah_bibit", label: "Jumlah Bibit", icon: FiCheckCircle, type: "number", placeholder: "100", suffix: "bibit" },
@@ -364,7 +361,7 @@ const PerencanaanForm = () => {
                     {field.label}
                   </label>
                   <div className="relative">
-                    {field.name === "nama_lembaga" && isAdmin ? (
+                    {field.name === "nama_perusahaan" && isAdmin ? (
                       <Select
                         value={adminUsers.find((item) => item.label === formik.values[field.name])?.id || ""}
                         onValueChange={(val) => {
@@ -401,7 +398,7 @@ const PerencanaanForm = () => {
                         min={field.type === "date" ? minDateValue : undefined}
                         list={field.name === "jenis_bibit" ? "global-tree-species" : undefined}
                         disabled={field.disabled}
-                        readOnly={field.readonly || (field.name === "nama_lembaga" && isUserCreator)}
+                        readOnly={field.readonly || (field.name === "nama_perusahaan" && isUserCreator)}
                         prefix={field.prefix}
                         suffix={field.suffix}
                         className={cn(
@@ -418,12 +415,12 @@ const PerencanaanForm = () => {
                         ))}
                       </datalist>
                     )}
-                    {field.name === "nama_lembaga" && isUserCreator && (
+                    {field.name === "nama_perusahaan" && isUserCreator && (
                       <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-300">
                         Diambil otomatis dari akun user yang sedang login.
                       </p>
                     )}
-                    {field.name === "nama_lembaga" && isAdmin && (
+                    {field.name === "nama_perusahaan" && isAdmin && (
                       <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-300">
                         Pilih nama user dari daftar untuk mengisi nama lembaga.
                       </p>
@@ -520,34 +517,77 @@ const PerencanaanForm = () => {
                 </div>
               </div>
 
-              {/* Map Controls */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                {/* Coordinates Display */}
-                <Input
-                  type="text"
-                  value={formik.values.lokasi || "Belum ada lokasi yang ditandai"}
-                  readOnly
-                  className="flex-1 font-mono text-sm"
-                />
-                
-                {/* Center Map Button */}
-                <motion.button
-                  type="button"
-                  onClick={getCurrentLocation}
-                  className="relative group flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg overflow-hidden transition-all duration-300"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {/* hover overlay */}
-                  <span className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Map Controls & Location Info */}
+              <div className="space-y-4 mb-6">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                      <FiMapPin className="w-4 h-4 text-primary" />
+                      Nama Lokasi / Wilayah <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      name="lokasi"
+                      placeholder="Contoh: Desa Bakau, Kec. Pesisir"
+                      value={formik.values.lokasi}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className={cn(formik.touched.lokasi && formik.errors.lokasi ? "border-red-400" : "")}
+                    />
+                    {formik.touched.lokasi && formik.errors.lokasi && (
+                      <p className="text-red-500 text-xs mt-1">{formik.errors.lokasi}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                      <FiLink className="w-4 h-4 text-primary" />
+                      Identitas Blok (Opsional)
+                    </label>
+                    <Input
+                      name="identitas_blok"
+                      placeholder="Contoh: Blok A / Petak 03"
+                      value={formik.values.identitas_blok}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {/* Coordinates Display */}
+                  <div className="flex-1 flex gap-2">
+                    <Input
+                      type="text"
+                      value={formik.values.lat ? `LAT: ${formik.values.lat.toFixed(6)}` : "Latitude belum ditandai"}
+                      readOnly
+                      className="flex-1 font-mono text-sm bg-gray-50 dark:bg-gray-800"
+                    />
+                    <Input
+                      type="text"
+                      value={formik.values.lng ? `LNG: ${formik.values.lng.toFixed(6)}` : "Longitude belum ditandai"}
+                      readOnly
+                      className="flex-1 font-mono text-sm bg-gray-50 dark:bg-gray-800"
+                    />
+                  </div>
                   
-                  {/* content */}
-                  <span className="relative z-10 flex items-center gap-2">
-                    <FiNavigation className="w-5 h-5" />
-                    <span className="hidden sm:inline">Pusatkan ke Lokasi Saya</span>
-                    <span className="sm:hidden">Lokasi Saya</span>
-                  </span>
-                </motion.button>
+                  {/* Center Map Button */}
+                  <motion.button
+                    type="button"
+                    onClick={getCurrentLocation}
+                    className="relative group flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg overflow-hidden transition-all duration-300"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {/* hover overlay */}
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* content */}
+                    <span className="relative z-10 flex items-center gap-2">
+                      <FiNavigation className="w-5 h-5" />
+                      <span className="hidden sm:inline">Pusatkan ke Lokasi Saya</span>
+                      <span className="sm:hidden">Lokasi Saya</span>
+                    </span>
+                  </motion.button>
+                </div>
               </div>
 
               {/* Interactive Map */}
@@ -596,10 +636,10 @@ const PerencanaanForm = () => {
                 >
                   <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
                     <FiCheckCircle className="w-5 h-5" />
-                    <span className="font-semibold">Lokasi berhasil ditandai!</span>
+                    <span className="font-semibold">Pin Lokasi berhasil ditandai!</span>
                   </div>
                   <p className="text-sm text-primary dark:text-primary-light mt-1">
-                    Koordinat: <span className="font-mono">{formik.values.lokasi}</span>
+                    Koordinat: <span className="font-mono">{formik.values.lat?.toFixed(6)}, {formik.values.lng?.toFixed(6)}</span>
                   </p>
                 </motion.div>
               )}

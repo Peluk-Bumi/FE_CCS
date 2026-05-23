@@ -387,7 +387,12 @@ const MonitoringForm = () => {
     formik.setFieldValue("lokasi", geotagging);
     formik.setFieldTouched("lokasi", true, false);
 
-    const plantedSeedCount = location?.jumlah_bibit ?? location?.jumlah_bibit_ditanam ?? location?.perencanaan?.jumlah_bibit ?? "";
+    const plantedSeedCount = 
+      location?.realisasi_aktual?.jumlah_bibit ?? 
+      location?.jumlah_bibit ?? 
+      location?.jumlah_bibit_ditanam ?? 
+      location?.perencanaan?.jumlah_bibit ?? 
+      "";
     if (plantedSeedCount !== "") {
       formik.setFieldValue("jumlah_bibit_ditanam", String(plantedSeedCount), false);
       formik.setFieldTouched("jumlah_bibit_ditanam", false, false);

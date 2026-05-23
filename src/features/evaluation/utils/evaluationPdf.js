@@ -243,7 +243,7 @@ export const buildEvaluasiPdfBlob = async (report, narratives, recommendations =
   });
   state.y -= 18;
 
-  state.y = drawLabeledRow(page, fonts, "Nama Perusahaan", safeText(report.namaPerusahaan), state.y);
+  state.y = drawLabeledRow(page, fonts, "Nama Lembaga", safeText(report.namaPerusahaan), state.y);
   state.y = drawLabeledRow(page, fonts, "Jenis Kegiatan", safeText(report.jenisKegiatan), state.y);
   state.y = drawLabeledRow(page, fonts, "Lokasi", safeText(report.lokasi), state.y);
   state.y = drawLabeledRow(page, fonts, "Geotagging", safeText(report.lokasiGeotagging), state.y);

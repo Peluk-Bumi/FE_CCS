@@ -21,7 +21,7 @@ export const resolveProjectDisplay = (record = {}) => {
     record?.implementasi?.status,
   ];
 
-  const company = companyCandidates.find((value) => typeof value === 'string' && value.trim()) || 'Perusahaan tanpa nama';
+  const company = companyCandidates.find((value) => typeof value === 'string' && value.trim()) || 'Lembaga tanpa nama';
   const location = locationCandidates.find((value) => typeof value === 'string' && value.trim()) || '-';
   const status = statusCandidates.find((value) => typeof value === 'string' && value.trim()) || 'planning';
 

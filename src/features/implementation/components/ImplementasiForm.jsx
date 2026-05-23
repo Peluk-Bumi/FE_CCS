@@ -119,7 +119,8 @@ const ImplementasiForm = () => {
         tanggal: null,
         realisasi_aktual: {
           nama_perusahaan: "",
-          lokasi: "",
+          lat: "",
+          long: "",
           jenis_kegiatan: "",
           jumlah_bibit: "",
           jenis_bibit: "",
@@ -147,7 +148,12 @@ const ImplementasiForm = () => {
         const cleanedAktual = {};
         Object.keys(values.kesesuaian).forEach(key => {
           if (values.kesesuaian[key] === false && key !== 'realisasi_aktual') {
-            cleanedAktual[key] = values.kesesuaian.realisasi_aktual[key];
+            if (key === 'lokasi') {
+              cleanedAktual.lat = values.kesesuaian.realisasi_aktual.lat;
+              cleanedAktual.long = values.kesesuaian.realisasi_aktual.long;
+            } else {
+              cleanedAktual[key] = values.kesesuaian.realisasi_aktual[key];
+            }
           }
         });
 
@@ -764,65 +770,124 @@ const ImplementasiForm = () => {
                 <FiCheckCircle className="w-6 h-6 text-green-600" />
                 Checklist Kesesuaian Perencanaan
               </h3>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[
-                  { field: 'nama_perusahaan', label: 'Nama Lembaga', type: 'text' },
-                  { field: 'lokasi', label: 'Lokasi', type: 'text' },
-                  { field: 'jenis_kegiatan', label: 'Jenis Kegiatan', type: 'text' },
-                  { field: 'jumlah_bibit', label: 'Jumlah Bibit', type: 'number' },
-                  { field: 'jenis_bibit', label: 'Jenis Bibit', type: 'text' },
-                  { field: 'tanggal', label: 'Tanggal', type: 'date' },
+                  { field: 'nama_perusahaan', label: 'Nama Lembaga', type: 'text', description: 'Kesesuaian identitas lembaga penyelenggara' },
+                  { field: 'lokasi', label: 'Koordinat Lokasi', type: 'coords', description: 'Kesesuaian titik GPS/geotagging di peta' },
+                  { field: 'jenis_kegiatan', label: 'Jenis Kegiatan', type: 'text', description: 'Kesesuaian jenis aktivitas konservasi' },
+                  { field: 'jumlah_bibit', label: 'Jumlah Bibit', type: 'number', suffix: 'bibit', description: 'Kesesuaian total bibit yang ditanam' },
+                  { field: 'jenis_bibit', label: 'Jenis Bibit', type: 'text', description: 'Kesesuaian varietas bibit yang digunakan' },
+                  { field: 'tanggal', label: 'Tanggal', type: 'date', description: 'Kesesuaian waktu pelaksanaan kegiatan' },
                 ].map((item, index) => (
                   <motion.div
                     key={item.field}
-                    className="p-4 rounded-xl border bg-white dark:bg-gray-800"
-                    initial={{ opacity: 0, y: 6 }}
+                    className={cn(
+                      "p-6 rounded-3xl border transition-all duration-300",
+                      formik.values.kesesuaian[item.field] === false 
+                        ? "border-amber-200 bg-amber-50/40 dark:bg-amber-900/10 shadow-sm" 
+                        : "border-gray-100 bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm hover:shadow-md"
+                    )}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.06 * index }}
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">{item.label}</div>
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-1">
+                          <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{item.label}</div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{item.description}</p>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-900/50 p-1.5 rounded-xl border border-gray-100 dark:border-gray-700">
+                          <button
+                            type="button"
+                            onClick={() => formik.setFieldValue(`kesesuaian.${item.field}`, true)}
+                            className={cn(
+                              "px-4 py-2 text-xs font-bold rounded-lg transition-all",
+                              formik.values.kesesuaian[item.field] === true
+                                ? "bg-emerald-500 text-white shadow-lg"
+                                : "text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700"
+                            )}
+                          >
+                            Ya
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => formik.setFieldValue(`kesesuaian.${item.field}`, false)}
+                            className={cn(
+                              "px-4 py-2 text-xs font-bold rounded-lg transition-all",
+                              formik.values.kesesuaian[item.field] === false
+                                ? "bg-amber-500 text-white shadow-lg"
+                                : "text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700"
+                            )}
+                          >
+                            Tidak
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <RadioCard
-                          label="Ya"
-                          checked={formik.values.kesesuaian[item.field] === true}
-                          onChange={() => formik.setFieldValue(`kesesuaian.${item.field}`, true)}
-                          onClick={() => formik.setFieldValue(`kesesuaian.${item.field}`, true)}
-                          className="w-16"
-                        />
-                        <RadioCard
-                          label="Tidak"
-                          checked={formik.values.kesesuaian[item.field] === false}
-                          onChange={() => formik.setFieldValue(`kesesuaian.${item.field}`, false)}
-                          onClick={() => formik.setFieldValue(`kesesuaian.${item.field}`, false)}
-                          className="w-20"
-                        />
-                      </div>
-                    </div>
 
-                    {formik.values.kesesuaian[item.field] === false && (
-                      <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 rounded">
-                        {item.type === 'date' ? (
-                          <Input
-                            type="date"
-                            min={minDateValue}
-                            value={formik.values.kesesuaian.realisasi_aktual[item.field]}
-                            onChange={(e) => formik.setFieldValue(`kesesuaian.realisasi_aktual.${item.field}`, e.target.value)}
-                            className="w-full"
-                          />
-                        ) : (
-                          <Input
-                            type={item.type}
-                            placeholder={`Masukkan ${item.label.toLowerCase()} jika berbeda`}
-                            value={formik.values.kesesuaian.realisasi_aktual[item.field]}
-                            onChange={(e) => formik.setFieldValue(`kesesuaian.realisasi_aktual.${item.field}`, e.target.value)}
-                            className="w-full"
-                          />
+                      <AnimatePresence>
+                        {formik.values.kesesuaian[item.field] === false && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mt-2 p-4 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm border border-amber-200 dark:border-amber-800 rounded-2xl shadow-inner">
+                              <label className="text-[10px] uppercase tracking-widest font-black text-amber-600 dark:text-amber-400 mb-3 block">
+                                Realisasi Aktual
+                              </label>
+                              
+                              {item.type === 'coords' ? (
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="space-y-1">
+                                    <span className="text-[10px] font-bold text-gray-400">LATITUDE</span>
+                                    <Input
+                                      type="number"
+                                      placeholder="Contoh: -6.123"
+                                      value={formik.values.kesesuaian.realisasi_aktual.lat}
+                                      onChange={(e) => formik.setFieldValue('kesesuaian.realisasi_aktual.lat', e.target.value)}
+                                      className="w-full bg-white dark:bg-gray-800 border-amber-100 focus:border-amber-400 h-10 text-sm font-mono"
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <span className="text-[10px] font-bold text-gray-400">LONGITUDE</span>
+                                    <Input
+                                      type="number"
+                                      placeholder="Contoh: 106.123"
+                                      value={formik.values.kesesuaian.realisasi_aktual.long}
+                                      onChange={(e) => formik.setFieldValue('kesesuaian.realisasi_aktual.long', e.target.value)}
+                                      className="w-full bg-white dark:bg-gray-800 border-amber-100 focus:border-amber-400 h-10 text-sm font-mono"
+                                    />
+                                  </div>
+                                </div>
+                              ) : item.type === 'date' ? (
+                                <Input
+                                  type="date"
+                                  min={minDateValue}
+                                  value={formik.values.kesesuaian.realisasi_aktual[item.field]}
+                                  onChange={(e) => formik.setFieldValue(`kesesuaian.realisasi_aktual.${item.field}`, e.target.value)}
+                                  className="w-full bg-white dark:bg-gray-800 border-amber-100 focus:border-amber-400 h-10 text-sm"
+                                />
+                              ) : (
+                                <Input
+                                  type={item.type}
+                                  placeholder={`Masukkan ${item.label.toLowerCase()} aktual...`}
+                                  value={formik.values.kesesuaian.realisasi_aktual[item.field]}
+                                  onChange={(e) => formik.setFieldValue(`kesesuaian.realisasi_aktual.${item.field}`, e.target.value)}
+                                  suffix={item.suffix}
+                                  className="w-full bg-white dark:bg-gray-800 border-amber-100 focus:border-amber-400 h-10 text-sm"
+                                />
+                              )}
+                              <p className="mt-2 text-[10px] text-amber-500 italic font-medium flex items-center gap-1">
+                                <FiAlertCircle className="w-3 h-3" />
+                                Nilai ini akan dicatat sebagai realisasi lapangan
+                              </p>
+                            </div>
+                          </motion.div>
                         )}
-                      </div>
-                    )}
+                      </AnimatePresence>
+                    </div>
                   </motion.div>
                 ))}
               </div>

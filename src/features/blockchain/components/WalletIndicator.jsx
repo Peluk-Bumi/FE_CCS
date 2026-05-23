@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useBlockchain } from '@/app/context/BlockchainContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiCopy, FiCheckCircle, FiAlertCircle, FiBriefcase, FiLock, FiWifiOff } from 'react-icons/fi';
+import { FiCopy, FiCheckCircle, FiAlertCircle, FiBriefcase, FiLock, FiWifiOff, FiShield } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { createPortal } from 'react-dom';
 
