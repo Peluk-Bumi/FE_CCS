@@ -169,6 +169,7 @@ const PerencanaanForm = () => {
 
   const formik = useFormik({
     initialValues: {
+      user_id: "",
       nama_perusahaan: "",
       identitas_blok: "",
       nama_pic: "",
@@ -239,8 +240,11 @@ const PerencanaanForm = () => {
   useEffect(() => {
     if (isUserCreator && resolvedCompanyName) {
       formik.setFieldValue("nama_perusahaan", resolvedCompanyName);
+      if (user?.id) {
+        formik.setFieldValue("user_id", user.id);
+      }
     }
-  }, [isUserCreator, resolvedCompanyName]);
+  }, [isUserCreator, resolvedCompanyName, user?.id]);
 
   // ✅ Handle map click untuk menandai lokasi
   const handleLocationSelect = (latlng) => {
@@ -363,10 +367,13 @@ const PerencanaanForm = () => {
                   <div className="relative">
                     {field.name === "nama_perusahaan" && isAdmin ? (
                       <Select
-                        value={adminUsers.find((item) => item.label === formik.values[field.name])?.id || ""}
+                        value={String(formik.values.user_id || "")}
                         onValueChange={(val) => {
-                          const selectedUser = adminUsers.find((item) => String(item.id) === val);
-                          formik.setFieldValue(field.name, selectedUser?.label || "");
+                          const selectedUser = adminUsers.find((item) => String(item.id) === String(val));
+                          if (selectedUser) {
+                            formik.setFieldValue("nama_perusahaan", selectedUser.label);
+                            formik.setFieldValue("user_id", selectedUser.id);
+                          }
                         }}
                         disabled={field.disabled}
                       >

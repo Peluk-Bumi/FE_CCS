@@ -68,6 +68,31 @@ const createIconMarker = (isSelected = false) => {
 const implementationMarkerIcon = createIconMarker(false);
 const selectedMarkerIcon = createIconMarker(true);
 const DOCUMENTATION_MAX_FILES = 10;
+
+// ✅ HELPER: Parse JSON safely for realisasi_aktual
+const getActualValue = (data, key) => {
+  if (!data) return null;
+  
+  // ✅ Robust JSON parsing
+  let actual = data.realisasi_aktual;
+  
+  if (actual === undefined || actual === null) {
+    // Check if it's nested in perencanaan (unlikely but for safety)
+    actual = data.perencanaan?.implementasi?.realisasi_aktual;
+  }
+
+  if (typeof actual === 'string') {
+    try {
+      actual = JSON.parse(actual);
+    } catch (e) {
+      console.error("[getActualValue] Failed to parse JSON string:", actual);
+      actual = null;
+    }
+  }
+  
+  return (actual && typeof actual === 'object') ? actual[key] : null;
+};
+
 const DOCUMENTATION_MAX_FILE_SIZE_MB = 10;
 const DOCUMENTATION_MAX_FILE_SIZE_BYTES = DOCUMENTATION_MAX_FILE_SIZE_MB * 1024 * 1024;
 const DOCUMENTATION_SUPPORTED_FORMATS = [
@@ -237,9 +262,23 @@ const MonitoringForm = () => {
       const records = monitoringRecordsByImplementasi[String(selectedLocation.id)] || [];
       const month3 = records.find(r => Number(r.bulan_monitoring) === 3);
       if (month3) {
-        const initialPlanted = Number(selectedLocation.jumlah_bibit ?? selectedLocation.jumlah_bibit_ditanam ?? selectedLocation.perencanaan?.jumlah_bibit ?? 0);
+        const isNotSesuai = (selectedLocation?.jumlah_bibit_sesuai === false || selectedLocation?.jumlah_bibit_sesuai === 0 || selectedLocation?.jumlah_bibit_sesuai === "0");
+        const actualJumlahBibit = getActualValue(selectedLocation, "jumlah_bibit");
+        const planningJumlahBibit = selectedLocation?.perencanaan?.jumlah_bibit ?? selectedLocation?.jumlah_bibit ?? 0;
+
+        const initialPlanted = Number(isNotSesuai && actualJumlahBibit !== null ? actualJumlahBibit : planningJumlahBibit);
         const deadInMonth3 = Number(month3.jumlah_bibit_mati ?? 0);
         const alive = Math.max(initialPlanted - deadInMonth3, 0);
+
+        console.log("[MonitoringForm] Month 6 Calculation DEBUG:", {
+          isNotSesuai,
+          actualJumlahBibit,
+          planningJumlahBibit,
+          initialPlanted,
+          deadInMonth3,
+          calculated_alive: alive
+        });
+
         if (String(alive) !== String(formik.values.jumlah_bibit_ditanam)) {
           formik.setFieldValue("jumlah_bibit_ditanam", String(alive), false);
         }
@@ -387,12 +426,23 @@ const MonitoringForm = () => {
     formik.setFieldValue("lokasi", geotagging);
     formik.setFieldTouched("lokasi", true, false);
 
-    const plantedSeedCount = 
-      location?.realisasi_aktual?.jumlah_bibit ?? 
-      location?.jumlah_bibit ?? 
-      location?.jumlah_bibit_ditanam ?? 
-      location?.perencanaan?.jumlah_bibit ?? 
-      "";
+    const isNotSesuai = (location?.jumlah_bibit_sesuai === false || location?.jumlah_bibit_sesuai === 0 || location?.jumlah_bibit_sesuai === "0");
+    const actualJumlahBibit = getActualValue(location, "jumlah_bibit");
+    const planningJumlahBibit = location?.perencanaan?.jumlah_bibit ?? location?.jumlah_bibit ?? "";
+
+    const plantedSeedCount = isNotSesuai && actualJumlahBibit !== null
+      ? actualJumlahBibit
+      : planningJumlahBibit;
+
+    console.log("[MonitoringForm] DATA DEBUG:", {
+      id: location?.id,
+      isNotSesuai,
+      full_location_data: location, // Menampilkan seluruh objek untuk audit
+      parsed_actual_jumlah_bibit: actualJumlahBibit,
+      planning_jumlah_bibit: planningJumlahBibit,
+      FINAL_PLANTED_COUNT: plantedSeedCount
+    });
+
     if (plantedSeedCount !== "") {
       formik.setFieldValue("jumlah_bibit_ditanam", String(plantedSeedCount), false);
       formik.setFieldTouched("jumlah_bibit_ditanam", false, false);
@@ -672,11 +722,23 @@ const MonitoringForm = () => {
                               className={`border-b border-gray-100 dark:border-gray-800 transition-colors ${isSelected ? 'bg-green-50/80 dark:bg-green-900/20' : 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50'}`}
                             >
                               <td className="p-3 align-top">
-                                <div className="font-medium text-gray-900 dark:text-gray-100">{impl.nama_perusahaan}</div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400">{impl.jenis_kegiatan}</div>
+                                <div className="font-medium text-gray-900 dark:text-gray-100">
+                                  {(impl?.nama_perusahaan_sesuai === false || impl?.nama_perusahaan_sesuai === 0 || impl?.nama_perusahaan_sesuai === "0")
+                                    ? (getActualValue(impl, "nama_perusahaan") ?? impl?.nama_perusahaan)
+                                    : impl?.nama_perusahaan}
+                                </div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  {(impl?.jenis_kegiatan_sesuai === false || impl?.jenis_kegiatan_sesuai === 0 || impl?.jenis_kegiatan_sesuai === "0")
+                                    ? (getActualValue(impl, "jenis_kegiatan") ?? impl?.jenis_kegiatan)
+                                    : impl?.jenis_kegiatan}
+                                </div>
                               </td>
                               <td className="p-3 align-top">
-                                <div className="text-sm text-gray-700 dark:text-gray-300">{impl.lokasi || "Lokasi tidak bernama"}</div>
+                                <div className="text-sm text-gray-700 dark:text-gray-300">
+                                  {(impl?.lokasi_sesuai === false || impl?.lokasi_sesuai === 0 || impl?.lokasi_sesuai === "0")
+                                    ? (getActualValue(impl, "lokasi") ?? impl?.lokasi)
+                                    : impl?.lokasi}
+                                </div>
                                 <div className="text-[10px] font-mono text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
                                   <FiNavigation className="w-2.5 h-2.5" />
                                   LAT: {impl.lat} | LONG: {impl.long}
@@ -787,14 +849,24 @@ const MonitoringForm = () => {
                           }}
                         >
                           <Popup>
-                            <div className="text-center">
-                              <p className="font-bold text-green-700">{location.nama_perusahaan}</p>
-                              <p className="text-xs text-gray-600 mb-1">
-                                Implementasi: {location.jenis_kegiatan}
-                              </p>
-                              <p className="text-xs text-gray-600 mb-3">
-                                Bibit: {location.jenis_bibit} ({location.jumlah_bibit} unit)
-                              </p>
+                              <div className="text-center">
+                                <p className="font-bold text-green-700">
+                                  {(location?.nama_perusahaan_sesuai === false || location?.nama_perusahaan_sesuai === 0 || location?.nama_perusahaan_sesuai === "0")
+                                    ? (getActualValue(location, "nama_perusahaan") ?? location?.nama_perusahaan)
+                                    : location?.nama_perusahaan}
+                                </p>
+                                <p className="text-xs text-gray-600 mb-1">
+                                  Implementasi: {(location?.jenis_kegiatan_sesuai === false || location?.jenis_kegiatan_sesuai === 0 || location?.jenis_kegiatan_sesuai === "0")
+                                    ? (getActualValue(location, "jenis_kegiatan") ?? location?.jenis_kegiatan)
+                                    : location?.jenis_kegiatan}
+                                </p>
+                                <p className="text-xs text-gray-600 mb-3">
+                                  Bibit: {(location?.jenis_bibit_sesuai === false || location?.jenis_bibit_sesuai === 0 || location?.jenis_bibit_sesuai === "0")
+                                    ? (getActualValue(location, "jenis_bibit") ?? location?.jenis_bibit)
+                                    : location?.jenis_bibit} ({(location?.jumlah_bibit_sesuai === false || location?.jumlah_bibit_sesuai === 0 || location?.jumlah_bibit_sesuai === "0")
+                                    ? (getActualValue(location, "jumlah_bibit") ?? location?.jumlah_bibit)
+                                    : location?.jumlah_bibit} unit)
+                                </p>
                               <button
                                 onClick={() => handleLocationSelect(location)}
                                 className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded-lg transition-colors font-semibold"
@@ -882,7 +954,9 @@ const MonitoringForm = () => {
                         Lembaga
                       </p>
                       <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
-                        {selectedLocation.nama_perusahaan}
+                        {(selectedLocation?.nama_perusahaan_sesuai === false || selectedLocation?.nama_perusahaan_sesuai === 0 || selectedLocation?.nama_perusahaan_sesuai === "0")
+                          ? (getActualValue(selectedLocation, "nama_perusahaan") ?? selectedLocation?.nama_perusahaan)
+                          : selectedLocation?.nama_perusahaan}
                       </p>
                     </motion.div>
 
@@ -895,7 +969,9 @@ const MonitoringForm = () => {
                         Jenis Kegiatan
                       </p>
                       <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
-                        {selectedLocation.jenis_kegiatan}
+                        {(selectedLocation?.jenis_kegiatan_sesuai === false || selectedLocation?.jenis_kegiatan_sesuai === 0 || selectedLocation?.jenis_kegiatan_sesuai === "0")
+                          ? (getActualValue(selectedLocation, "jenis_kegiatan") ?? selectedLocation?.jenis_kegiatan)
+                          : selectedLocation?.jenis_kegiatan}
                       </p>
                     </motion.div>
 
@@ -921,7 +997,9 @@ const MonitoringForm = () => {
                         Jenis Bibit
                       </p>
                       <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
-                        {selectedLocation.jenis_bibit}
+                        {(selectedLocation?.jenis_bibit_sesuai === false || selectedLocation?.jenis_bibit_sesuai === 0 || selectedLocation?.jenis_bibit_sesuai === "0")
+                          ? (getActualValue(selectedLocation, "jenis_bibit") ?? selectedLocation?.jenis_bibit)
+                          : selectedLocation?.jenis_bibit}
                       </p>
                     </motion.div>
 
@@ -934,7 +1012,9 @@ const MonitoringForm = () => {
                         Jumlah Bibit
                       </p>
                       <p className="text-base font-bold text-gray-900 dark:text-gray-100">
-                        {selectedLocation.jumlah_bibit} Unit
+                        {(selectedLocation?.jumlah_bibit_sesuai === false || selectedLocation?.jumlah_bibit_sesuai === 0 || selectedLocation?.jumlah_bibit_sesuai === "0")
+                          ? (getActualValue(selectedLocation, "jumlah_bibit") ?? selectedLocation?.jumlah_bibit)
+                          : selectedLocation?.jumlah_bibit} Unit
                       </p>
                     </motion.div>
 
