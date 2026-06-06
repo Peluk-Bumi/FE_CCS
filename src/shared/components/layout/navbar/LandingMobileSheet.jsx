@@ -123,7 +123,7 @@ export default function LandingMobileSheet({ isOpen, onClose }) {
             </div>
 
             {/* Nav items */}
-            <nav className="flex-1 px-4 space-y-2 overflow-y-auto scrollbar-hide pb-2">
+            <nav className="flex-1 px-4 space-y-2 overflow-y-auto scrollbar-hide pb-20">
               {navItems.map((item) => (
                 <NavBtn
                   key={item.path}

@@ -40,7 +40,7 @@ export default function TimelineSection({ theme }) {
   ];
 
   return (
-    <section className={`py-16 sm:py-20 md:py-24 relative overflow-hidden transition-colors ${
+    <section className={`py-8 md:py-24 relative overflow-hidden transition-colors ${
       theme === 'dark'
         ? 'bg-gradient-to-b from-green-950 via-gray-950 to-green-950'
         : 'bg-gradient-to-b from-white via-primary/10 to-white'

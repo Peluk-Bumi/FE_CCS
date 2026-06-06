@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Footer from "@/shared/components/layout/Footer";
 import { useTheme } from "@/app/context/ThemeContext";
+
 
 // Import modular components
 import HeroSection from "@/features/landing/components/HeroSection";
@@ -12,6 +13,7 @@ import CTASection from "@/features/landing/components/CTASection";
 import PartnershipSection from "@/features/landing/components/PartnershipSection";
 import TimelineSection from "@/features/landing/components/TimelineSection";
 import HowItWorksSection from "@/features/landing/components/HowItWorksSection";
+import Navbar from "@/shared/components/layout/Navbar"; // Assume Navbar exists
 
 const LandingPage = () => {
   const { theme } = useTheme();
@@ -34,26 +36,29 @@ const LandingPage = () => {
 
   return (
     <motion.div
-      className={`min-h-screen text-gray-900 dark:text-gray-100 overflow-x-hidden transition-colors duration-300 max-md:pb-20 ${
+      className={`min-h-screen text-gray-900 dark:text-gray-100 overflow-x-hidden transition-colors duration-300 ${
       theme === 'dark' 
         ? 'bg-gradient-to-br from-green-950 via-gray-950 to-green-950' 
-        : 'bg-gradient-to-br from-primary/10 via-white to-primary/10'
+        : 'bg-white'
     }`}>
-      {/* Render sections based on boolean switches */}
-      {showHero && <HeroSection theme={theme} scrollToSection={scrollToSection} />}
-      {showStats && <StatsSection theme={theme} />}
-      {showHowItWorks && <HowItWorksSection theme={theme} />}
-      {showFeatures && <FeaturesSection theme={theme} />}
-      {showTimeline && <TimelineSection theme={theme} />}
-      {showPartnership && <PartnershipSection theme={theme} />}
-      {showTestimonials && (
-        <TestimonialsSection 
-          theme={theme} 
-          activeTestimonial={activeTestimonial} 
-          setActiveTestimonial={setActiveTestimonial} 
-        />
-      )}
-      {showCTA && <CTASection theme={theme} />}
+      <Navbar />
+      <div>
+        {/* Render sections based on boolean switches */}
+        {showHero && <HeroSection theme={theme} scrollToSection={scrollToSection} />}
+        {showStats && <StatsSection theme={theme} />}
+        {showHowItWorks && <HowItWorksSection theme={theme} />}
+        {showFeatures && <FeaturesSection theme={theme} />}
+        {showTimeline && <TimelineSection theme={theme} />}
+        {showPartnership && <PartnershipSection theme={theme} />}
+        {showTestimonials && (
+          <TestimonialsSection 
+            theme={theme} 
+            activeTestimonial={activeTestimonial} 
+            setActiveTestimonial={setActiveTestimonial} 
+          />
+        )}
+        {showCTA && <CTASection theme={theme} />}
+      </div>
       
       {/* Footer Component */}
       <Footer />

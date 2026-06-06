@@ -8,7 +8,7 @@ export default function CTASection({ theme }) {
   const navigate = useNavigate();
 
   return (
-    <section className={`py-24 ${
+    <section className={`py-8 md:py-24 ${
       theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'
     }`}>
       <div className="max-w-4xl mx-auto px-6 text-center">

@@ -34,7 +34,7 @@ export default function TestimonialsSection({ theme, activeTestimonial, setActiv
   ];
 
   return (
-    <section id="testimonials" className={`py-16 sm:py-24 md:py-28 relative overflow-hidden transition-colors ${
+    <section id="testimonials" className={`py-8 md:py-28 relative overflow-hidden transition-colors ${
       theme === 'dark'
         ? 'bg-gradient-to-b from-green-950 via-gray-950 to-green-950'
         : 'bg-gradient-to-b from-white via-primary/30 to-white'

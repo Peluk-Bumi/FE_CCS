@@ -44,7 +44,7 @@ export default function HowItWorksSection({ theme }) {
   ];
 
   return (
-    <section className={`py-24 transition-colors ${
+    <section className={`py-8 md:py-24 transition-colors ${
       theme === 'dark'
         ? 'bg-green-950'
         : 'bg-gray-50'

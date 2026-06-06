@@ -41,7 +41,7 @@ export default function NavbarControls({
           {/* Icon-only mode for md screens */}
           <motion.button
             onClick={() => onNavigate("/login")}
-            className="hidden md:inline-flex lg:hidden h-10 w-10 items-center justify-center rounded-xl text-sm font-bold text-primary-foreground hover:bg-white/10 transition-all"
+            className="inline-flex lg:hidden h-10 w-10 items-center justify-center rounded-xl text-sm font-bold text-primary-foreground hover:bg-white/10 transition-all"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             initial={{ opacity: 0, scale: 0.9 }}

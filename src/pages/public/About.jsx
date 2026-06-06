@@ -3,6 +3,9 @@ import { FaTree, FaWater, FaChartLine, FaUsers, FaCalendarAlt, FaRuler, FaClipbo
 import { GiGrowth } from "react-icons/gi";
 import { RiHealthBookFill } from "react-icons/ri";
 import Footer from "@/shared/components/layout/Footer"; // Import Footer
+import PagePaddingContainer from "@/shared/components/layout/PagePaddingContainer";
+import MainContainer from "@/shared/components/layout/MainContainer";
+import PageTitle from "@/shared/components/common/PageTitle";
 import { useTheme } from "@/app/context/ThemeContext";
 
 const About = () => {
@@ -22,25 +25,14 @@ const About = () => {
 
   return (
     <>
-      <div className={`pt-20 min-h-screen max-md:pb-20 transition-colors duration-300 ${
-        theme === 'dark' 
-          ? 'bg-gradient-to-br from-green-950 via-gray-950 to-green-950' 
-          : 'bg-white'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+      <PagePaddingContainer>
+        <MainContainer>
           {/* Hero Section */}
-          <div className="text-center mb-16 max-w-2xl mx-auto">
-            <h1 className={`text-4xl md:text-5xl font-bold mb-4 transition-colors ${
-              theme === 'dark' ? 'text-white' : 'text-primary'
-            }`}>
-              Platform Pemantauan Restorasi Lingkungan
-            </h1>
-            <div className="w-32 h-1.5 bg-gradient-to-r from-primary to-primary-dark mx-auto rounded-full mb-6"></div>
-            <p className={`text-lg max-w-3xl mx-auto transition-colors ${
-              theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-            }`}>
-              Sistem terpadu untuk memantau dan mengevaluasi proyek restorasi ekosistem melalui pengumpulan data terstruktur dan analisis berkala
-            </p>
+          <div className="mb-8">
+            <PageTitle 
+              title="Tentang Platform" 
+              description="Sistem terpadu untuk memantau dan mengevaluasi proyek restorasi ekosistem melalui pengumpulan data terstruktur dan analisis berkala" 
+            />
           </div>
 
           {/* Background Section */}
@@ -538,8 +530,8 @@ const About = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+          </MainContainer>
+        </PagePaddingContainer>
 
       {/* ✅ Footer Component */}
       <Footer />

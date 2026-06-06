@@ -29,7 +29,7 @@ export default function PartnershipSection({ theme }) {
     ));
 
   return (
-    <section className={`py-16 sm:py-20 md:py-24 transition-colors ${sectionClass}`}>
+    <section className={`py-8 md:py-24 transition-colors ${sectionClass}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageTitle
           type="section"

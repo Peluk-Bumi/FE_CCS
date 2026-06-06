@@ -32,7 +32,7 @@ export default function FeaturesSection({ theme }) {
   ];
 
   return (
-    <section id="features" className={`py-16 sm:py-24 md:py-28 relative overflow-hidden transition-colors ${
+    <section id="features" className={`py-8 md:py-28 relative overflow-hidden transition-colors ${
       theme === 'dark'
         ? 'bg-gradient-to-b from-green-950 via-gray-950 to-green-950'
         : 'bg-gradient-to-b from-white via-primary/10 to-white'

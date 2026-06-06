@@ -32,7 +32,7 @@ export default function StatsSection({ theme }) {
   ];
 
   return (
-    <section id="stats" className={`py-10 sm:py-12 md:py-16 scroll-m-12 transition-colors ${
+    <section id="stats" className={`py-6 md:py-16 scroll-m-12 transition-colors ${
       theme === 'dark'
         ? 'bg-gradient-to-b from-green-950 via-gray-950 to-green-950'
         : 'bg-gradient-to-b from-white via-primary/10 to-white'
