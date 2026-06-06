@@ -7,7 +7,7 @@ import {
   FiClipboard,
   FiCheckCircle,
   FiActivity,
-  FiMenu,
+  FiGrid,
 } from "react-icons/fi"
 import { cn } from "@/shared/utils/utils"
 import navigationConfig from "@/app/config/navigationConfig"
@@ -18,7 +18,7 @@ const ICON_MAP = {
   FiClipboard: FiClipboard,
   FiCheckCircle: FiCheckCircle,
   FiActivity: FiActivity,
-  FiMenu: FiMenu,
+  FiGrid: FiGrid,
 }
 
 /**
@@ -50,7 +50,7 @@ export function BottomTabBar({ isAdmin, onMenuPress, isMenuOpen }) {
         "md:hidden fixed bottom-0 left-0 right-0 z-[75]",
         "bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl",
         "border-t border-gray-200 dark:border-gray-700",
-        "pb-[env(safe-area-inset-bottom,0px)]"
+        "pb-[var(--sab)]"
       )}
       aria-label="Navigasi utama"
     >
