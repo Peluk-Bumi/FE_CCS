@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
-import { FiDownload, FiX } from "react-icons/fi";
+import { FiDownload } from "react-icons/fi";
+import { StandardModal } from "@/shared/components/ui/modal/AnimatedModal";
+import { FormButton } from "@/shared/components/ui/button/FormButton";
 import { getApiOrigin } from "@/app/config/apiConfig";
 
 export default function PdfPreviewModal({
@@ -135,38 +136,23 @@ export default function PdfPreviewModal({
   );
 
   return (
-    <>
-      <motion.div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-      />
-      <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        onClick={onClose}
-      >
-        <div
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto"
-          onClick={(event) => event.stopPropagation()}
+    <StandardModal
+      isOpen={open}
+      onClose={onClose}
+      size="2xl"
+      title="Preview Laporan PDF"
+      subtitle="Semua isi form dan status akan dimasukkan ke PDF."
+      footer={
+        <FormButton
+          variant="primary"
+          onClick={onDownload}
+          className="w-full flex justify-center py-3 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white font-medium border-0"
+          icon={<FiDownload />}
         >
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
-          >
-            <FiX className="w-5 h-5" />
-          </button>
-
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Preview Laporan PDF
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-5">
-            Semua isi form dan status akan dimasukkan ke PDF.
-          </p>
+          Download PDF
+        </FormButton>
+      }
+    >
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm mb-6">
             {previewRows.map(([label, value]) => (
@@ -234,17 +220,6 @@ export default function PdfPreviewModal({
             )}
           </div>
 
-          <motion.button
-            onClick={onDownload}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white font-medium shadow-lg transition-all"
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <FiDownload className="w-5 h-5" />
-            <span>Download PDF</span>
-          </motion.button>
-        </div>
-      </motion.div>
-    </>
+    </StandardModal>
   );
 }

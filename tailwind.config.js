@@ -14,6 +14,10 @@ export default {
           dark: '#3f5d31',
           foreground: '#ffffff',
         },
+        destructive: {
+          DEFAULT: '#e11d48',
+          foreground: '#ffffff',
+        },
 
         peach: {
           DEFAULT: '#FFF0D8',
@@ -134,6 +138,12 @@ export default {
         '0': '0ms',
         '2000': '2000ms',
         '3000': '3000ms',
+      },
+      padding: {
+        'safe': 'max(1rem, env(safe-area-inset-bottom))',
+      },
+      margin: {
+        'safe': 'max(1rem, env(safe-area-inset-bottom))',
       },
     },
   },

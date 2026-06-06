@@ -227,15 +227,17 @@ pages/
     └── ...
 ```
 
-### Penggunaan:
+### Penggunaan & Aturan Level Routing:
 - **Public**: Halaman yang dapat diakses tanpa login
 - **Auth**: Login, register, forgot password
 - **Admin**: Halaman khusus admin
 - **Dashboard**: Dashboard untuk admin dan user
-- **Evaluation**: Halaman evaluasi
-- **Reporting**: Halaman laporan
-- **Settings**: Halaman pengaturan user
-- **Verification**: Halaman verifikasi data
+- **Evaluation**: Halaman evaluasi utama
+- **Demo**: Halaman `DemoIndex` (Route Level 1)
+
+**PENTING: Aturan Pemisahan L1 dan L2 Routes:**
+Folder `src/pages` **hanya** boleh berisi komponen yang bertindak sebagai **halaman utama (Level 1 Routes)**, misal: `/demo`, `/evaluasi`.
+Sedangkan untuk **sub-halaman (Level 2 Routes)** dan komponen spesifik fitur (misal: `/demo/buttons`, `/demo/cards`), harus disimpan di dalam folder **`src/features/`**. Ini bertujuan untuk mencegah folder `pages/` membengkak dan memisahkan dengan tegas antara entri halaman dan komponen-komponen logik yang membentuk fitur tersebut.
 
 ---
 

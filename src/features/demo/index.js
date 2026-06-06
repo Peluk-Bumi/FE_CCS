@@ -2,16 +2,21 @@
 // This directory contains demo components that showcase various UI components
 // These are meant to be development tools and reference implementations
 
-export { default as ButtonTypesDemo } from './ButtonTypesDemo';
-export { default as DashboardCardDemo } from './DashboardCardDemo';
-export { default as InputDemo } from './InputDemo';
-
+export { default as DemoButtons } from './DemoButtons';
+export { default as DemoDashboardCards } from './DemoDashboardCards';
+export { default as DemoInputs } from './DemoInputs';
+export { default as DemoBadges } from './DemoBadges';
+export { default as DemoTabs } from './DemoTabs';
+export { default as DemoAccordion } from "./DemoAccordion";
+export { DemoModals } from "./DemoModals";
 // Available demo components:
-// - ButtonTypesDemo: Comprehensive showcase of all button components
-//   - MobileNavButton: Mobile navigation buttons
-//   - DesktopNavButton: Desktop navigation buttons  
+// - ButtonTypesDemo: Comprehensive showcase of all button and sheet components
+//   - PanelNavButton: Dashboard panel navigation buttons (sidebar & sheets)
+//   - DesktopNavButton: Homepage/navbar navigation buttons
 //   - CTAButton: Call-to-action buttons
 //   - FormButton: Form submission buttons
+//   - BottomSheetContainer: Reusable bottom sheet wrapper
+//   - FloatingActionButton: Landing page floating menu
 //
 // - DashboardCardDemo: Comprehensive showcase of all dashboard card components
 //   - FieldDashboardCard: Generic dashboard cards

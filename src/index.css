@@ -10,7 +10,12 @@
     @apply h-full;
   }
 
-  /* ✅ Smooth scroll behavior untuk seluruh aplikasi */
+  /* Safe area inset bottom as CSS variable */
+  :root {
+    --sab: env(safe-area-inset-bottom, 12px);
+  }
+
+  /* Smooth scroll behavior untuk seluruh aplikasi */
   html {
     scroll-behavior: smooth;
   }
