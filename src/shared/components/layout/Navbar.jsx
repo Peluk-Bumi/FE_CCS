@@ -1,33 +1,18 @@
-import { FiHome, FiInfo, FiHelpCircle, FiGrid, FiSettings } from "react-icons/fi";
+import { FiHome, FiInfo, FiHelpCircle, FiGrid, FiSettings, FiCheckCircle } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/app/context/AuthContext";
 import { motion } from "framer-motion";
-import { useTheme } from "@/app/context/ThemeContext";
 import Logo from "./navbar/Logo";
 import DesktopNavigation from "./navbar/DesktopNavigation";
 import NavbarControls from "./navbar/NavbarControls";
-import LandingMobileSheet from "./navbar/LandingMobileSheet";
-import { FloatingSheetTrigger } from "@/shared/components/ui/sheet/FloatingSheetTrigger";
 
 export default function Navbar({ isUser = false }) {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const dropdownRef = useRef(null);
-  const { theme, toggleTheme } = useTheme();
-
-  // Handle scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Close dropdown if clicked outside
   useEffect(() => {
@@ -42,22 +27,16 @@ export default function Navbar({ isUser = false }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownOpen]);
 
-  // Lock body scroll when sheet is open
-  useEffect(() => {
-    document.body.style.overflow = sheetOpen ? "hidden" : "unset";
-    return () => { document.body.style.overflow = "unset"; };
-  }, [sheetOpen]);
-
   const handleLogout = () => {
     logout();
     setDropdownOpen(false);
-    setSheetOpen(false);
     navigate("/");
   };
 
   const navItems = [
     { name: "Beranda", path: "/", icon: FiHome, color: "primary" },
     { name: "Tentang", path: "/about", icon: FiInfo, color: "blue" },
+    { name: "Verifikasi", path: "/verifikasi", icon: FiCheckCircle, color: "green" },
     { name: "FAQ", path: "/faqs", icon: FiHelpCircle, color: "teal" },
   ];
 
@@ -82,22 +61,14 @@ export default function Navbar({ isUser = false }) {
 
   const handleNavigation = (path) => {
     if (location.pathname === path) {
-      setSheetOpen(false);
       setDropdownOpen(false);
       return;
     }
-    setSheetOpen(false);
     setDropdownOpen(false);
     setTimeout(() => {
       navigate(path);
       window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     }, 150);
-  };
-
-  const handleVerifikasiNav = () => {
-    setSheetOpen(false);
-    setDropdownOpen(false);
-    navigate("/verifikasi");
   };
 
   return (
@@ -109,20 +80,23 @@ export default function Navbar({ isUser = false }) {
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="h-16 flex items-center sm:justify-between justify-center rounded-full px-6 lg:px-12 backdrop-blur-2xl border border-primary-light bg-gradient-to-r from-primary via-primary/85 to-primary-dark shadow-[0_12px_30px_-12px_rgba(81,118,64,0.75)]">
-            {/* Logo */}
-            <Logo onNavigate={() => handleNavigation("/")} />
+          <div className="relative h-16 flex items-center justify-center md:justify-between rounded-full px-6 lg:px-12 backdrop-blur-2xl border border-primary-light bg-gradient-to-r from-primary via-primary/85 to-primary-dark shadow-[0_12px_30px_-12px_rgba(81,118,64,0.75)]">
+            {/* 1. Logo (Selalu tampil, di tengah pada mobile, di kiri pada desktop) */}
+            <div className="flex items-center">
+              <Logo onNavigate={() => handleNavigation("/")} />
+            </div>
 
-            {/* Desktop Navigation */}
-            <DesktopNavigation
-              navItems={navItems}
-              currentPath={location.pathname}
-              onNavigate={handleNavigation}
-              onVerifikasiNav={handleVerifikasiNav}
-            />
+            {/* 2. Desktop Navigation (Sembunyi di mobile, di tengah pada desktop) */}
+            <div className="hidden md:flex items-center">
+              <DesktopNavigation
+                navItems={navItems}
+                currentPath={location.pathname}
+                onNavigate={handleNavigation}
+              />
+            </div>
 
-            {/* Right Controls — desktop profile / login only; mobile button removed */}
-            <div className="absolute right-6 lg:right-12">
+            {/* 3. Navbar Controls (Sembunyi di mobile, di kanan pada desktop) */}
+            <div className="hidden md:flex items-center">
               <NavbarControls
                 user={user}
                 isAuthenticated={isAuthenticated}
@@ -136,18 +110,6 @@ export default function Navbar({ isUser = false }) {
           </div>
         </div>
       </motion.nav>
-
-      {/* Mobile bottom-sheet navigation — landing-specific */}
-      <LandingMobileSheet
-        isOpen={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-      />
-
-      {/* Floating trigger — bottom-left, only on mobile */}
-      <FloatingSheetTrigger
-        isOpen={sheetOpen}
-        onClick={() => setSheetOpen((prev) => !prev)}
-      />
     </>
   );
 }

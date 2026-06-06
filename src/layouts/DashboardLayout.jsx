@@ -48,7 +48,7 @@ export default function DashboardLayout() {
 
         {/* Page content */}
         <div className="flex-1 w-full bg-gradient-to-br from-light via-primary-light/10 to-primary/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pb-[calc(5rem+var(--sab))] md:pb-8">
             <Outlet />
           </div>
         </div>

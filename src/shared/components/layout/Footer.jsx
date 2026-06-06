@@ -16,9 +16,12 @@ export default function Footer() {
   ];
 
   return (
-    <footer className={`py-12 px-4 sm:px-6 ${
-      isDark ? 'bg-gray-900' : 'bg-gray-100'
-    }`}>
+    <footer 
+      className={`py-12 px-4 sm:px-6 max-md:pb-28 ${
+        isDark ? 'bg-gray-900' : 'bg-gray-100'
+      }`}
+      style={{ paddingBottom: 'max(3.5rem, calc(1.75rem + var(--sab)))' }}
+    >
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

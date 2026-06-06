@@ -33,7 +33,7 @@ export default function VerificationFullscreenLayout({ children }) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
     >
-      <header className="sticky top-0 z-50 flex items-center justify-between gap-4 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top,0px))] bg-gradient-to-r from-primary via-primary/95 to-primary-dark dark:from-gray-900 dark:via-gray-900/95 dark:to-gray-900 backdrop-blur-xl border-b border-primary-light/30 dark:border-gray-700 shadow-sm shrink-0">
+      <header className="hidden sticky top-0 z-50 md:flex items-center justify-between gap-4 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top,0px))] bg-gradient-to-r from-primary via-primary/95 to-primary-dark dark:from-gray-900 dark:via-gray-900/95 dark:to-gray-900 backdrop-blur-xl border-b border-primary-light/30 dark:border-gray-700 shadow-sm shrink-0">
         {/* Left: Back Button */}
         <button
           type="button"
