@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 // Layouts
 import DashboardLayout from "@/layouts/DashboardLayout";
-import VerificationFullscreenLayout from "@/layouts/VerificationFullscreenLayout";
+import DemoLayout from "@/layouts/DemoLayout";
 
 // Admin pages
 import Dashboard from "@/pages/dashboard/AdminDashboardPage";
@@ -15,9 +15,9 @@ import PlanningForm from "@/features/planning/components/PlanningForm";
 import ImplementasiForm from "@/features/implementation/components/ImplementasiForm";
 import MonitoringForm from "@/features/monitoring/components/MonitoringForm";
 import EvaluasiPage from "@/pages/evaluation/EvaluationPage";
-import EvaluationInformationPage from "@/pages/evaluation/information/InformationPage";
-import EvaluationParameterPage from "@/pages/evaluation/parameter/ParameterPage";
-import PlanningListPage from "@/pages/planning/PlanningListPage";
+import EvaluationInformationPage from "@/features/evaluation/information/InformationPage";
+import EvaluationParameterPage from "@/features/evaluation/parameter/ParameterPage";
+import PlanningListPage from "@/features/planning/PlanningListPage";
 
 // User pages
 import DashboardUser from "@/pages/dashboard/UserDashboardPage";
@@ -41,19 +41,12 @@ import Register from "@/pages/auth/RegisterPage";
 // Settings
 import Settings from "@/pages/settings/Settings";
 
-// Demo - moved to /docs/examples/ for documentation purposes
-import { ButtonTypesDemo, DashboardCardDemo, InputDemo } from '@/features/demo';
-import DemoBadges from "@/pages/demo/DemoBadges";
+// Demo
+import DemoIndex from '@/pages/demo/DemoIndex';
+import { DemoButtons, DemoDashboardCards, DemoInputs, DemoBadges, DemoTabs, DemoAccordion, DemoModals } from '@/features/demo';
 
 // Protected Route
 import ProtectedRoute from "./ProtectedRoute";
-function VerifikasiRouter() {
-  return (
-    <VerificationFullscreenLayout>
-      <VerifikasiPublicPage />
-    </VerificationFullscreenLayout>
-  );
-}
 
 export default function AppRoutes() {
   return (
@@ -69,7 +62,7 @@ export default function AppRoutes() {
       <Route path="/kebijakan-privasi" element={<PolicyPage />} />
       <Route path="/syarat-ketentuan" element={<TermsAndConditions />} />
       <Route path="/lisensi" element={<License />} />
-      <Route path="/verifikasi" element={<VerifikasiRouter />} />
+      <Route path="/verifikasi" element={<VerifikasiPublicPage />} />
 
       {/* ── Admin ──────────────────────────────────────────────────────────── */}
       <Route
@@ -126,12 +119,16 @@ export default function AppRoutes() {
       <Route path="*" element={<NotFound />} />
 
       {/* ── Dev Demo ───────────────────────────────────────────────────────── */}
-      {/* Demo routes disabled - demo files moved to /docs/examples/ */}
-      <Route path="/demo/buttons" element={<ButtonTypesDemo />} />
-      <Route path="/demo/cards"   element={<DashboardCardDemo />} />
-      <Route path="/demo/inputs"  element={<InputDemo />} />
-      <Route path="/demo/badges"  element={<DemoBadges />} />
-      <Route path="/demo/*" element={<Navigate to=".." replace />} />
+      <Route path="/demo" element={<DemoLayout />}>
+        <Route index element={<DemoIndex />} />
+        <Route path="buttons" element={<DemoButtons />} />
+        <Route path="cards"   element={<DemoDashboardCards />} />
+        <Route path="inputs"  element={<DemoInputs />} />
+        <Route path="badges"  element={<DemoBadges />} />
+        <Route path="tabs"    element={<DemoTabs />} />
+        <Route path="accordion" element={<DemoAccordion />} />
+        <Route path="modals"  element={<DemoModals />} />
+      </Route>
     </Routes>
   );
 }

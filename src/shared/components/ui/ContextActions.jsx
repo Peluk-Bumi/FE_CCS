@@ -133,7 +133,7 @@ const ContextActions = React.forwardRef(({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className={cn(
-        "flex gap-3 overflow-x-auto pb-2 scrollbar-hide",
+        "grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3 pb-2",
         className
       )}
       {...props}
@@ -146,10 +146,9 @@ const ContextActions = React.forwardRef(({
             key={action.id}
             onClick={() => handleActionClick(action)}
             className={cn(
-              "flex items-center gap-2 px-4 py-3 rounded-2xl",
+              "flex items-center gap-2 px-3 py-3 rounded-2xl w-full",
               "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700",
               "shadow-sm hover:shadow-md transition-all",
-              "min-w-fit max-w-[200px] flex-shrink-0",
               colorClasses.hoverBg
             )}
             whileHover={{ scale: 1.02, y: -2 }}

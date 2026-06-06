@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { FiUser, FiMail, FiLock, FiSave, FiShield, FiCamera, FiSettings } from "react-icons/fi";
+import { FiUser, FiMail, FiLock, FiSave, FiShield, FiCamera, FiSettings, FiGlobe } from "react-icons/fi";
 import api from "@/shared/services/api";
 import { useAuth } from "@/app/context/AuthContext";
 import PageTitle from "@/shared/components/common/PageTitle";
@@ -21,6 +21,9 @@ export default function Settings() {
     role: "",
     password: "",
     password_confirmation: "",
+    show_phone: false,
+    show_email: false,
+    show_address: false,
   });
 
   const isPasswordFilled = form.password.trim().length > 0 || form.password_confirmation.trim().length > 0;
@@ -47,6 +50,9 @@ export default function Settings() {
           name: profile.name || user?.name || "",
           email: profile.email || user?.email || "",
           role: profile.role || user?.role || "user",
+          show_phone: profile.user_setting?.show_phone || false,
+          show_email: profile.user_setting?.show_email || false,
+          show_address: profile.user_setting?.show_address || false,
           password: "",
           password_confirmation: "",
         }));
@@ -105,6 +111,10 @@ export default function Settings() {
     const payload = {
       name: form.name.trim(),
       email: form.email.trim(),
+      show_public_contact: true,
+      show_phone: form.show_phone,
+      show_email: form.show_email,
+      show_address: form.show_address,
     };
 
     if (isPasswordFilled) {
@@ -231,6 +241,55 @@ export default function Settings() {
               value={form.role || "user"}
               disabled
             />
+          </div>
+
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-5">
+            <div className="flex items-center gap-2 mb-4">
+              <FiGlobe className="w-5 h-5 text-primary" />
+              <h2 className="text-base font-semibold text-gray-800 dark:text-gray-200">
+                Pengaturan Privasi Publik
+              </h2>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Pilih informasi kontak mana yang ingin Anda tampilkan secara penuh pada halaman Verifikasi Publik. Jika dimatikan, data akan disensor (disembunyikan sebagian).
+            </p>
+            <div className="flex flex-col gap-4">
+              <label className="flex items-center justify-between cursor-pointer p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <div>
+                  <div className="font-semibold text-gray-800 dark:text-gray-200">Tampilkan Nomor Telepon</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Izinkan publik melihat nomor telepon secara utuh</div>
+                </div>
+                <div className="relative">
+                  <input type="checkbox" className="sr-only" checked={form.show_phone} onChange={(e) => onChange('show_phone', e.target.checked)} />
+                  <div className={cn("block w-10 h-6 rounded-full transition-colors", form.show_phone ? "bg-primary" : "bg-gray-300 dark:bg-gray-600")}></div>
+                  <div className={cn("absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform", form.show_phone ? "transform translate-x-4" : "")}></div>
+                </div>
+              </label>
+
+              <label className="flex items-center justify-between cursor-pointer p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <div>
+                  <div className="font-semibold text-gray-800 dark:text-gray-200">Tampilkan Email</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Izinkan publik melihat alamat email secara utuh</div>
+                </div>
+                <div className="relative">
+                  <input type="checkbox" className="sr-only" checked={form.show_email} onChange={(e) => onChange('show_email', e.target.checked)} />
+                  <div className={cn("block w-10 h-6 rounded-full transition-colors", form.show_email ? "bg-primary" : "bg-gray-300 dark:bg-gray-600")}></div>
+                  <div className={cn("absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform", form.show_email ? "transform translate-x-4" : "")}></div>
+                </div>
+              </label>
+
+              <label className="flex items-center justify-between cursor-pointer p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <div>
+                  <div className="font-semibold text-gray-800 dark:text-gray-200">Tampilkan Alamat</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Izinkan publik melihat alamat lengkap perusahaan</div>
+                </div>
+                <div className="relative">
+                  <input type="checkbox" className="sr-only" checked={form.show_address} onChange={(e) => onChange('show_address', e.target.checked)} />
+                  <div className={cn("block w-10 h-6 rounded-full transition-colors", form.show_address ? "bg-primary" : "bg-gray-300 dark:bg-gray-600")}></div>
+                  <div className={cn("absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform", form.show_address ? "transform translate-x-4" : "")}></div>
+                </div>
+              </label>
+            </div>
           </div>
 
           <div className="border-t border-gray-200 dark:border-gray-700 pt-5">

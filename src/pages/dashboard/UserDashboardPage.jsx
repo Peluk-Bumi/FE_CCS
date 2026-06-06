@@ -377,8 +377,6 @@ export default function UserDashboardPage() {
             value={card.value}
             subtitle={card.subtitle}
             icon={card.icon}
-            trend={card.trend}
-            trendUp={card.trendUp}
             type={card.type}
             onClick={() => navigate(card.navigateTo)}
           />
@@ -391,34 +389,7 @@ export default function UserDashboardPage() {
         <ContextActions context="dashboard" />
       </div>
 
-      {/* Charts - Admin Styling */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Pie Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
-          <div className="mb-4">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Jenis Kegiatan Saya</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              ({(stats.kegiatan_stats || []).reduce((sum, item) => sum + (item.value || 0), 0)} total)
-            </p>
-          </div>
-          <div className="h-64 flex items-center justify-center">
-            <PieChart data={stats.kegiatan_stats || []} compact />
-          </div>
-        </div>
-
-        {/* Bar Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
-          <div className="mb-4">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Progress Bulanan Saya</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              ({(stats.monthly_stats || []).reduce((sum, item) => sum + (item.value || 0), 0)} total)
-            </p>
-          </div>
-          <div className="h-64 flex items-center justify-center">
-            <BarChart data={stats.monthly_stats || []} compact />
-          </div>
-        </div>
-      </div>
+      {/* Removed Charts Section per user request */}
     </div>
   );
 }

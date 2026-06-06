@@ -67,14 +67,14 @@ export const navigationConfig = {
     { id: "home",       label: "Dashboard",    path: "/user/dashboard",    iconName: "FiHome"        },
     { id: "perencanaan", label: "Perencanaan", path: "/user/perencanaan",  iconName: "FiClipboard"   },
     { id: "implementasi", label: "Implementasi", path: "/user/implementasi", iconName: "FiCheckCircle" },
-    { id: "menu",       label: "Menu",         action: "menu",             iconName: "FiMenu"        },
+    { id: "menu",       label: "Menu",         action: "menu",             iconName: "FiGrid"        },
   ],
 
   adminMobileTabs: [
     { id: "home",     label: "Dashboard",    path: "/admin/dashboard",   iconName: "FiHome"      },
     { id: "perencanaan", label: "Perencanaan", path: "/admin/perencanaan",  iconName: "FiClipboard"   },
     { id: "implementasi", label: "Implementasi", path: "/admin/implementasi", iconName: "FiCheckCircle" },
-    { id: "menu",     label: "Menu",         action: "menu",             iconName: "FiMenu"      },
+    { id: "menu",     label: "Menu",         action: "menu",             iconName: "FiGrid"      },
   ],
 
   // ── Special menu items (appear below main nav, role-aware) ─────────────────

@@ -25,6 +25,7 @@ export default function VerifikasiDashboardPage() {
     loadingLaporan,
     scannerReady,
     useManualInput,
+    cameraStarted,
   } = state;
 
   const {
@@ -33,6 +34,8 @@ export default function VerifikasiDashboardPage() {
     setShowDetailModal,
     resetScan,
     handleFileUpload,
+    setScanning,
+    setCameraStarted,
   } = actions;
 
   return (
@@ -66,6 +69,9 @@ export default function VerifikasiDashboardPage() {
           onDeviceChange={setDeviceId}
           onFileUpload={handleFileUpload}
           useManualInput={useManualInput}
+          cameraStarted={cameraStarted}
+          setCameraStarted={setCameraStarted}
+          setScanning={setScanning}
         />
 
         {/* Instructions (jika belum scan) */}
@@ -77,10 +83,7 @@ export default function VerifikasiDashboardPage() {
       {/* Laporan Detail Modal */}
       <LaporanDetailModal
         isOpen={showDetailModal}
-        onClose={() => {
-          setShowDetailModal(false);
-          setLaporanDetail(null);
-        }}
+        onClose={resetScan}
         laporanDetail={laporanDetail}
         loadingLaporan={loadingLaporan}
         blockchainData={state.blockchainData}

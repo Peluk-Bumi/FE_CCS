@@ -12,7 +12,8 @@ const FormButton = React.forwardRef(
       children,
       icon,
       disabled = false,
-      type = "submit"
+      type = "submit",
+      ...props
     },
     ref
   ) => {
@@ -27,14 +28,17 @@ const FormButton = React.forwardRef(
           type={type}
           disabled={disabled || loading}
           variant="default"
+          {...props}
           className={cn(
             // FORM LAYOUT (owned here, not Button)
-            "relative w-full px-6 py-4 rounded-xl font-semibold shadow-lg",
+            "relative w-full px-6 py-4 rounded-xl font-semibold shadow-lg transition-all",
             
             // variants (pure visual, no layout logic)
-            variant === "primary" && "bg-primary text-primary-foreground",
+            variant === "primary" && "bg-primary text-primary-foreground hover:bg-primary-dark",
             variant === "secondary" && "bg-muted hover:bg-primary-light text-foreground hover:text-white",
-            variant === "danger" && "bg-red-500 text-white",
+            variant === "danger" && "bg-destructive text-white hover:bg-destructive/90",
+            variant === "outline" && "border-2 border-gray-200 dark:border-gray-700 bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-none",
+            variant === "ghost" && "bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 shadow-none",
             loading && "cursor-not-allowed opacity-80",
             className
           )}

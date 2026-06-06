@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { FiRefreshCw, FiAlertCircle, FiBarChart2 } from "react-icons/fi";
+import { FiRefreshCw, FiBarChart2 } from "react-icons/fi";
 import { useAuth } from "@/app/context/AuthContext";
 import { useEvaluationData } from "@/features/evaluation/hooks/useEvaluationData";
 import { buildAllCompanyReports } from "@/shared/utils/evaluationEngine";
@@ -9,10 +8,12 @@ import { getApiOrigin } from "@/app/config/apiConfig";
 import EvaluationModal from "@/features/evaluation/components/EvaluationModal";
 import LembagaList from "@/features/evaluation/components/LembagaList";
 import PageTitle from "@/shared/components/common/PageTitle";
+import { PageTabs } from "@/shared/components/ui/tabs";
+import navigationConfig from "@/app/config/navigationConfig";
 
 export default function EvaluasiPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const isAdmin = user?.role === "admin";
   const [selectedLembagaId, setSelectedLembagaId] = useState(null);
 
   const {
@@ -39,6 +40,9 @@ export default function EvaluasiPage() {
 
   const apiOrigin = getApiOrigin();
 
+  // Evaluasi tabs from navigationConfig
+  const evaluationTabs = navigationConfig.getEvaluationMenuItems(isAdmin);
+
   // Pause polling when modal is open to save resources
   const handleSelectLembaga = (lembagaId) => {
     setSelectedLembagaId(lembagaId);
@@ -51,7 +55,7 @@ export default function EvaluasiPage() {
   };
 
   return (
-    <div className="py-12">
+    <div className="py-6 md:py-12">
       {/* Header */}
       <PageTitle
         type="page"
@@ -60,6 +64,11 @@ export default function EvaluasiPage() {
         title="Evaluasi Hasil Laporan"
         description="Pilih lembaga untuk melihat template evaluasi otomatis berdasarkan data monitoring"
       />
+
+      {/* Sub-navigation tabs — mobile only, sidebar handles desktop */}
+      <div className="md:hidden mb-4">
+        <PageTabs tabs={evaluationTabs} />
+      </div>
 
       <div className="max-w-5xl mx-auto">
         <motion.div
@@ -103,4 +112,3 @@ export default function EvaluasiPage() {
     </div>
   );
 }
-

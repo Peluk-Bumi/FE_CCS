@@ -23,32 +23,31 @@ export default function PageTitle({
   if (type === "page") {
     return (
       <motion.div
-        className="text-center mb-12"
+        className="text-center mb-16 flex flex-col items-center justify-center max-w-4xl mx-auto"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.4 }}
       >
         {(badge || BadgeIcon) && (
-          <div className="inline-flex items-center gap-2 bg-primary/10 dark:bg-primary-light/50 text-primary dark:text-primary-foreground px-4 py-2 rounded-full mb-4">
+          <div className="inline-flex items-center gap-2 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light px-4 py-1.5 rounded-full mb-5 font-semibold text-sm border border-primary/20">
             {BadgeIcon && (
-              <BadgeIcon className="w-5 h-5" />
+              <BadgeIcon className="w-4 h-4" />
             )}
-
             {badge && (
-              <span className="text-sm font-semibold">
-                {badge}
-              </span>
+              <span>{badge}</span>
             )}
           </div>
         )}
 
-        <h1 className="text-4xl md:text-5xl pb-3 font-black bg-gradient-to-r from-primary-light via-primary to-primary-dark dark:to-primary-light bg-clip-text text-transparent">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl pb-4 font-bold tracking-tight text-primary dark:text-primary-light">
           {title}
         </h1>
 
-        {description && (
-          <p className="text-gray-600 dark:text-gray-400 text-lg -mt-1">
-            {description}
+        <div className="w-24 md:w-32 h-1.5 bg-gradient-to-r from-primary to-primary-light dark:from-primary-light dark:to-primary mx-auto rounded-full mb-6"></div>
+
+        {(description || subtitle) && (
+          <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl leading-relaxed">
+            {description || subtitle}
           </p>
         )}
       </motion.div>

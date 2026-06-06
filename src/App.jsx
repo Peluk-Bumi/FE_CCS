@@ -12,6 +12,7 @@ import { BlockchainProvider } from "@/app/context/BlockchainContext";
 import BlockchainDebug from "@/features/blockchain/components/BlockchainDebug";
 import { showBlockchainDebug } from "@/shared/utils/showBlockchainDebug";
 import { ThemeProvider } from "@/app/context/ThemeContext";
+import FloatingActionButton from "@/shared/components/ui/button/FloatingActionButton";
 
 // ✅ Komponen terpisah yang menggunakan useAuth - harus di dalam AuthProvider
 function AppContent() {
@@ -19,9 +20,9 @@ function AppContent() {
   const location = useLocation();
   const { isAuthenticated, loading } = useAuth();
 
-  const noNavbarRoutes = ["/login", "/register", "/admin", "/user"];
-  const alwaysShowNavbarRoutes = ["/", "/about", "/contact"];
-  const fullscreenRoutes = ["/verifikasi"];
+  const noNavbarRoutes = ["/login", "/register", "/admin", "/user", "/demo"];
+  const alwaysShowNavbarRoutes = ["/", "/about", "/contact", "/verifikasi"];
+  const fullscreenRoutes = [];
   
   const isNoNavbarRoute = noNavbarRoutes.some(route => location.pathname.startsWith(route));
   const isAlwaysShowNavbar = alwaysShowNavbarRoutes.some(route => {
@@ -37,6 +38,11 @@ function AppContent() {
   const showNavbar =
     !isFullscreenRoute &&
     (isAlwaysShowNavbar || (!isNoNavbarRoute && !isAuthenticated));
+    
+  const isAuthRoute = location.pathname.startsWith('/login') || location.pathname.startsWith('/register');
+  const isDemoRoute = location.pathname.startsWith('/demo');
+  const isPanelRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/user');
+  const showFab = !isAuthRoute && !isDemoRoute;
 
   useEffect(() => {
     let idleTimeout = null;
@@ -89,10 +95,12 @@ function AppContent() {
       {showNavbar && <Navbar />}
       <AppRoutes />
       
+      {showFab && <FloatingActionButton position="bottom-right" isPanel={isPanelRoute} />}
+
       {/* {showBlockchainDebug() && <BlockchainDebug />} */}
       
       <ToastContainer 
-        position="top-right" 
+        position="top-center" 
         autoClose={3000} 
         hideProgressBar={false} 
         newestOnTop={true} 
@@ -100,6 +108,8 @@ function AppContent() {
         pauseOnHover 
         draggable 
         theme="colored"
+        className="!top-16 md:!top-4 md:!right-4 md:!left-auto md:!translate-x-0"
+        toastClassName="!rounded-xl !shadow-lg"
       />
     </>
   );
