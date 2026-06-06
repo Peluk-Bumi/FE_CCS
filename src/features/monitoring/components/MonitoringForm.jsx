@@ -26,6 +26,7 @@ import RadioCard from "@/shared/components/ui/radio-card";
 import { cn } from "@/shared/utils/utils";
 
 import { FaTree } from "react-icons/fa";
+import LocationCard from "@/shared/components/ui/card/LocationCard";
 
 // ✅ Enhanced transparent minimalist marker icon using CSS variables
 const createIconMarker = (isSelected = false) => {
@@ -882,188 +883,87 @@ const MonitoringForm = () => {
                 </motion.div>
               )}
 
-              {/* ✅ DETAIL LOKASI TERPILIH - DITAMPILKAN DI BAWAH MAPS */}
-              {selectedLocation && (
-                <motion.div
-                  className="mt-6 bg-gradient-to-br from-green-50 to-lime-50 dark:from-green-900/20 dark:to-lime-900/20 border-2 border-green-300 dark:border-green-700 rounded-2xl p-6"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <div className="flex items-start gap-4 mb-6">
-                    <motion.div
-                      className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0 shadow-lg"
-                      whileHover={{ scale: 1.1, rotate: 10 }}
-                    >
-                      <FiCheckCircle className="w-6 h-6 text-white" />
-                    </motion.div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-green-900 dark:text-green-200 mb-1">
-                        Lokasi Implementasi Terpilih
-                      </h3>
-                      <p className="text-sm text-green-700 dark:text-green-300">
-                        Berikut adalah detail lokasi implementasi untuk monitoring
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* ✅ SEED COUNT SUMMARY - PROMINENT DISPLAY */}
-                  <div className="mt-5 rounded-xl bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-400 dark:border-green-600 p-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="text-center">
-                        <p className="text-xs font-semibold text-green-700 dark:text-green-300 mb-2 uppercase tracking-wide">Jumlah Bibit Perencanaan</p>
-                        <p className="text-3xl font-black text-green-900 dark:text-green-100">
-                          {selectedLocation.jumlah_bibit ?? selectedLocation.perencanaan?.jumlah_bibit ?? "-"}
-                        </p>
-                        <p className="text-xs text-green-700 dark:text-green-300 mt-1">Unit</p>
+              {/* ✅ DETAIL LOKASI TERPILIH - MENGGUNAKAN LOCATIONCARD COMPONENT */}
+              <LocationCard
+                location={selectedLocation}
+                planningData={selectedLocation?.perencanaan}
+                actualData={selectedLocation}
+                mode="comparison"
+                isSelected={!!selectedLocation}
+                title="Lokasi Implementasi Terpilih"
+                subtitle="Berikut adalah detail lokasi implementasi untuk monitoring"
+                alertText="Lokasi implementasi berhasil dipilih. Lanjutkan pengisian data monitoring."
+                dateLabel="Tanggal Implementasi"
+                extraContent={
+                  <>
+                    {/* ✅ SEED COUNT SUMMARY - PROMINENT DISPLAY */}
+                    <div className="mt-5 rounded-xl bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-400 dark:border-green-600 p-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="text-center">
+                          <p className="text-xs font-semibold text-green-700 dark:text-green-300 mb-2 uppercase tracking-wide">Jumlah Bibit Perencanaan</p>
+                          <p className="text-3xl font-black text-green-900 dark:text-green-100">
+                            {selectedLocation?.jumlah_bibit ?? selectedLocation?.perencanaan?.jumlah_bibit ?? "-"}
+                          </p>
+                          <p className="text-xs text-green-700 dark:text-green-300 mt-1">Unit</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide">Bibit Tertanam</p>
+                          <p className="text-3xl font-black text-emerald-900 dark:text-emerald-100">
+                            {formik.values.jumlah_bibit_ditanam || "-"}
+                          </p>
+                          <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Unit</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xs font-semibold text-lime-700 dark:text-lime-300 mb-2 uppercase tracking-wide">Survival Rate</p>
+                          <p className="text-3xl font-black text-lime-900 dark:text-lime-100">
+                            {formik.values.survival_rate || "-"}
+                          </p>
+                          <p className="text-xs text-lime-700 dark:text-lime-300 mt-1">%</p>
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide">Bibit Tertanam</p>
-                        <p className="text-3xl font-black text-emerald-900 dark:text-emerald-100">
-                          {formik.values.jumlah_bibit_ditanam || "-"}
+                      <div className="mt-4 pt-4 border-t border-green-300 dark:border-green-700">
+                        <p className="text-xs text-green-700 dark:text-green-300">
+                          📊 Bulan terisi: <span className="font-bold">{
+                            selectedLocation && getMonitoringMonths(selectedLocation.id).length > 0
+                              ? getMonitoringMonths(selectedLocation.id).join(", ")
+                              : "Belum ada"
+                          }</span>
                         </p>
-                        <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Unit</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-xs font-semibold text-lime-700 dark:text-lime-300 mb-2 uppercase tracking-wide">Survival Rate</p>
-                        <p className="text-3xl font-black text-lime-900 dark:text-lime-100">
-                          {formik.values.survival_rate || "-"}
-                        </p>
-                        <p className="text-xs text-lime-700 dark:text-lime-300 mt-1">%</p>
                       </div>
                     </div>
-                    <div className="mt-4 pt-4 border-t border-green-300 dark:border-green-700">
-                      <p className="text-xs text-green-700 dark:text-green-300">
-                        📊 Bulan terisi: <span className="font-bold">{
-                          getMonitoringMonths(selectedLocation.id).length > 0
-                            ? getMonitoringMonths(selectedLocation.id).join(", ")
-                            : "Belum ada"
-                        }</span>
-                      </p>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3 mt-6 pt-6 border-t border-green-200 dark:border-green-700">
+                      <motion.button
+                        type="button"
+                        onClick={() => {
+                          setSelectedLocation(null);
+                          setSelectedImplementasi(null);
+                          formik.setFieldValue("lokasi", "");
+                          formik.setFieldValue("implementasi_id", "");
+                          formik.setFieldTouched("lokasi", false, false);
+                          formik.setFieldTouched("implementasi_id", false, false);
+                        }}
+                        className="flex-1 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        Pilih Lokasi Lain
+                      </motion.button>
+                      <motion.button
+                        type="button"
+                        onClick={() => handleLocationSelect(selectedLocation)}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-medium transition-all shadow-md"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <FiCheckCircle className="w-4 h-4" />
+                        <span>Gunakan Lokasi Ini</span>
+                      </motion.button>
                     </div>
-                  </div>
-
-                  {/* Detail Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Lembaga */}
-                    <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-100 dark:border-green-800"
-                      whileHover={{ translateY: -2 }}
-                    >
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Lembaga
-                      </p>
-                      <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
-                        {(selectedLocation?.nama_perusahaan_sesuai === false || selectedLocation?.nama_perusahaan_sesuai === 0 || selectedLocation?.nama_perusahaan_sesuai === "0")
-                          ? (getActualValue(selectedLocation, "nama_perusahaan") ?? selectedLocation?.nama_perusahaan)
-                          : selectedLocation?.nama_perusahaan}
-                      </p>
-                    </motion.div>
-
-                    {/* Kegiatan */}
-                    <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-100 dark:border-green-800"
-                      whileHover={{ translateY: -2 }}
-                    >
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Jenis Kegiatan
-                      </p>
-                      <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
-                        {(selectedLocation?.jenis_kegiatan_sesuai === false || selectedLocation?.jenis_kegiatan_sesuai === 0 || selectedLocation?.jenis_kegiatan_sesuai === "0")
-                          ? (getActualValue(selectedLocation, "jenis_kegiatan") ?? selectedLocation?.jenis_kegiatan)
-                          : selectedLocation?.jenis_kegiatan}
-                      </p>
-                    </motion.div>
-
-                    {/* PIC Koorlap */}
-                    <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-100 dark:border-green-800"
-                      whileHover={{ translateY: -2 }}
-                    >
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        PIC Koorlap
-                      </p>
-                      <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
-                        {selectedLocation.pic_koorlap}
-                      </p>
-                    </motion.div>
-
-                    {/* Jenis Bibit */}
-                    <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-100 dark:border-green-800"
-                      whileHover={{ translateY: -2 }}
-                    >
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Jenis Bibit
-                      </p>
-                      <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
-                        {(selectedLocation?.jenis_bibit_sesuai === false || selectedLocation?.jenis_bibit_sesuai === 0 || selectedLocation?.jenis_bibit_sesuai === "0")
-                          ? (getActualValue(selectedLocation, "jenis_bibit") ?? selectedLocation?.jenis_bibit)
-                          : selectedLocation?.jenis_bibit}
-                      </p>
-                    </motion.div>
-
-                    {/* Jumlah Bibit */}
-                    <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-100 dark:border-green-800"
-                      whileHover={{ translateY: -2 }}
-                    >
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Jumlah Bibit
-                      </p>
-                      <p className="text-base font-bold text-gray-900 dark:text-gray-100">
-                        {(selectedLocation?.jumlah_bibit_sesuai === false || selectedLocation?.jumlah_bibit_sesuai === 0 || selectedLocation?.jumlah_bibit_sesuai === "0")
-                          ? (getActualValue(selectedLocation, "jumlah_bibit") ?? selectedLocation?.jumlah_bibit)
-                          : selectedLocation?.jumlah_bibit} Unit
-                      </p>
-                    </motion.div>
-
-                    {/* Koordinat */}
-                    <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-100 dark:border-green-800 md:col-span-2"
-                      whileHover={{ translateY: -2 }}
-                    >
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Koordinat Lokasi
-                      </p>
-                      <p className="text-sm font-mono text-gray-900 dark:text-gray-100 bg-green-50 dark:bg-green-900/30 px-3 py-2 rounded-lg">
-                        Latitude: {selectedLocation.lat} | Longitude: {selectedLocation.long}
-                      </p>
-                    </motion.div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-3 mt-6 pt-6 border-t border-green-200 dark:border-green-700">
-                    <motion.button
-                      type="button"
-                      onClick={() => {
-                        setSelectedLocation(null);
-                        setSelectedImplementasi(null);
-                        formik.setFieldValue("lokasi", "");
-                        formik.setFieldValue("implementasi_id", "");
-                        formik.setFieldTouched("lokasi", false, false);
-                        formik.setFieldTouched("implementasi_id", false, false);
-                      }}
-                      className="flex-1 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      Pilih Lokasi Lain
-                    </motion.button>
-                    <motion.button
-                      type="button"
-                      onClick={() => handleLocationSelect(selectedLocation)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-medium transition-all shadow-md"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <FiCheckCircle className="w-4 h-4" />
-                      <span>Gunakan Lokasi Ini</span>
-                    </motion.button>
-                  </div>
-                </motion.div>
-              )}
-
+                  </>
+                }
+              />
               {/* Validation Error */}
               {formik.touched.lokasi && formik.errors.lokasi && (
                 <motion.p

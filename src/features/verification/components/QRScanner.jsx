@@ -14,6 +14,9 @@ export default function QRScanner({
   onDeviceChange,
   onFileUpload,
   useManualInput,
+  cameraStarted,
+  setCameraStarted,
+  setScanning,
 }) {
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700">
@@ -59,7 +62,33 @@ export default function QRScanner({
 
       {/* Scanner atau Manual Input */}
       <AnimatePresence mode="wait">
-        {!useManualInput && scannerReady && scanning && !scanResult ? (
+        {!useManualInput && scannerReady && !cameraStarted && !scanResult ? (
+          <motion.div
+            key="camera-prompt"
+            className="rounded-2xl overflow-hidden border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 p-8 flex flex-col items-center justify-center mb-6"
+            style={{ aspectRatio: '1/1' }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+          >
+            <FiCamera className="w-16 h-16 text-gray-400 mb-4" />
+            <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
+              Kamera diperlukan untuk melakukan scan QR Code. Klik tombol di bawah untuk memulai kamera.
+            </p>
+            <button
+              onClick={() => {
+                setCameraStarted(true);
+                setScanning(true);
+              }}
+              className="px-6 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-xl transition-colors flex items-center gap-2"
+            >
+              <FiCamera className="w-5 h-5" />
+              Mulai Kamera
+            </button>
+          </motion.div>
+        ) : null}
+
+        {!useManualInput && scannerReady && cameraStarted && scanning && !scanResult ? (
           <motion.div
             key="scanner"
             className="relative rounded-2xl overflow-hidden border-4 border-primary shadow-2xl bg-gray-900 mb-6"
@@ -101,7 +130,7 @@ export default function QRScanner({
       {/* File Upload */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          📸 Upload Gambar QR Code
+          Upload Gambar QR Code
         </label>
         <label className="flex flex-col items-center justify-center w-full p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
           <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
@@ -110,6 +139,7 @@ export default function QRScanner({
             type="file"
             accept="image/*"
             onChange={onFileUpload}
+            onClick={(e) => { e.target.value = null; }}
             className="sr-only"
           />
         </label>
@@ -129,9 +159,9 @@ export default function QRScanner({
           >
             <FiCheckCircle className="w-16 h-16 text-blue-600 mx-auto mb-4" />
           </motion.div>
-          <p className="text-blue-700 dark:text-blue-300 font-bold text-lg mb-2">QR Code Valid ✅</p>
+          <p className="text-blue-700 dark:text-blue-300 font-bold text-lg mb-2">QR Code Valid</p>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-            🔄 Sedang memproses...
+            Sedang memproses...
           </p>
           <motion.div
             animate={{ rotate: 360 }}
@@ -157,7 +187,7 @@ export default function QRScanner({
           >
             <div className="w-8 h-8 border-3 border-amber-600 border-t-transparent rounded-full"></div>
           </motion.div>
-          <p className="text-amber-700 dark:text-amber-300 font-bold text-lg">⏳ Memuat detail laporan...</p>
+          <p className="text-amber-700 dark:text-amber-300 font-bold text-lg">Memuat detail laporan...</p>
         </motion.div>
       )}
 
@@ -175,7 +205,7 @@ export default function QRScanner({
           >
             <FiCheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
           </motion.div>
-          <p className="text-primary dark:text-primary-light font-bold text-lg mb-2">✅ Berhasil Terverifikasi</p>
+          <p className="text-primary dark:text-primary-light font-bold text-lg mb-2">Berhasil Terverifikasi</p>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Lihat detail laporan di sebelah kanan
           </p>

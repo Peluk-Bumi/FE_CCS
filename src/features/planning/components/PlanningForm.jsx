@@ -25,6 +25,8 @@ import RadioCard from "@/shared/components/ui/radio-card";
 import { cn } from "@/shared/utils/utils";
 import QrCodeModal from "@/features/admin/components/laporan/QrCodeModal";
 import { downloadQrDataUrl, generatePlanningQrDataUrl } from "../utils/planningQr";
+import navigationConfig from "@/app/config/navigationConfig";
+import { PageTabs } from "@/shared/components/ui/tabs";
 
 // ✅ Fix Leaflet default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -319,6 +321,9 @@ const PerencanaanForm = () => {
           description="Isi data dengan lengkap untuk merencanakan kegiatan konservasi"
         />
         
+      <div className="md:hidden mb-4">
+        <PageTabs tabs={navigationConfig.getPlanningMenuItems(isAdmin)} />
+      </div>
 
         {/* Success Animation */}
         <AnimatePresence>

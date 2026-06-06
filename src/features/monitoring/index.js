@@ -6,6 +6,9 @@ export { default as MonitoringPage } from '../pages/monitoring/MonitoringPage';
 export { default as MonitoringForm } from './components/MonitoringForm';
 export { default as MonitoringTable } from './components/MonitoringTable';
 export { default as MonitoringStats } from './components/MonitoringStats';
+export { default as MonitoringHistoryCard } from './components/MonitoringHistoryCard';
+export { default as ImplementationDetailCard } from './components/ImplementationDetailCard';
+export { default as ImplementationLocationCard } from './components/ImplementationLocationCard';
 
 // Hooks
 export { default as useMonitoringData } from './hooks/useMonitoringData';

@@ -19,6 +19,7 @@ import RadioCard from "@/shared/components/ui/radio-card";
 import { cn } from "@/shared/utils/utils";
 import { renderToStaticMarkup } from "react-dom/server";
 import { FaSeedling } from "react-icons/fa";
+import LocationCard from "@/shared/components/ui/card/LocationCard";
 
 // ✅ Enhanced transparent minimalist marker icon using CSS variables
 const createIconMarker = (isSelected = false) => {
@@ -612,139 +613,11 @@ const ImplementasiForm = () => {
                 </motion.div>
               )}
 
-              {/* ✅ DETAIL LOKASI TERPILIH - DITAMPILKAN DI BAWAH MAPS */}
-              {selectedLocation && (
-                <motion.div
-                  className="mt-6 bg-gradient-to-br from-green-50 to-lime-50 dark:from-green-900/20 dark:to-lime-900/20 border-2 border-green-300 dark:border-green-700 rounded-2xl p-6"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <div className="flex items-start gap-4 mb-6">
-                    <motion.div
-                      className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0 shadow-lg"
-                      whileHover={{ scale: 1.1, rotate: 10 }}
-                    >
-                      <FiCheckCircle className="w-6 h-6 text-white" />
-                    </motion.div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-green-900 dark:text-green-200 mb-1">
-                        Lokasi Terpilih
-                      </h3>
-                      <p className="text-sm text-green-700 dark:text-green-300">
-                        Berikut adalah detail lokasi implementasi yang dipilih
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Detail Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Lembaga */}
-                    <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700"
-                      whileHover={{ translateY: -2 }}
-                    >
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Lembaga
-                      </p>
-                      <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
-                        {selectedLocation.nama_perusahaan}
-                      </p>
-                    </motion.div>
-
-                    {/* Kegiatan */}
-                    <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700"
-                      whileHover={{ translateY: -2 }}
-                    >
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Jenis Kegiatan
-                      </p>
-                      <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
-                        {selectedLocation.jenis_kegiatan}
-                      </p>
-                    </motion.div>
-
-                    {/* Bibit */}
-                    <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700"
-                      whileHover={{ translateY: -2 }}
-                    >
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Jenis Bibit
-                      </p>
-                      <p className="text-base font-bold text-gray-900 dark:text-gray-100 break-words">
-                        {selectedLocation.jenis_bibit}
-                      </p>
-                    </motion.div>
-
-                    {/* Jumlah Bibit */}
-                    <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700"
-                      whileHover={{ translateY: -2 }}
-                    >
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Jumlah Bibit
-                      </p>
-                      <p className="text-base font-bold text-gray-900 dark:text-gray-100">
-                        {selectedLocation.jumlah_bibit} Unit
-                      </p>
-                    </motion.div>
-
-                    {/* Tanggal */}
-                    <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700"
-                      whileHover={{ translateY: -2 }}
-                    >
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Tanggal Pelaksanaan
-                      </p>
-                      <p className="text-base font-bold text-gray-900 dark:text-gray-100">
-                        {new Date(selectedLocation.tanggal_pelaksanaan).toLocaleDateString('id-ID', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric'
-                        })}
-                      </p>
-                    </motion.div>
-
-                    {/* Koordinat */}
-                    <motion.div
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-green-200 dark:border-green-700 md:col-span-2"
-                      whileHover={{ translateY: -2 }}
-                    >
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">
-                        Koordinat Lokasi
-                      </p>
-                      <p className="text-sm font-mono text-gray-900 dark:text-gray-100 bg-green-50 dark:bg-green-900/30 px-3 py-2 rounded-lg">
-                        Latitude: {selectedLocation.lat} | Longitude: {selectedLocation.long}
-                      </p>
-                    </motion.div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-3 mt-6 pt-6 border-t border-green-200 dark:border-green-700">
-                    <motion.button
-                      type="button"
-                      onClick={() => setSelectedLocation(null)}
-                      className="flex-1 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium transition-all"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      Pilih Lokasi Lain
-                    </motion.button>
-                    <motion.button
-                      type="button"
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-medium transition-all shadow-md"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <FiCheckCircle className="w-4 h-4" />
-                      <span>Gunakan Lokasi Ini</span>
-                    </motion.button>
-                  </div>
-                </motion.div>
-              )}
+              {/* ✅ DETAIL LOKASI TERPILIH - MENGGUNAKAN LOCATIONCARD COMPONENT */}
+              <LocationCard 
+                location={selectedLocation}
+                isSelected={!!selectedLocation}
+              />
 
               {/* Validation Error */}
               {formik.touched.geotagging && formik.errors.geotagging && (

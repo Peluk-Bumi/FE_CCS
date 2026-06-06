@@ -3,6 +3,7 @@
 
 // Components
 export { default as ImplementasiForm } from './components/ImplementasiForm';
+export { default as LocationCard } from './components/LocationCard';
 
 // Note: Other components, hooks, services, and utils will be added as they are created
 // - ImplementationPage (not yet created)

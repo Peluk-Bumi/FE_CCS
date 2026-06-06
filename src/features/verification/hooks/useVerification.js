@@ -32,6 +32,7 @@ export const useVerification = () => {
   const [blockchainError, setBlockchainError] = useState(null);
   const [blockchainData, setBlockchainData] = useState(null);
   const [qrDataParsed, setQrDataParsed] = useState(null);
+  const [cameraStarted, setCameraStarted] = useState(false);
 
   const { isAuthenticated } = useAuth();
   const blockchainContext = useBlockchain();
@@ -102,7 +103,7 @@ export const useVerification = () => {
         if (scanResult && laporanDetail) {
           return;
         }
-        if (scannerReady && !useManualInput) {
+        if (scannerReady && !useManualInput && cameraStarted) {
           setScanning(true);
         }
       }
@@ -110,7 +111,7 @@ export const useVerification = () => {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [scannerReady, useManualInput, scanResult, laporanDetail]);
+  }, [scannerReady, useManualInput, scanResult, laporanDetail, cameraStarted]);
 
   useEffect(() => {
     const loadScanner = async () => {
@@ -155,10 +156,20 @@ export const useVerification = () => {
   }, [scannerReady]);
 
   useEffect(() => {
-    if (!scanning || !scannerReady || !videoRef.current) return;
+    if (!scanning || !scannerReady) return;
+
+    let isActive = true;
 
     const startCamera = async () => {
       try {
+        // Wait for video element to mount
+        for (let i = 0; i < 20; i++) {
+          if (videoRef.current) break;
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        if (!isActive || !videoRef.current) return;
+
         const constraints = {
           video: {
             facingMode: "environment",
@@ -188,6 +199,7 @@ export const useVerification = () => {
     startCamera();
 
     return () => {
+      isActive = false;
       if (videoRef.current?.srcObject) {
         videoRef.current.srcObject.getTracks().forEach(track => {
           track.stop();
@@ -462,6 +474,11 @@ export const useVerification = () => {
     try {
       if (!qrData || typeof qrData !== 'string') {
         toast.error('❌ Format QR code tidak valid');
+        return;
+      }
+
+      if (qrData === scanResult) {
+        toast.info('Info: Anda sudah melakukan scan pada QR Code ini.');
         return;
       }
 
@@ -861,10 +878,12 @@ export const useVerification = () => {
       blockchainError,
       blockchainData,
       qrDataParsed,
+      cameraStarted,
     },
     actions: {
       setDeviceId,
       setScanning,
+      setCameraStarted,
       setUseManualInput,
       setManualQRCode,
       setLaporanDetail,

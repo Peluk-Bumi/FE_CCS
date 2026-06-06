@@ -44,7 +44,7 @@ export default function SummaryCards({ report, survivalStatus, healthStatus, isA
 
   return (
     <motion.div
-      className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"
+      className="grid grid-cols-2 gap-3 mb-6"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -52,83 +52,78 @@ export default function SummaryCards({ report, survivalStatus, healthStatus, isA
       {/* Survival Rate Card */}
       <motion.div
         variants={itemVariants}
-        className={`rounded-xl border-2 p-4 ${survivalColor.bg} ${survivalColor.border}`}
+        className={`rounded-xl border-2 p-3 sm:p-4 flex flex-col justify-between ${survivalColor.bg} ${survivalColor.border}`}
       >
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Tingkat Keberhasilan</p>
-            <p className={`text-3xl font-bold ${survivalColor.text}`}>{report.survivalRate}</p>
-            <p className="text-xs mt-2 text-gray-600 dark:text-gray-400">
-              {isAvg36 ? "Rata-rata survival rate monitoring bulan 3 dan 6" : "Survival rate (data akhir)"}
-            </p>
-            <p className={`text-xs mt-1 ${survivalColor.text}`}>
-              {survivalStatus === "BERHASIL" && "✓ Berhasil"}
-              {survivalStatus === "BAIK" && "✓ Baik"}
-              {survivalStatus === "PERLU_PERHATIAN" && "⚠ Perlu Perhatian"}
-              {survivalStatus === "GAGAL" && "✗ Gagal"}
-            </p>
+        <div className="flex items-start justify-between mb-2">
+          <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 leading-tight">Tingkat<br className="sm:hidden" /> Keberhasilan</p>
+          <div className={`p-2 rounded-lg ${survivalColor.bg} hidden sm:block`}>
+            <FiTrendingUp className={`w-5 h-5 ${survivalColor.icon}`} />
           </div>
-          <div className={`p-3 rounded-lg ${survivalColor.bg}`}>
-            <FiTrendingUp className={`w-6 h-6 ${survivalColor.icon}`} />
-          </div>
+        </div>
+        <div>
+          <p className={`text-2xl sm:text-3xl font-bold ${survivalColor.text}`}>{report.survivalRate}</p>
+          <p className="text-[10px] sm:text-xs mt-1 text-gray-600 dark:text-gray-400 line-clamp-2">
+            {isAvg36 ? "Rata-rata survival rate monitoring 3 & 6" : "Survival rate (data akhir)"}
+          </p>
+          <p className={`text-[10px] sm:text-xs mt-1 font-medium ${survivalColor.text}`}>
+            {survivalStatus === "BERHASIL" && "✓ Berhasil"}
+            {survivalStatus === "BAIK" && "✓ Baik"}
+            {survivalStatus === "PERLU_PERHATIAN" && "⚠ Perlu Perhatian"}
+            {survivalStatus === "GAGAL" && "✗ Gagal"}
+          </p>
         </div>
       </motion.div>
 
       {/* Kondisi Kesehatan Card */}
       <motion.div
         variants={itemVariants}
-        className="rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4"
+        className="rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-3 sm:p-4 flex flex-col justify-between"
       >
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Kondisi Kesehatan</p>
-            <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{report.healthCondition}</p>
-            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2">
-              {report.healthConditionDetail?.description || "Status kesehatan bibit berdasarkan survival rate"}
-            </p>
-            {report.healthConditionDetail?.action && (
-              <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mt-1">
-                Tindakan: {report.healthConditionDetail.action}
-              </p>
-            )}
+        <div className="flex items-start justify-between mb-2">
+          <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 leading-tight">Kondisi<br className="sm:hidden" /> Kesehatan</p>
+          <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 hidden sm:block">
+            <FiActivity className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <div className="p-3 rounded-lg bg-emerald-100 dark:bg-emerald-900/40">
-            <FiActivity className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-          </div>
+        </div>
+        <div>
+          <p className="text-xl sm:text-2xl font-bold text-emerald-700 dark:text-emerald-300 leading-tight">{report.healthCondition}</p>
+          <p className="text-[10px] sm:text-xs text-emerald-600 dark:text-emerald-400 mt-1 line-clamp-2">
+            {report.healthConditionDetail?.description || "Status kesehatan bibit"}
+          </p>
         </div>
       </motion.div>
 
       {/* Tinggi Rata-rata Card */}
       <motion.div
         variants={itemVariants}
-        className="rounded-xl border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-4"
+        className="rounded-xl border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-3 sm:p-4 flex flex-col justify-between"
       >
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Tinggi Bibit Rata-rata</p>
-            <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{report.avgHeight}</p>
-            <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">cm</p>
+        <div className="flex items-start justify-between mb-2">
+          <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 leading-tight">Tinggi Bibit<br className="sm:hidden" /> Rata-rata</p>
+          <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/40 hidden sm:block">
+            <FiAward className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
-          <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/40">
-            <FiAward className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-          </div>
+        </div>
+        <div>
+          <p className="text-xl sm:text-2xl font-bold text-blue-700 dark:text-blue-300">{report.avgHeight}</p>
+          <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 mt-0.5">cm</p>
         </div>
       </motion.div>
 
       {/* Diameter Rata-rata Card */}
       <motion.div
         variants={itemVariants}
-        className="rounded-xl border-2 border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20 p-4"
+        className="rounded-xl border-2 border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20 p-3 sm:p-4 flex flex-col justify-between"
       >
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Diameter Batang Rata-rata</p>
-            <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">{report.avgDiameter}</p>
-            <p className="text-xs text-purple-600 dark:text-purple-400 mt-2">cm</p>
+        <div className="flex items-start justify-between mb-2">
+          <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 leading-tight">Diameter Batang<br className="sm:hidden" /> Rata-rata</p>
+          <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/40 hidden sm:block">
+            <FiCheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400" />
           </div>
-          <div className="p-3 rounded-lg bg-purple-100 dark:bg-purple-900/40">
-            <FiCheckCircle className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-          </div>
+        </div>
+        <div>
+          <p className="text-xl sm:text-2xl font-bold text-purple-700 dark:text-purple-300">{report.avgDiameter}</p>
+          <p className="text-[10px] sm:text-xs text-purple-600 dark:text-purple-400 mt-0.5">cm</p>
         </div>
       </motion.div>
     </motion.div>
