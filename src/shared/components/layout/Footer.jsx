@@ -11,6 +11,7 @@ export default function Footer() {
     { name: "Beranda", href: "/" },
     { name: "Tentang", href: "/about" },
     { name: "Verifikasi", href: "/verifikasi" },
+    { name: "Panduan", href: "/panduan" },
     { name: "FAQ", href: "/faqs" },
     { name: "Login", href: "/login" },
   ];

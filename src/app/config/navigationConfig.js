@@ -57,8 +57,9 @@ export const navigationConfig = {
   landingNavItems: [
     { label: "Beranda",    path: "/",       iconName: "FiHome"        },
     { label: "Tentang",    path: "/about",  iconName: "FiInfo"        },
-    { label: "Verifikasi", path: "/verifikasi", iconName: "FiCheckCircle" },
+    { label: "Panduan",    path: "/panduan", iconName: "FiBookOpen"    },
     { label: "FAQ",        path: "/faqs",   iconName: "FiHelpCircle"  },
+    { label: "Verifikasi", path: "/verifikasi", iconName: "FiCheckCircle" },
   ],
 
   // ── Mobile bottom tabs (< md) — quick access + Menu opens full sheet ───────
