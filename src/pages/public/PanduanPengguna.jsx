@@ -138,9 +138,8 @@ export default function PanduanPengguna() {
     { id: "struktur-menu", label: "3. Struktur Menu Aplikasi" },
     { id: "prasyarat", label: "4. Prasyarat Penggunaan" },
     { id: "prosedur", label: "5. Prosedur Penggunaan" },
-    { id: "ilustrasi", label: "6. Panduan Ilustrasi" },
-    { id: "tips", label: "7. Tips Penggunaan" },
-    { id: "troubleshooting", label: "8. Troubleshooting" }
+    { id: "tips", label: "6. Tips Penggunaan" },
+    { id: "troubleshooting", label: "7. Troubleshooting" }
   ];
 
   // Search filter
@@ -687,66 +686,13 @@ export default function PanduanPengguna() {
                 </div>
               </section>
 
-              {/* 6. Panduan Ilustrasi Screenshot */}
-              <section id="ilustrasi" className="scroll-mt-24 space-y-4">
-                <h2 className={`text-xl sm:text-2xl font-bold flex items-center gap-2 border-b pb-3 ${
-                  isDark ? 'text-white border-gray-800' : 'text-primary border-gray-100'
-                }`}>
-                  <FiCamera className="text-primary" />
-                  6. Panduan Ilustrasi Screenshot
-                </h2>
-                <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Bagi penyusun manual resmi tercetak, berikut tabel rekomendasi penempatan tangkapan layar (*screenshot*) beserta panduan isinya:
-                </p>
-
-                <div className="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-800">
-                  <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                    <thead>
-                      <tr className={`border-b ${isDark ? 'bg-gray-900/50 border-gray-800' : 'bg-gray-100/50 border-gray-200'}`}>
-                        <th className="p-3 font-semibold text-center w-[10%]">No</th>
-                        <th className="p-3 font-semibold w-[35%] border-l border-gray-250 dark:border-gray-800">Nama Ilustrasi</th>
-                        <th className="p-3 font-semibold border-l border-gray-250 dark:border-gray-800">Isi yang Disarankan</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                      {[
-                        { no: "1", name: "Halaman utama", desc: "Landing page aplikasi dengan ringkasan umum" },
-                        { no: "2", name: "Navigasi awal", desc: "Tombol login dan verifikasi di header utama" },
-                        { no: "3", name: "Form login", desc: "Field input email dan password" },
-                        { no: "4", name: "Dashboard", desc: "Tampilan beranda utama setelah berhasil masuk" },
-                        { no: "5", name: "Form registrasi", desc: "Formulir pendaftaran akun pengguna baru" },
-                        { no: "6", name: "Validasi registrasi", desc: "Pemberitahuan sukses pembuatan akun" },
-                        { no: "7", name: "Form perencanaan", desc: "Form input perencanaan program baru" },
-                        { no: "8", name: "Validasi tanggal", desc: "Pesan error pencegahan tanggal backdate" },
-                        { no: "9", name: "Form implementasi", desc: "Form pengisian progres penanaman lapangan" },
-                        { no: "10", name: "Upload dokumentasi", desc: "Area dropzone unggahan berkas foto" },
-                        { no: "11", name: "Validasi file", desc: "Pesan error ukuran/jumlah file melebihi batas" },
-                        { no: "12", name: "Form monitoring", desc: "Form pencatatan hasil ukur berkas bibit" },
-                        { no: "13", name: "Form evaluasi", desc: "Form input evaluasi kondisi akhir ekosistem" },
-                        { no: "14", name: "Informasi evaluasi", desc: "Halaman dokumentasi teori parameter kesehatan" },
-                        { no: "15", name: "Halaman verifikasi", desc: "Kamera pemindai QR aktif" },
-                        { no: "16", name: "Hasil scan QR", desc: "Modal ringkasan data terverifikasi blockchain" }
-                      ].map((row, idx) => (
-                        <tr key={idx} className={`hover:bg-gray-50/50 dark:hover:bg-gray-950/20 ${
-                          idx % 2 === 0 ? (isDark ? 'bg-gray-900/10' : 'bg-gray-50/30') : ''
-                        }`}>
-                          <td className="p-3 text-center font-medium">{row.no}</td>
-                          <td className="p-3 font-semibold border-l border-gray-250 dark:border-gray-800">{row.name}</td>
-                          <td className={`p-3 border-l border-gray-250 dark:border-gray-800 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{row.desc}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-
-              {/* 7. Tips Penggunaan */}
+              {/* 6. Tips Penggunaan */}
               <section id="tips" className="scroll-mt-24 space-y-4">
                 <h2 className={`text-xl sm:text-2xl font-bold flex items-center gap-2 border-b pb-3 ${
                   isDark ? 'text-white border-gray-800' : 'text-primary border-gray-100'
                 }`}>
                   <FiCheckCircle className="text-primary" />
-                  7. Tips Penggunaan
+                  6. Tips Penggunaan
                 </h2>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
@@ -769,13 +715,13 @@ export default function PanduanPengguna() {
                 </div>
               </section>
 
-              {/* 8. Troubleshooting Singkat */}
+              {/* 7. Troubleshooting Singkat */}
               <section id="troubleshooting" className="scroll-mt-24 space-y-4">
                 <h2 className={`text-xl sm:text-2xl font-bold flex items-center gap-2 border-b pb-3 ${
                   isDark ? 'text-white border-gray-800' : 'text-primary border-gray-100'
                 }`}>
                   <FiHelpCircle className="text-primary" />
-                  8. Troubleshooting Singkat
+                  7. Troubleshooting Singkat
                 </h2>
                 
                 <div className="divide-y divide-gray-100 dark:divide-gray-800">
