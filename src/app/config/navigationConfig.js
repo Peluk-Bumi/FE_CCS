@@ -57,6 +57,7 @@ export const navigationConfig = {
   landingNavItems: [
     { label: "Beranda",    path: "/",       iconName: "FiHome"        },
     { label: "Tentang",    path: "/about",  iconName: "FiInfo"        },
+    { label: "Panduan",    path: "/panduan", iconName: "FiBookOpen"    },
     { label: "FAQ",        path: "/faqs",   iconName: "FiHelpCircle"  },
     { label: "Verifikasi", path: "/verifikasi", iconName: "FiCheckCircle" },
   ],

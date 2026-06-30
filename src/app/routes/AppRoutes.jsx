@@ -33,6 +33,7 @@ import NotFound from "@/pages/public/NotFound";
 import PolicyPage from "@/pages/public/PolicyPage";
 import TermsAndConditions from "@/pages/public/TermsAndConditions";
 import License from "@/pages/public/License";
+import PanduanPengguna from "@/pages/public/PanduanPengguna";
 
 // Auth pages
 import Login from "@/pages/auth/LoginPage";
@@ -64,6 +65,7 @@ export default function AppRoutes() {
       <Route path="/register" element={<Register />} />
       <Route path="/about" element={<About />} />
       <Route path="/faqs" element={<FAQPage />} />
+      <Route path="/panduan" element={<PanduanPengguna />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/monitoring-access/:perencanaanId" element={<MonitoringAccess />} />
       <Route path="/kebijakan-privasi" element={<PolicyPage />} />

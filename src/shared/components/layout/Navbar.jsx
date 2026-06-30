@@ -1,4 +1,4 @@
-import { FiHome, FiInfo, FiHelpCircle, FiGrid, FiSettings } from "react-icons/fi";
+import { FiHome, FiInfo, FiHelpCircle, FiGrid, FiSettings, FiBookOpen } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/app/context/AuthContext";
@@ -58,6 +58,7 @@ export default function Navbar({ isUser = false }) {
   const navItems = [
     { name: "Beranda", path: "/", icon: FiHome, color: "primary" },
     { name: "Tentang", path: "/about", icon: FiInfo, color: "blue" },
+    { name: "Panduan", path: "/panduan", icon: FiBookOpen, color: "emerald" },
     { name: "FAQ", path: "/faqs", icon: FiHelpCircle, color: "teal" },
   ];
 

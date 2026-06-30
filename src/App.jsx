@@ -20,7 +20,7 @@ function AppContent() {
   const { isAuthenticated, loading } = useAuth();
 
   const noNavbarRoutes = ["/login", "/register", "/admin", "/user"];
-  const alwaysShowNavbarRoutes = ["/", "/about", "/contact"];
+  const alwaysShowNavbarRoutes = ["/", "/about", "/contact", "/panduan", "/faqs"];
   const fullscreenRoutes = ["/verifikasi"];
   
   const isNoNavbarRoute = noNavbarRoutes.some(route => location.pathname.startsWith(route));

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   FiX, FiHome, FiInfo, FiHelpCircle, FiCheckCircle,
   FiGrid, FiSettings, FiLogOut, FiUser,
-  FiSun, FiMoon,
+  FiSun, FiMoon, FiBookOpen,
 } from "react-icons/fi"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "@/app/context/AuthContext"
@@ -15,6 +15,7 @@ const ICON_MAP = {
   FiInfo:        <FiInfo />,
   FiHelpCircle:  <FiHelpCircle />,
   FiCheckCircle: <FiCheckCircle />,
+  FiBookOpen:    <FiBookOpen />,
 }
 
 /**
