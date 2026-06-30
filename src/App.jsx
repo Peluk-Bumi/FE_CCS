@@ -23,7 +23,7 @@ function AppContent() {
   const noNavbarRoutes = ["/login", "/register", "/admin", "/user", "/demo"];
   const alwaysShowNavbarRoutes = ["/", "/about", "/contact", "/verifikasi"];
   const fullscreenRoutes = [];
-  
+
   const isNoNavbarRoute = noNavbarRoutes.some(route => location.pathname.startsWith(route));
   const isAlwaysShowNavbar = alwaysShowNavbarRoutes.some(route => {
     if (route === "/") {
@@ -38,7 +38,7 @@ function AppContent() {
   const showNavbar =
     !isFullscreenRoute &&
     (isAlwaysShowNavbar || (!isNoNavbarRoute && !isAuthenticated));
-    
+
   const isAuthRoute = location.pathname.startsWith('/login') || location.pathname.startsWith('/register');
   const isDemoRoute = location.pathname.startsWith('/demo');
   const isPanelRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/user');
@@ -94,19 +94,19 @@ function AppContent() {
       <ScrollToTop />
       {showNavbar && <Navbar />}
       <AppRoutes />
-      
+
       {showFab && <FloatingActionButton position="bottom-right" isPanel={isPanelRoute} />}
 
       {/* {showBlockchainDebug() && <BlockchainDebug />} */}
-      
-      <ToastContainer 
-        position="top-center" 
-        autoClose={3000} 
-        hideProgressBar={false} 
-        newestOnTop={true} 
-        closeOnClick 
-        pauseOnHover 
-        draggable 
+
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        pauseOnHover
+        draggable
         theme="colored"
         className="!top-16 md:!top-4 md:!right-4 md:!left-auto md:!translate-x-0"
         toastClassName="!rounded-xl !shadow-lg"

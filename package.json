@@ -1,7 +1,7 @@
 {
   "name": "pelukbumi-ccs-frontend",
   "private": true,
-  "version": "1.4.0",
+  "version": "2.0.0",
   "type": "module",
   "description": "Frontend aplikasi Peluk Bumi untuk sistem Carbon Capture and Storage (CCS) - Platform monitoring transparansi data konservasi lingkungan",
   "homepage": "https://pelukbumi.id",
@@ -26,9 +26,6 @@
     "build": "npm exec --yes vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "compile:contract": "npx hardhat compile",
-    "deploy:amoy": "npx hardhat run scripts/deploy.js --network polygonAmoy",
-    "deploy:polygon": "npx hardhat run scripts/deploy.js --network polygon",
     "clean": "node -e \"const fs = require('fs'); const path = require('path'); const dirs = ['node_modules', 'dist']; dirs.forEach(d => { const p = path.join(process.cwd(), d); if(fs.existsSync(p)) fs.rmSync(p, {recursive: true}); });\" && npm cache clean --force",
     "reinstall": "npm run clean && npm install"
   },
@@ -85,7 +82,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
-    "@nomicfoundation/hardhat-ethers": "^4.0.10",
     "@tailwindcss/postcss": "^4.1.16",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
@@ -94,7 +90,6 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
-    "hardhat": "^3.4.3",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.18"
   }

@@ -7,15 +7,24 @@ export default function Logo({ onNavigate }) {
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
+      whileHover="hover"
       onClick={onNavigate}
     >
       <div className="relative flex items-center gap-2.5">
         <div className="relative">
           {/* Ambient glow */}
           <motion.div
-            className="absolute inset-0 rounded-full blur-lg opacity-30 transition-opacity duration-300 group-hover:opacity-50"
+            className="absolute inset-0 rounded-full blur-lg bg-peach/20"
+            variants={{
+              initial: { opacity: 0.3 },
+              hover: { opacity: 0.6 }
+            }}
+            initial="initial"
             animate={{ scale: [1, 1.08, 1] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            transition={{
+              scale: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+              opacity: { duration: 0.3 }
+            }}
           />
 
           {/* Logo */}

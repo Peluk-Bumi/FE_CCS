@@ -4,9 +4,35 @@ Semua perubahan penting pada aplikasi frontend FE_CCS.
 
 ## [Unreleased]
 
+---
+
+## [v2.0.0] - 2026-07-01
+
+### Ditambahkan
+- **Layanan Intelijen ESG (ESG Analytics)**: Dashboard visualisasi analitik terpadu.
+  - `src/features/intelligence/components/SurvivalRateChart.jsx` - Line chart tren survival rate per ronde.
+  - `src/features/intelligence/components/ESGScoreChart.jsx` - Doughnut chart skor ESG.
+  - `src/features/intelligence/components/IntelligenceReport.jsx` - Halaman monitoring utama dengan ESG score, tren survival, dan deteksi anomali.
+- **Ronde Pemantauan Dinamis (Dynamic Monitoring)**:
+  - Form perencanaaan (`PlanningForm.jsx`) dan form monitoring (`MonitoringForm.jsx`) diperbarui untuk mendukung perhitungan target ronde pemantauan dinamis (durasi proyek / interval monitoring).
+  - Validasi penanganan data realisasi aktual dalam form pemantauan.
+
+### Diubah & Direfaktor
+- **Overhaul Layout & Navigasi Mobile**:
+  - Peningkatan layout visual responsif sidebar (`Sidebar.jsx`), navbar (`Navbar.jsx`), header (`MobileHeader.jsx`), dan tab navigation (`BottomTabBar.jsx`).
+  - Penambahan Floating Action Button (FAB) adaptif dan bottom sheet untuk perangkat ber-notch.
+  - Implementasi komponen visual tabs, modal, dan accordion terstandarisasi.
+- **Kompabilitas Integrasi Blockchain**:
+  - Dukungan pemetaan kata kunci bahasa Indonesia (`PERENCANAAN`/`PLANNING`, `IMPLEMENTASI`/`IMPLEMENTATION`, `VERIFIKASI`/`VERIFICATION`) untuk pemanggilan method smart contract.
+  - Pengaktifan kembali widget status debugging blockchain (`BlockchainDebug.jsx`) di `App.jsx`, dan perbaikan visual widget untuk merujuk pada `walletStatus.status`.
+
 ### Dokumentasi
-- `README.md` diganti menjadi overview proyek (deploy dipindah ke `docs/DEPLOYMENT.md`)
-- Tambah `docs/SEVEN_LAYER_ALIGNMENT.md` — audit kesesuaian 7 layer frontend
+- Mengubah `README.md` menjadi dokumentasi overview sistem terpusat.
+- Menambahkan audit kepatuhan 7 layer (`docs/SEVEN_LAYER_ALIGNMENT.md`).
+
+### Pengarsipan & Depresiasi (Pembersihan)
+- Memindahkan berkas Hardhat (`hardhat.config.js`), smart contract lama (`contracts/`), script replace (`rewrite.js`), serta 22 berkas markdown laporan usang dari root folder ke `/archive/FE_CCS/` untuk kebutuhan audit berkala.
+- Membersihkan package dependensi dengan menghapus `"hardhat"`, `"@nomicfoundation/hardhat-ethers"`, serta menghapus scripts build/deploy smart contract dari `package.json`.
 
 ---
 

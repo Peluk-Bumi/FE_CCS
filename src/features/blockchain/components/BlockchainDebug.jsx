@@ -8,7 +8,7 @@ const NETWORK_LABEL = import.meta.env.VITE_BLOCKCHAIN_NETWORK_LABEL || 'Polygon 
 const CHAIN_ID_LABEL = import.meta.env.VITE_BLOCKCHAIN_CHAIN_ID || '137';
 
 export default function BlockchainDebug() {
-  const { isConnected, isReady, blockchainStatus, walletAddress, error } = useBlockchain();
+  const { isConnected, isReady, walletStatus, walletAddress, error } = useBlockchain();
   const [isOpen, setIsOpen] = useState(false);
 
   if (!showBlockchainDebug() || !isReady) {
@@ -63,10 +63,10 @@ export default function BlockchainDebug() {
                   <FiServer className="w-3 h-3" />
                   Backend Status:
                 </span>
-                <span className={`font-mono font-semibold ${
+                <span className={`font-mono font-semibold uppercase ${
                   isConnected ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'
                 }`}>
-                  {blockchainStatus}
+                  {walletStatus?.status || (isReady ? 'ready' : 'initializing')}
                 </span>
               </div>
               
