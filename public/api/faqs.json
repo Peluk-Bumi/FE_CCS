@@ -1,0 +1,44 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "question": "Bagaimana cara membuat akun?",
+      "answer": "Gunakan halaman Daftar lalu isi nama, email, dan password. Setelah pendaftaran sukses, login melalui halaman Masuk.",
+      "category": "general",
+      "category_label": "General",
+      "order_index": 1,
+      "is_active": true,
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "question": "Kenapa Wallet saya muncul 'Disconnected' atau 'Read-Only'?",
+      "answer": "Jika kontrak tidak ditemukan di jaringan, frontend akan beroperasi dalam mode Read-Only. Pastikan alamat kontrak pada environment mengarah ke kontrak yang telah dideploy.",
+      "category": "blockchain",
+      "category_label": "Blockchain",
+      "order_index": 2,
+      "is_active": true,
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "question": "Bagaimana cara memverifikasi dokumen?",
+      "answer": "Gunakan fitur Verifikasi dan masukkan hash dokumen. Aplikasi akan mencari di kontrak (jika tersedia) dan backend.",
+      "category": "verification",
+      "category_label": "Verifikasi",
+      "order_index": 3,
+      "is_active": true,
+      "updated_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "id": 4,
+      "question": "Di mana saya bisa mengelola FAQ?",
+      "answer": "Panel manajemen FAQ tersedia di admin UI (FAQAdmin) dan backend memiliki seeder untuk memasukkan data awal.",
+      "category": "admin",
+      "category_label": "Admin",
+      "order_index": 4,
+      "is_active": true,
+      "updated_at": "2026-05-20T00:00:00Z"
+    }
+  ]
+}

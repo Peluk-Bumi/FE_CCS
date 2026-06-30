@@ -1,0 +1,258 @@
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import blockchainService from '@/features/blockchain/services/blockchainService.js'; // ✅ FIXED: Use default import
+
+const BlockchainContext = createContext();
+let initializationPromise = null;
+
+export function BlockchainProvider({ children }) {
+  const [isReady, setIsReady] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState(null);
+  const [walletStatus, setWalletStatus] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const initializeBlockchain = async (force = false) => {
+    if (!force && initializationPromise) {
+      return initializationPromise;
+    }
+
+    initializationPromise = (async () => {
+    try {
+      console.log('[BlockchainContext] Initializing blockchain service...');
+
+      const initialized = await blockchainService.initialize();
+
+      if (initialized) {
+        const status = await blockchainService.getWalletStatus();
+        const resolvedAddress = status?.address || blockchainService.getWalletAddress() || null;
+
+        setIsReady(true);
+        setIsConnected(Boolean(resolvedAddress));
+        setWalletAddress(resolvedAddress);
+        setWalletStatus(status);
+
+        console.log('[BlockchainContext] ✅ Blockchain service ready');
+        console.log('[BlockchainContext] Wallet balance:', status?.balance, 'ETH');
+        setError(null);
+      } else {
+        const detail = typeof blockchainService.getLastError === 'function'
+          ? blockchainService.getLastError()
+          : null;
+        throw new Error(detail || 'Failed to initialize blockchain service');
+      }
+    } catch (err) {
+      console.error('[BlockchainContext] ❌ Initialization error:', err.message);
+      setError(err.message);
+      setIsReady(false);
+      setIsConnected(false);
+      setWalletAddress(null);
+      setWalletStatus(null);
+    } finally {
+      setLoading(false);
+      initializationPromise = null;
+    }
+    })();
+
+    return initializationPromise;
+  };
+
+  // ✅ Initialize blockchain service on mount
+  useEffect(() => {
+    initializeBlockchain();
+  }, []);
+
+  // ✅ Retry connection manually from UI
+  const connectWallet = async () => {
+    setLoading(true);
+    await initializeBlockchain(true);
+  };
+
+  // ✅ Store document directly to blockchain
+  const storeDocumentHash = async (docType, formData, metadata = {}) => {
+    try {
+      if (!isReady) {
+        throw new Error('Blockchain service not ready');
+      }
+
+      const docHash = typeof formData === 'string'
+        ? formData
+        : formData?.docHash || formData?.hash || formData?.blockchain_doc_hash;
+
+      const payload = Object.keys(metadata || {}).length > 0
+        ? metadata
+        : (typeof formData === 'object' && formData !== null ? formData : {});
+
+      if (!docHash) {
+        throw new Error('Document hash is required');
+      }
+
+      return await blockchainService.storeDocument(docType, docHash, payload);
+    } catch (error) {
+      console.error('[BlockchainContext] Store error:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  };
+
+  // ✅ Get document directly from blockchain
+  const getDocument = async (docIdOrHash) => {
+    try {
+      if (!isReady) {
+        throw new Error('Blockchain service not ready');
+      }
+
+      // Check if it's a doc ID (number) or hash (0x...)
+      if (typeof docIdOrHash === 'number' || /^\d+$/.test(docIdOrHash)) {
+        return await blockchainService.getDocument(Number(docIdOrHash));
+      } else if (typeof docIdOrHash === 'string' && docIdOrHash.startsWith('0x')) {
+        return await blockchainService.searchDocumentByHash(docIdOrHash);
+      } else {
+        throw new Error('Invalid document ID or hash format');
+      }
+    } catch (error) {
+      console.error('[BlockchainContext] Get document error:', error);
+      return null;
+    }
+  };
+
+  // ✅ Verify document hash directly on blockchain
+  const verifyDocumentHash = async (docHash) => {
+    try {
+      if (!isReady) {
+        throw new Error('Blockchain service not ready');
+      }
+
+      const document = await blockchainService.searchDocumentByHash(docHash);
+
+      return {
+        verified: true,
+        docId: document.docId,
+        docHash: document.docHash,
+        metadata: document.metadata,
+        uploader: document.uploader,
+        timestamp: document.timestamp,
+        timestampISO: document.timestampISO,
+        explorerUrl: document.explorerUrl
+      };
+    } catch (error) {
+      console.error('[BlockchainContext] Verification error:', error);
+      return {
+        verified: false,
+        error: error.message
+      };
+    }
+  };
+
+  // ✅ Get transaction proof directly from blockchain
+  const getTransactionProof = async (txHash) => {
+    try {
+      if (!isReady) {
+        throw new Error('Blockchain service not ready');
+      }
+
+      if (typeof blockchainService.getTransactionDetails === 'function') {
+        return await blockchainService.getTransactionDetails(txHash);
+      }
+
+      throw new Error('Transaction detail lookup is not available');
+    } catch (error) {
+      console.error('[BlockchainContext] Transaction proof error:', error);
+      return null;
+    }
+  };
+
+  // ✅ Get all documents from blockchain
+  const getAllDocuments = async (startId = 0, limit = 50) => {
+    try {
+      if (!isReady) {
+        throw new Error('Blockchain service not ready');
+      }
+
+      const totalCount = await blockchainService.getDocumentCount();
+      const documents = [];
+
+      for (let id = Math.max(1, Number(startId) || 0); id <= totalCount && documents.length < limit; id += 1) {
+        try {
+          const document = await blockchainService.getDocument(id);
+          documents.push(document);
+        } catch (error) {
+          console.warn('[BlockchainContext] Skipping document during list fetch:', error.message);
+        }
+      }
+
+      return {
+        documents,
+        totalCount,
+        startId,
+        limit
+      };
+    } catch (error) {
+      console.error('[BlockchainContext] Get all documents error:', error);
+      return {
+        documents: [],
+        totalCount: 0,
+        error: error.message
+      };
+    }
+  };
+
+  // ✅ Get blockchain explorer URL
+  const getExplorerUrl = (txHash) => {
+    return blockchainService.getExplorerUrl(txHash);
+  };
+
+  // ✅ Get blockchain status
+  const getBlockchainStatus = () => {
+    return {
+      isReady,
+      isConnected,
+      walletAddress,
+      walletStatus,
+      error,
+      loading
+    };
+  };
+
+  const value = {
+    // Status
+    isReady,
+    isConnected,
+    loading,
+    error,
+    walletAddress,
+    walletStatus,
+    account: walletAddress,
+    balance: walletStatus?.balance || 0,
+    contract: blockchainService.contract,
+    
+    // Functions
+    storeDocumentHash,
+    getDocument,
+    verifyDocumentHash,
+    getTransactionProof,
+    getAllDocuments,
+    getExplorerUrl,
+    getBlockchainStatus,
+    connectWallet,
+    
+    // Direct access to service (for advanced usage)
+    blockchainService
+  };
+
+  return (
+    <BlockchainContext.Provider value={value}>
+      {children}
+    </BlockchainContext.Provider>
+  );
+}
+
+export function useBlockchain() {
+  const context = useContext(BlockchainContext);
+  if (!context) {
+    throw new Error('useBlockchain must be used within BlockchainProvider');
+  }
+  return context;
+}

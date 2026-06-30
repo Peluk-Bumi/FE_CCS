@@ -1,17 +1,18 @@
 // src/App.jsx
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import AppRoutes from "./routes/AppRoutes";
-import Navbar from "./components/common/Navbar";
-import ScrollToTop from "./components/common/ScrollToTop";
-import LoadingSpinner from "./components/common/LoadingSpinner";
+import { AuthProvider, useAuth } from "@/app/context/AuthContext";
+import AppRoutes from "@/app/routes/AppRoutes";
+import Navbar from "@/shared/components/layout/Navbar";
+import ScrollToTop from "@/shared/components/layout/ScrollToTop";
+import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./assets/styles/index.css";
-import { BlockchainProvider } from "./contexts/BlockchainContext";
-import BlockchainDebug from "./components/BlockchainDebug";
-import { ThemeProvider } from "./contexts/ThemeContext";
+import { BlockchainProvider } from "@/app/context/BlockchainContext";
+import BlockchainDebug from "@/features/blockchain/components/BlockchainDebug";
+import { showBlockchainDebug } from "@/shared/utils/showBlockchainDebug";
+import { ThemeProvider } from "@/app/context/ThemeContext";
+import FloatingActionButton from "@/shared/components/ui/button/FloatingActionButton";
 
 // ✅ Komponen terpisah yang menggunakan useAuth - harus di dalam AuthProvider
 function AppContent() {
@@ -19,8 +20,9 @@ function AppContent() {
   const location = useLocation();
   const { isAuthenticated, loading } = useAuth();
 
-  const noNavbarRoutes = ["/login", "/register", "/admin", "/user"];
+  const noNavbarRoutes = ["/login", "/register", "/admin", "/user", "/demo"];
   const alwaysShowNavbarRoutes = ["/", "/about", "/contact", "/verifikasi"];
+  const fullscreenRoutes = [];
   
   const isNoNavbarRoute = noNavbarRoutes.some(route => location.pathname.startsWith(route));
   const isAlwaysShowNavbar = alwaysShowNavbarRoutes.some(route => {
@@ -30,7 +32,17 @@ function AppContent() {
     return location.pathname.startsWith(route);
   });
 
-  const showNavbar = isAlwaysShowNavbar || (!isNoNavbarRoute && !isAuthenticated);
+  const isFullscreenRoute = fullscreenRoutes.some(
+    (route) => location.pathname === route || location.pathname.startsWith(`${route}/`)
+  );
+  const showNavbar =
+    !isFullscreenRoute &&
+    (isAlwaysShowNavbar || (!isNoNavbarRoute && !isAuthenticated));
+    
+  const isAuthRoute = location.pathname.startsWith('/login') || location.pathname.startsWith('/register');
+  const isDemoRoute = location.pathname.startsWith('/demo');
+  const isPanelRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/user');
+  const showFab = !isAuthRoute && !isDemoRoute;
 
   useEffect(() => {
     let idleTimeout = null;
@@ -83,11 +95,12 @@ function AppContent() {
       {showNavbar && <Navbar />}
       <AppRoutes />
       
-      {/* ✅ Blockchain Debug Component - only in development */}
-      {import.meta.env.DEV && <BlockchainDebug />}
+      {showFab && <FloatingActionButton position="bottom-right" isPanel={isPanelRoute} />}
+
+      {/* {showBlockchainDebug() && <BlockchainDebug />} */}
       
       <ToastContainer 
-        position="top-right" 
+        position="top-center" 
         autoClose={3000} 
         hideProgressBar={false} 
         newestOnTop={true} 
@@ -95,6 +108,8 @@ function AppContent() {
         pauseOnHover 
         draggable 
         theme="colored"
+        className="!top-16 md:!top-4 md:!right-4 md:!left-auto md:!translate-x-0"
+        toastClassName="!rounded-xl !shadow-lg"
       />
     </>
   );

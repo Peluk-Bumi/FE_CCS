@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function MonitoringAccess() {
   const { perencanaanId } = useParams();

@@ -1,107 +1,122 @@
-# 🌱 3TREESIFY CCS - Deployment Guide
+# FE_CCS — Frontend Peluk Bumi CCS
 
-## 3TREESIFY Platform
+Aplikasi web **Peluk Bumi Environmental Monitoring System (EMS)**: dashboard konservasi dinamis, analisis intelijen (ESG & Tren), pelaporan PDF/QR, integrasi blockchain activity, dan **verifikasi publik** tanpa login.
 
-3TREESIFY adalah platform manajemen konservasi lingkungan berbasis blockchain untuk monitoring kegiatan penanaman mangrove dan transplantasi karang.
+- **Stack:** React 19, Vite 5, Tailwind CSS, Chart.js, Ethers.js
+- **Versi:** 1.6.0 (Intelligence & Dynamic Rounds Update)
+- **Mobile UI:** v1.5.0 dengan MobileHeader, BottomTabBar, responsive design
 
-## Netlify Deployment
+## Fitur Utama V2
 
-### Method 1: Deploy via Netlify CLI
+### 🧠 Intelligence Dashboard
+- **Survival Rate Trend**: Visualisasi tren kelangsungan hidup bibit antar ronde.
+- **ESG Score Analytics**: Perhitungan skor Environmental, Social, dan Governance secara real-time.
+- **Anomaly Detection**: Peringatan dini jika terdeteksi data yang tidak wajar di lapangan.
 
-1. **Install Netlify CLI**
+### 🔄 Dynamic Monitoring
+- Mendukung konfigurasi `durasi_proyek` dan `monitoring_interval` yang fleksibel.
+- Form monitoring yang otomatis menyesuaikan ronde berdasarkan jadwal proyek.
+
+### 🔗 Blockchain Activity Monitoring
+- Status sinkronisasi blockchain per aktivitas (Perencanaan, Implementasi, Monitoring).
+- Deep link ke Blockchain Explorer untuk audit trail publik.
+
+## Quick start
+
 ```bash
-npm install -g netlify-cli
+cd FE_CCS
+npm install
+cp .env.example .env
+# Set VITE_API_URL, VITE_BLOCKCHAIN_* (lihat .env.example)
+npm run dev
 ```
 
-2. **Login ke Netlify**
-```bash
-netlify login
+Buka: http://localhost:5173
+
+## Peran dalam monorepo
+
+| Service | URL default | Versi |
+|---------|-------------|-------|
+| FE_CCS (ini) | :5173 | 1.5.0 |
+| BE_CCS API | :8000 | 1.4.0 |
+| BC_CCS blockchain | :4000 | - |
+
+## Struktur singkat
+
+```
+FE_CCS/
+├── src/
+│   ├── features/     # planning, implementation, monitoring, blockchain, verification, …
+│   ├── pages/        # route-level pages (termasuk public/, verification/)
+│   ├── layouts/      # DashboardLayout, VerificationFullscreenLayout
+│   └── shared/       # komponen & utilitas bersama (MobileHeader, BottomTabBar, dll)
+├── docs/             # dokumentasi teknis
+├── README.md
+└── CHANGELOG.md
 ```
 
-3. **Initialize Netlify**
-```bash
-netlify init
-```
+## Fitur Mobile UI (v1.5.0)
 
-4. **Deploy**
-```bash
-netlify deploy --prod
-```
+### 📱 MobileHeader
+- Sticky header di top dengan back button & page title
+- Context-aware titles untuk setiap route
+- Logo button untuk quick navigation
+- Dark mode support
 
-### Method 2: Deploy via Git (Recommended)
+### 🗂️ BottomTabBar
+- Fixed bottom navigation untuk dashboard
+- Dynamic tabs berdasarkan user role (admin/user)
+- Active state indicator dengan smooth animations
+- Menu tab untuk full navigation sheet
+- Safe area support untuk notch devices
 
-1. **Push ke GitHub/GitLab/Bitbucket**
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin <your-repo-url>
-git push -u origin main
-```
+### 🎨 Responsive Design
+- Mobile-first approach
+- Responsive breakpoints (md: 768px)
+- Touch-optimized components (44px+ touch targets)
+- Full dark mode support
+- Smooth animations (60fps)
 
-2. **Connect Repository di Netlify Dashboard**
-   - Buka https://app.netlify.com
-   - Click "New site from Git"
-   - Choose your Git provider
-   - Select repository
-   - Configure build settings:
-     - **Build command**: `npm run build`
-     - **Publish directory**: `dist`
-     - **Branch**: `main`
+### ♿ Accessibility
+- WCAG AA compliant
+- ARIA labels pada semua interactive elements
+- Keyboard navigation support
+- Screen reader compatible
 
-3. **Add Environment Variables di Netlify**
-   - Go to Site settings > Environment variables
-   - Add:
-     - `VITE_API_URL`: Your API URL
-     - `VITE_APP_NAME`: 3TREESIFY CCS
-     - `VITE_APP_VERSION`: 1.0.0
+## Dokumentasi
 
-4. **Deploy!**
-   - Click "Deploy site"
-   - Wait for build to complete
+| Dokumen | Isi |
+|---------|-----|
+| [docs/README.md](docs/README.md) | Setup & arsitektur ringkas |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Pola feature-based |
+| [docs/API.md](docs/API.md) | Integrasi API backend |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Netlify / build produksi |
+| [docs/FOLDER_STRUCTURE.md](docs/FOLDER_STRUCTURE.md) | Struktur folder |
+| [docs/SEVEN_LAYER_ALIGNMENT.md](docs/SEVEN_LAYER_ALIGNMENT.md) | Kesesuaian 7 layer (frontend) |
 
-### Method 3: Manual Deploy via Netlify Drop
+### Mobile UI Documentation
+- [MOBILE_UI_UPDATE_DOCUMENTATION.md](../MOBILE_UI_UPDATE_DOCUMENTATION.md) - Technical documentation
+- [MOBILE_CHANGES_SUMMARY.md](../MOBILE_CHANGES_SUMMARY.md) - Visual summary
+- [MOBILE_FEATURES_DETAILED.md](../MOBILE_FEATURES_DETAILED.md) - Deep dive ke features
+- [COMMIT_PLAN.md](../COMMIT_PLAN.md) - Detailed commit breakdown
 
-1. **Build locally**
-```bash
-npm run build
-```
+Deploy ke Netlify: lihat [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) (bukan duplikasi di README ini).
 
-2. **Drag & Drop**
-   - Go to https://app.netlify.com/drop
-   - Drag your `dist` folder to the upload area
-   - Done!
+## Scripts
 
-## Custom Domain Setup
+| Perintah | Keterangan |
+|----------|------------|
+| `npm run dev` | Development server |
+| `npm run build` | Build produksi → `dist/` |
+| `npm run lint` | ESLint |
+| `npm run preview` | Preview build lokal |
 
-1. Go to Site settings > Domain management
-2. Add custom domain
-3. Configure DNS settings
-4. Enable HTTPS (automatic)
+> Deploy smart contract dilakukan di **BC_CCS**, bukan di FE.
 
-## Troubleshooting
+## Riwayat perubahan
 
-### Build Fails
-- Check Node.js version (should be 18+)
-- Verify environment variables
-- Check for syntax errors
+Lihat [CHANGELOG.md](CHANGELOG.md).
 
-### 404 on Page Refresh
-- Ensure `netlify.toml` redirect rules are in place
+## Lisensi
 
-### API Connection Issues
-- Verify `VITE_API_URL` is correct
-- Check CORS settings on backend
-
-## Performance Optimization
-
-- ✅ Code splitting enabled
-- ✅ Asset optimization
-- ✅ Gzip compression
-- ✅ CDN enabled by default
-
-## Monitoring
-
-- Check deploy logs in Netlify dashboard
-- Monitor performance with Lighthouse
-- Setup error tracking (Sentry recommended)
+MIT

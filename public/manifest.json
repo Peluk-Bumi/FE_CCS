@@ -1,48 +1,45 @@
 {
-  "name": "3TREESIFY CCS - Sistem Konservasi Berbasis Blockchain",
-  "short_name": "3TREESIFY CCS",
+  "name": "PELUK BUMI CCS",
+  "short_name": "Peluk Bumi",
   "description": "Platform manajemen kegiatan konservasi lingkungan dengan verifikasi blockchain",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#10b981",
+  "background_color": "#517640",
+  "theme_color": "#517640",
   "orientation": "portrait-primary",
-  "icons": [
-    {
-      "src": "/vite.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/vite.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/vite.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/vite.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "categories": ["environment", "conservation", "blockchain"],
+  "scope": "/",
   "lang": "id-ID",
   "dir": "ltr",
-  "scope": "/",
   "prefer_related_applications": false,
-  "screenshots": [
+  "categories": ["environment", "productivity"],
+  "icons": [
     {
-      "src": "/vite.png",
-      "sizes": "540x720",
-      "type": "image/png"
+      "src": "/favicon/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Buka dashboard",
+      "url": "/user/dashboard",
+      "icons": [{ "src": "/favicon/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Verifikasi QR",
+      "short_name": "Verifikasi",
+      "description": "Scan QR Code untuk verifikasi",
+      "url": "/verifikasi",
+      "icons": [{ "src": "/favicon/android-chrome-192x192.png", "sizes": "192x192" }]
     }
   ]
 }

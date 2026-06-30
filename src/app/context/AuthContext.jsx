@@ -1,0 +1,359 @@
+import { createContext, useContext, useState, useEffect, useRef } from "react";
+import api from "@/shared/services/api";
+import { jwtDecode } from "jwt-decode";
+import { autoLoginIfDev, setupDevTools } from "@/shared/utils/devHelper";
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const refreshTimer = useRef(null);
+  const initRef = useRef(false);
+
+  // Fungsi untuk menyetel timer refresh token
+  const setRefreshTimer = (token) => {
+    try {
+      const decoded = jwtDecode(token);
+      if (!decoded.exp) return;
+
+      const expiresInMs = decoded.exp * 1000 - Date.now();
+      const refreshBeforeMs = expiresInMs - 60 * 1000; // refresh 1 menit sebelum expired
+
+      if (refreshTimer.current) {
+        clearTimeout(refreshTimer.current);
+      }
+
+      if (refreshBeforeMs > 0) {
+        refreshTimer.current = setTimeout(refreshToken, refreshBeforeMs);
+      }
+    } catch (error) {
+      console.error('[AuthContext] Error setting refresh timer:', error);
+    }
+  };
+
+  // Fungsi refresh token
+  const refreshToken = async () => {
+    try {
+      const res = await api.post("/refresh");
+      const newToken = res.data?.access_token;
+
+      if (newToken) {
+        localStorage.setItem("token", newToken);
+        const decoded = jwtDecode(newToken);
+        setUser(decoded);
+        setIsAuthenticated(true);
+        setRefreshTimer(newToken);
+      } else {
+        logout();
+      }
+    } catch (err) {
+      console.error("Gagal refresh token:", err);
+      logout();
+    }
+  };
+
+  // ✅ Enhanced initial check with proper auth persistence
+  useEffect(() => {
+    if (initRef.current) return;
+    initRef.current = true;
+
+    // Setup dev tools first
+    setupDevTools();
+
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+      const savedUser = localStorage.getItem("user");
+      
+      console.log('[AuthContext] Initial check:', { 
+        hasToken: !!token, 
+        hasSavedUser: !!savedUser 
+      });
+      
+      // ✅ Auto-login for development if no token
+      if (!token) {
+        const autoLoggedIn = await autoLoginIfDev(async (credentials) => {
+          try {
+            const response = await api.post("/login", {
+              email: credentials.email,
+              password: credentials.password,
+              deviceInfo: {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenResolution: `${window.screen.width}x${window.screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+              }
+            });
+            
+            const newToken = response.data?.access_token;
+            const userData = response.data?.user;
+            
+            if (newToken) {
+              localStorage.setItem("token", newToken);
+              const decoded = jwtDecode(newToken);
+              const mergedUser = { ...decoded, ...(userData || {}) };
+              localStorage.setItem("user", JSON.stringify(mergedUser));
+              setUser(mergedUser);
+              setIsAuthenticated(true);
+              setRefreshTimer(newToken);
+              return { success: true, data: response.data };
+            }
+            return { success: false, message: 'No token in response' };
+          } catch (error) {
+            return { success: false, message: error.message };
+          }
+        });
+        
+        if (autoLoggedIn) {
+          setLoading(false);
+          return;
+        }
+      }
+      
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          
+          // Check if token is expired
+          if (decoded.exp && Date.now() >= decoded.exp * 1000) {
+            console.log('[AuthContext] Token expired, attempting refresh...');
+            try {
+              const res = await api.post("/refresh");
+              const newToken = res.data?.access_token;
+              
+              if (newToken) {
+                localStorage.setItem("token", newToken);
+                const newDecoded = jwtDecode(newToken);
+                const mergedUser = savedUser 
+                  ? { ...newDecoded, ...JSON.parse(savedUser) }
+                  : newDecoded;
+                
+                console.log('[AuthContext] Token refreshed successfully, restoring session');
+                setUser(mergedUser);
+                setIsAuthenticated(true);
+                setRefreshTimer(newToken);
+              } else {
+                throw new Error('No access token in refresh response');
+              }
+            } catch (refreshError) {
+              console.log('[AuthContext] Refresh failed, logging out:', refreshError.message);
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              setUser(null);
+              setIsAuthenticated(false);
+            }
+          } else {
+            // ✅ Merge decoded token with saved user data
+            const mergedUser = savedUser 
+              ? { ...decoded, ...JSON.parse(savedUser) }
+              : decoded;
+            
+            console.log('[AuthContext] Token valid, restoring session:', mergedUser);
+            setUser(mergedUser);
+            setIsAuthenticated(true);
+            setRefreshTimer(token);
+          }
+        } catch (error) {
+          console.error('[AuthContext] Error decoding token:', error);
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setUser(null);
+          setIsAuthenticated(false);
+        }
+      } else {
+        console.log('[AuthContext] No token, user not authenticated');
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+      
+      setLoading(false);
+    };
+    
+    checkAuth();
+
+    return () => {
+      if (refreshTimer.current) {
+        clearTimeout(refreshTimer.current);
+      }
+    };
+  }, []);
+
+  // Fungsi login
+  const login = async (credentials) => {
+    try {
+      // ✅ Validate input
+      if (!credentials.email || !credentials.password) {
+        console.warn('[AuthContext] Missing email or password');
+        return {
+          success: false,
+          message: "Email dan password harus diisi"
+        };
+      }
+
+      const deviceInfo = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        screenResolution: `${window.screen.width}x${window.screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      };
+
+      const requestPayload = {
+        email: credentials.email.trim(),
+        password: credentials.password,
+        deviceInfo,
+        forceLogout: credentials.forceLogout || false,
+      };
+
+      console.log('[AuthContext] Attempting login with:', {
+        email: requestPayload.email,
+        apiUrl: import.meta.env.VITE_API_URL,
+        endpoint: '/login'
+      });
+
+      const response = await api.post("/login", requestPayload);
+
+      const token = response.data?.access_token;
+      const userData = response.data?.user;
+
+      if (!token) {
+        throw new Error("Token tidak ditemukan di response.");
+      }
+
+      // ✅ Save token and user
+      localStorage.setItem("token", token);
+      const decoded = jwtDecode(token);
+      const mergedUser = { ...decoded, ...(userData || {}) };
+      
+      localStorage.setItem("user", JSON.stringify(mergedUser));
+      
+      setUser(mergedUser);
+      setIsAuthenticated(true);
+      setRefreshTimer(token);
+
+      console.log('[AuthContext] ✅ Login successful:', {
+        username: mergedUser.username || mergedUser.email,
+        role: mergedUser.role
+      });
+
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error('[AuthContext] ❌ Login failed:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        message: error.response?.data?.message || error.response?.data?.error || error.message,
+        endpoint: error.config?.url,
+        method: error.config?.method,
+      });
+
+      // ✅ Handle device conflict
+      if (error.response?.status === 409 || error.response?.data?.code === 'DEVICE_CONFLICT') {
+        return {
+          success: false,
+          code: 'DEVICE_CONFLICT',
+          message: error.response?.data?.message || "Akun sudah login di perangkat lain",
+          sessionInfo: error.response?.data?.sessionInfo
+        };
+      }
+
+      // ✅ Handle 401 Unauthorized
+      if (error.response?.status === 401) {
+        return {
+          success: false,
+          message: "Email atau password salah. Silakan coba lagi.",
+          code: 'INVALID_CREDENTIALS'
+        };
+      }
+
+      return {
+        success: false,
+        message: error.response?.data?.message || 
+                 error.response?.data?.error || 
+                 "Login gagal. Silakan coba lagi."
+      };
+    }
+  };
+
+  // Fungsi register
+  const register = async (userData) => {
+    try {
+      await api.post("/register", userData);
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Registrasi gagal",
+      };
+    }
+  };
+
+  // Fungsi logout
+  const logout = () => {
+    console.log('[AuthContext] Logging out');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    setIsAuthenticated(false);
+    if (refreshTimer.current) {
+      clearTimeout(refreshTimer.current);
+    }
+  };
+
+  // Refresh current authenticated user profile from backend
+  const refreshUserProfile = async () => {
+    try {
+      const response = await api.get('/user-profile');
+      const profile = response.data || {};
+
+      const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const mergedUser = { ...savedUser, ...profile };
+
+      localStorage.setItem('user', JSON.stringify(mergedUser));
+      setUser((prev) => ({ ...(prev || {}), ...mergedUser }));
+
+      return { success: true, user: mergedUser };
+    } catch (error) {
+      console.error('[AuthContext] Failed to refresh user profile:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Gagal memuat profil user'
+      };
+    }
+  };
+
+  // ✅ Debug log dengan useEffect terpisah
+  useEffect(() => {
+    console.log('[AuthContext] State updated:', {
+      isAuthenticated,
+      user: user?.username || user?.email || user?.name || 'none',
+      loading,
+      timestamp: new Date().toISOString()
+    });
+  }, [isAuthenticated, user, loading]);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        loading,
+        login,
+        register,
+        logout,
+        refreshUserProfile,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
