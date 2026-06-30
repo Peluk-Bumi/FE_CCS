@@ -1100,6 +1100,8 @@ export default function Verifikasi() {
           {/* Main Grid */}
           <div className="mb-4">
             <PageTitle 
+              badge="Verifikasi Blockchain"
+              badgeIcon={FiShield}
               title="Verifikasi Dokumen" 
               description="Pindai QR Code atau masukkan ID untuk memverifikasi dokumen di sistem." 
             />

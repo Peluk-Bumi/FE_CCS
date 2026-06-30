@@ -1,5 +1,6 @@
 import React from 'react';
 import PageTitle from '@/shared/components/common/PageTitle';
+import { FiHelpCircle } from 'react-icons/fi';
 import { FAQList } from '@/shared/components/common';
 import Navbar from '@/shared/components/layout/Navbar';
 import PagePaddingContainer from '@/shared/components/layout/PagePaddingContainer';
@@ -20,7 +21,9 @@ export default function FAQPage() {
         <MainContainer>
           <motion.div initial="hidden" animate="show" variants={container}>
               <PageTitle 
-                title="FAQ" 
+                badge="Tanya Jawab"
+                badgeIcon={FiHelpCircle}
+                title="Frequently Asked Questions" 
                 description="Kumpulan jawaban cepat untuk membantu Anda menggunakan aplikasi." 
               />
 

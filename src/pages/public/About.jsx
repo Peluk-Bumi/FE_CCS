@@ -7,6 +7,7 @@ import PagePaddingContainer from "@/shared/components/layout/PagePaddingContaine
 import MainContainer from "@/shared/components/layout/MainContainer";
 import PageTitle from "@/shared/components/common/PageTitle";
 import { useTheme } from "@/app/context/ThemeContext";
+import { FiInfo } from "react-icons/fi";
 
 const About = () => {
   const { theme } = useTheme();
@@ -30,6 +31,8 @@ const About = () => {
           {/* Hero Section */}
           <div className="mb-8">
             <PageTitle 
+              badge="Informasi Platform"
+              badgeIcon={FiInfo}
               title="Tentang Platform" 
               description="Sistem terpadu untuk memantau dan mengevaluasi proyek restorasi ekosistem melalui pengumpulan data terstruktur dan analisis berkala" 
             />
