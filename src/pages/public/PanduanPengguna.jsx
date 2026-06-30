@@ -9,6 +9,9 @@ import {
 } from "react-icons/fi";
 import Footer from "@/shared/components/layout/Footer";
 import { useTheme } from "@/app/context/ThemeContext";
+import { Input } from "@/shared/components/ui/input";
+import { SidebarTabs } from "@/shared/components/ui/tabs";
+import PageTitle from "@/shared/components/common/PageTitle";
 
 // Simple Flowchart Component for Alur Ringkas
 function Flowchart({ steps }) {
@@ -147,6 +150,23 @@ export default function PanduanPengguna() {
     sec.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const sidebarTabs = filteredSections.map((sec) => {
+    let icon = FiBookOpen;
+    if (sec.id === "tujuan") icon = FiCompass;
+    else if (sec.id === "ruang-lingkup") icon = FiUsers;
+    else if (sec.id === "struktur-menu") icon = FiSettings;
+    else if (sec.id === "prasyarat") icon = FiShield;
+    else if (sec.id === "prosedur") icon = FiActivity;
+    else if (sec.id === "tips") icon = FiCheckCircle;
+    else if (sec.id === "troubleshooting") icon = FiHelpCircle;
+
+    return {
+      key: sec.id,
+      label: sec.label,
+      icon: icon
+    };
+  });
+
   const handleScrollTo = (id) => {
     setActiveSection(id);
     const element = document.getElementById(id);
@@ -199,85 +219,50 @@ export default function PanduanPengguna() {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           
-          {/* Header */}
-          <div className="text-center mb-12 max-w-3xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary font-semibold text-xs sm:text-sm mb-4"
-            >
-              <FiBookOpen className="w-4 h-4" />
-              Manual Resmi Penggunaan
-            </motion.div>
-            <h1 className={`text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 ${
-              isDark ? 'text-white' : 'text-primary'
-            }`}>
-              Panduan Penggunaan Aplikasi
-            </h1>
-            <div className="w-32 h-1.5 bg-gradient-to-r from-primary to-primary-dark mx-auto rounded-full mb-4"></div>
-            <p className={`text-sm sm:text-base ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-              Dokumen resmi panduan operasional aplikasi **Peluk Bumi EMS**. Temukan panduan akses, alur pencatatan data restorasi, hingga verifikasi blockchain.
-            </p>
-          </div>
+           {/* Header */}
+           <PageTitle 
+             badge="Manual Resmi Penggunaan" 
+             badgeIcon={FiBookOpen}
+             title="Panduan Penggunaan Aplikasi" 
+             description={
+               <>
+                 Dokumen resmi panduan operasional aplikasi <strong>Peluk Bumi EMS</strong>. Temukan panduan akses, alur pencatatan data restorasi, hingga verifikasi blockchain.
+               </>
+             }
+           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">
             
             {/* Sidebar Navigation */}
-            <div className="lg:col-span-3 lg:sticky lg:top-24 space-y-4">
-              <div className={`p-4 rounded-2xl border backdrop-blur-md ${
-                isDark ? 'bg-gray-900/50 border-gray-800' : 'bg-white/85 border-gray-200 shadow-md'
-              }`}>
-                {/* Search Box */}
-                <div className="relative mb-4">
-                  <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input
-                    type="text"
-                    placeholder="Cari bab panduan..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`w-full pl-9 pr-4 py-2 text-xs rounded-xl border focus:ring-2 focus:ring-primary focus:outline-none transition-all ${
-                      isDark 
-                        ? 'bg-gray-950 border-gray-800 text-white placeholder-gray-500' 
-                        : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400'
-                    }`}
+            <div className="lg:col-span-4 lg:sticky lg:top-28 space-y-6">
+              {/* Search Box */}
+              <div className="bg-white dark:bg-gray-800/40 p-4 sm:p-5 rounded-2xl border border-gray-100 dark:border-gray-700/50 shadow-sm">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Cari Panduan</h3>
+                <Input
+                  type="text"
+                  placeholder="Cari bab panduan..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  prefix={<FiSearch className="w-5 h-5 text-gray-400" />}
+                  className="w-full bg-gray-50 dark:bg-gray-900/50"
+                />
+              </div>
+
+              {/* Daftar Isi Tabs */}
+              {sidebarTabs.length > 0 && (
+                <div className="bg-white dark:bg-gray-800/40 p-2 sm:p-3 md:p-5 rounded-2xl border border-gray-100 dark:border-gray-700/50 shadow-sm">
+                  <h3 className="hidden md:block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 px-2">Daftar Isi</h3>
+                  <SidebarTabs
+                    tabs={sidebarTabs}
+                    activeTab={activeSection}
+                    onTabChange={handleScrollTo}
                   />
                 </div>
-
-                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 px-1">
-                  Daftar Isi
-                </h3>
-                
-                <nav className="space-y-1">
-                  {filteredSections.map((sec) => {
-                    const isActive = activeSection === sec.id;
-                    return (
-                      <button
-                        key={sec.id}
-                        onClick={() => handleScrollTo(sec.id)}
-                        className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-all flex items-center justify-between ${
-                          isActive 
-                            ? 'bg-primary text-white font-bold shadow-md shadow-primary/25 scale-[1.02]' 
-                            : isDark 
-                              ? 'text-gray-400 hover:text-white hover:bg-gray-800/50' 
-                              : 'text-gray-600 hover:text-primary hover:bg-gray-50'
-                        }`}
-                      >
-                        <span className="truncate">{sec.label}</span>
-                        {isActive && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
-                      </button>
-                    );
-                  })}
-                  {filteredSections.length === 0 && (
-                    <div className="text-center py-4 text-xs text-gray-400">
-                      Bab tidak ditemukan
-                    </div>
-                  )}
-                </nav>
-              </div>
+              )}
             </div>
 
             {/* Main Content Area */}
-            <div className={`lg:col-span-9 p-6 sm:p-8 rounded-3xl border space-y-16 ${
+            <div className={`lg:col-span-8 p-6 sm:p-8 rounded-3xl border space-y-16 ${
               isDark ? 'bg-gray-900/20 border-gray-800' : 'bg-white border-gray-200 shadow-sm'
             }`}>
               

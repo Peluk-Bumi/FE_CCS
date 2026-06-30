@@ -21,8 +21,7 @@ function AppContent() {
   const { isAuthenticated, loading } = useAuth();
 
   const noNavbarRoutes = ["/login", "/register", "/admin", "/user", "/demo"];
-  const alwaysShowNavbarRoutes = ["/", "/about", "/contact", "/panduan", "/faqs"];
-  const fullscreenRoutes = ["/verifikasi"];
+  const alwaysShowNavbarRoutes = ["/", "/about", "/contact", "/panduan", "/faqs", "/verifikasi"];
   const isNoNavbarRoute = noNavbarRoutes.some(route => location.pathname.startsWith(route));
   const isAlwaysShowNavbar = alwaysShowNavbarRoutes.some(route => {
     if (route === "/") {
@@ -31,12 +30,7 @@ function AppContent() {
     return location.pathname.startsWith(route);
   });
 
-  const isFullscreenRoute = fullscreenRoutes.some(
-    (route) => location.pathname === route || location.pathname.startsWith(`${route}/`)
-  );
-  const showNavbar =
-    !isFullscreenRoute &&
-    (isAlwaysShowNavbar || (!isNoNavbarRoute && !isAuthenticated));
+  const showNavbar = isAlwaysShowNavbar || (!isNoNavbarRoute && !isAuthenticated);
 
   const isAuthRoute = location.pathname.startsWith('/login') || location.pathname.startsWith('/register');
   const isDemoRoute = location.pathname.startsWith('/demo');
