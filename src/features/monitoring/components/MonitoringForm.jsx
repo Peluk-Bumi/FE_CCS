@@ -1026,11 +1026,21 @@ const MonitoringForm = () => {
                         targetMonths.push(3, 6);
                       }
 
-                      return targetMonths.map((month) => {
-                        const used = getMonitoringMonths(selectedLocation.id).includes(month);
+                      return targetMonths.map((month, index) => {
+                        const filledMonths = getMonitoringMonths(selectedLocation.id);
+                        const used = filledMonths.includes(month);
+                        
+                        let prevFilled = true;
+                        if (index > 0) {
+                           const prevMonth = targetMonths[index - 1];
+                           prevFilled = filledMonths.includes(prevMonth);
+                        }
+                        
+                        const isDisabled = used || !prevFilled;
+                        
                         return (
-                          <SelectItem key={month} value={String(month)} disabled={used}>
-                            Bulan ke-{month}{used ? " (sudah terisi)" : ""}
+                          <SelectItem key={month} value={String(month)} disabled={isDisabled}>
+                            Bulan ke-{month}{used ? " (sudah terisi)" : (!prevFilled ? " (terkunci)" : "")}
                           </SelectItem>
                         );
                       });
