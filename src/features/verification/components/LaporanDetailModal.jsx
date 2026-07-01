@@ -451,6 +451,55 @@ export default function LaporanDetailModal({
                 <Accordion title="Rekap Evaluasi & Monitoring" icon={FiBarChart2} iconCls="text-emerald-500" defaultOpen={true}>
                   {hasMonitoring || hasEvaluasi ? (
                     <>
+                      {/* Detailed Auto-Evaluation Data & Recommendations */}
+                      {(() => {
+                        const evalData = parseJSON(report?.evaluation_data || report?.perencanaan?.evaluation_data || report?.evaluationData || report?.perencanaan?.evaluationData);
+                        if (!evalData || !evalData.nilai_akhir) return null;
+                        return (
+                          <div className="mb-5 bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-4 space-y-3">
+                            <h4 className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">Hasil Evaluasi Kelayakan (Perdirjen KSDAE P.13/2015)</h4>
+                            <div className="grid grid-cols-2 gap-4 text-xs md:text-sm">
+                              <div>
+                                <p className="text-gray-500">Nilai Akhir (NA)</p>
+                                <p className="font-bold text-base text-emerald-700 dark:text-emerald-300">{evalData.nilai_akhir} / 5.00</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500">Kategori Kondisi</p>
+                                <p className="font-bold text-base text-emerald-700 dark:text-emerald-300 capitalize">
+                                  {evalData.kategori === 'good' ? 'SEDANG (Sehat)' : evalData.kategori === 'excellent' ? 'BAIK (Sangat Sehat)' : evalData.kategori === 'warning' ? 'BURUK (Kurang Sehat)' : 'GAGAL'}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="pt-2 border-t border-emerald-100 dark:border-emerald-900/20">
+                              <p className="text-[9px] uppercase font-bold text-gray-400">Rekomendasi Tindakan</p>
+                              <p className="text-xs text-gray-700 dark:text-gray-300 font-medium leading-relaxed mt-0.5">{evalData.rekomendasi}</p>
+                            </div>
+                            
+                            <div className="pt-2 border-t border-emerald-100 dark:border-emerald-900/20 space-y-1.5">
+                              <p className="text-[9px] uppercase font-bold text-gray-400">Rincian Skor Indikator</p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                <div className="bg-white dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700 p-2 rounded-xl flex justify-between items-center">
+                                  <span className="text-gray-500">Survival Kumulatif:</span> 
+                                  <span className="font-semibold text-gray-800 dark:text-gray-200">{evalData.criteria?.stabilitas_lanskap?.skor_survival_rate}/5 ({evalData.detail?.cumulative_survival}%)</span>
+                                </div>
+                                <div className="bg-white dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700 p-2 rounded-xl flex justify-between items-center">
+                                  <span className="text-gray-500">Tinggi Vegetasi Akhir:</span> 
+                                  <span className="font-semibold text-gray-800 dark:text-gray-200">{evalData.criteria?.stabilitas_lanskap?.skor_tinggi_bibit}/5 ({evalData.detail?.tinggi_bibit_akhir_cm} cm)</span>
+                                </div>
+                                <div className="bg-white dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700 p-2 rounded-xl flex justify-between items-center">
+                                  <span className="text-gray-500">Kesehatan Daun:</span> 
+                                  <span className="font-semibold text-gray-800 dark:text-gray-200">{evalData.criteria?.stabilitas_lanskap?.skor_kesehatan_daun}/5 ({evalData.detail?.avg_daun_sehat_pct}%)</span>
+                                </div>
+                                <div className="bg-white dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700 p-2 rounded-xl flex justify-between items-center">
+                                  <span className="text-gray-500">Tren Pemeliharaan:</span> 
+                                  <span className="font-semibold text-gray-800 dark:text-gray-200">{evalData.criteria?.efisiensi_program?.skor_tren_survival}/5 ({evalData.detail?.delta_survival_periode ?? 0}%)</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
                       <div className="grid gap-3 sm:grid-cols-2 pt-1 mb-4">
                         {evalSummary.map((item) => (
                           <InfoRow

@@ -13,6 +13,12 @@ Semua perubahan penting pada aplikasi frontend FE_CCS.
   - `src/features/intelligence/components/SurvivalRateChart.jsx` - Line chart tren survival rate per ronde.
   - `src/features/intelligence/components/ESGScoreChart.jsx` - Doughnut chart skor ESG.
   - `src/features/intelligence/components/IntelligenceReport.jsx` - Halaman monitoring utama dengan ESG score, tren survival, dan deteksi anomali.
+- **Auto-Scoring Evaluasi & Blockchain Verification Detail**:
+  - `src/features/evaluation/parameter/ParameterPage.jsx` & `InformationPage.jsx` - Memperbarui antarmuka parameter, bobot kriteria (90% Stabilitas Lanskap + 10% Efisiensi Program), midpoint parser untuk daun, dan formula kelangsungan hidup kumulatif.
+  - `src/features/evaluation/components/EvaluationModal.jsx` - Menampilkan Accordion rincian skor kriteria A & B secara transparan di tab Ringkasan.
+  - `src/features/verification/components/LaporanDetailModal.jsx` - Menampilkan rekap hasil evaluasi otomatis, nilai akhir, kategori kelayakan, dan rekomendasi tindakan ekologis pada verifikasi publik.
+  - `src/features/reporting/utils/reportPdf.js` - Menyelaraskan layout bahasa Indonesia, struktur field PDF laporan, memperbesar QR code verifikasi (75x75 px), memperbaiki margin atas (header & metablock), dan merender riwayat monitoring lengkap beserta TX hash per ronde monitoring.
+
 - **Ronde Pemantauan Dinamis (Dynamic Monitoring)**:
   - Form perencanaaan (`PlanningForm.jsx`) dan form monitoring (`MonitoringForm.jsx`) diperbarui untuk mendukung perhitungan target ronde pemantauan dinamis (durasi proyek / interval monitoring).
   - Validasi penanganan data realisasi aktual dalam form pemantauan.

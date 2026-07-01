@@ -1,4 +1,6 @@
 import QRCode from "qrcode";
+// Force Vite HMR Cache reload for buildPlanningQrFilename export
+
 
 export const buildPlanningQrContent = (item) => {
   if (!item?.id) {

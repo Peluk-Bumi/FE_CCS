@@ -6,30 +6,22 @@ import blockchainConfig from "@/app/config/blockchainConfig";
 const EXPLORER_BASE_URL = blockchainConfig.explorerUrl;
 
 export const getProgressInfo = (item) => {
-  // Progress berdasarkan activity type yang sedang dilihat
-  const activityType = item.activity_type || 'PERENCANAAN';
+  const status = item?.status || 'planning';
   
-  // Check availability of each stage
   const hasImplementasi = !!item?.implementasi || !!item?.is_implemented;
-  const hasMonitoring = !!item?.implementasi?.monitoring || (Array.isArray(item?.monitoring) && item.monitoring.length > 0);
-  const hasEvaluasi = !!item?.evaluasi || !!item?.implementasi?.evaluasi || !!item?.implementasi?.monitoring?.evaluasi;
+  const hasMonitoring = hasImplementasi && (
+    !!item?.implementasi?.monitoring || 
+    (Array.isArray(item?.implementasi?.monitorings) && item.implementasi.monitorings.length > 0)
+  );
+  const hasEvaluasi = status === 'completed' || item?.evaluation_status === 'completed' || !!item?.final_score;
   
-  // Determine current stage based on activity type
-  let currentStage;
-  switch (activityType) {
-    case 'EVALUASI':
-      currentStage = 'Evaluasi';
-      break;
-    case 'MONITORING':
-      currentStage = 'Monitoring';
-      break;
-    case 'IMPLEMENTASI':
-      currentStage = 'Implementasi';
-      break;
-    case 'PERENCANAAN':
-    default:
-      currentStage = hasEvaluasi ? 'Evaluasi' : hasMonitoring ? 'Monitoring' : hasImplementasi ? 'Implementasi' : 'Perencanaan';
-      break;
+  let currentStage = 'Perencanaan';
+  if (hasEvaluasi) {
+    currentStage = 'Evaluasi';
+  } else if (hasMonitoring) {
+    currentStage = 'Monitoring';
+  } else if (hasImplementasi) {
+    currentStage = 'Implementasi';
   }
 
   return {
@@ -305,7 +297,7 @@ export const buildLaporanPdfBlob = async (item) => {
   };
 
   const drawHeader = () => {
-    const headerTopY = 810;
+    const headerTopY = 790;
 
     if (logoImage) {
       page.drawImage(logoImage, {
@@ -317,19 +309,19 @@ export const buildLaporanPdfBlob = async (item) => {
     }
 
     const headerX = logoImage ? margin + 42 : margin;
-    drawText("PELUK BUMI CCS", headerX, headerTopY, { size: 13, bold: true, color: rgb(0.1, 0.32, 0.25) });
-    drawText("Sistem Konservasi Berbasis Blockchain", headerX, headerTopY - 13, { size: 9, color: rgb(0.33, 0.33, 0.33) });
-    drawText("Pelaporan Perencanaan, Implementasi, dan Monitoring", headerX, headerTopY - 25, { size: 8, color: rgb(0.4, 0.4, 0.4) });
+    drawText("PELUK BUMI CCS", headerX, headerTopY - 8, { size: 13, bold: true, color: rgb(0.1, 0.32, 0.25) });
+    drawText("Sistem Konservasi Berbasis Blockchain", headerX, headerTopY - 21, { size: 9, color: rgb(0.33, 0.33, 0.33) });
+    drawText("Pelaporan Perencanaan, Implementasi, dan Monitoring", headerX, headerTopY - 33, { size: 8, color: rgb(0.4, 0.4, 0.4) });
 
     if (qrCodeImage) {
       page.drawImage(qrCodeImage, {
-        x: margin + contentWidth - 62,
-        y: headerTopY - 65,
-        width: 60,
-        height: 60,
+        x: margin + contentWidth - 75,
+        y: headerTopY - 75,
+        width: 75,
+        height: 75,
       });
-      drawText("Verifikasi", margin + contentWidth - 64, headerTopY - 68, { size: 7, color: rgb(0.45, 0.45, 0.45), bold: true });
-      drawText("Dokumen", margin + contentWidth - 54, headerTopY - 75, { size: 7, color: rgb(0.45, 0.45, 0.45), bold: true });
+      drawText("Verifikasi", margin + contentWidth - 70, headerTopY - 82, { size: 7, color: rgb(0.45, 0.45, 0.45), bold: true });
+      drawText("Dokumen", margin + contentWidth - 65, headerTopY - 89, { size: 7, color: rgb(0.45, 0.45, 0.45), bold: true });
     }
 
     drawText(`Halaman ${pageNumber}`, margin + contentWidth - 52, headerTopY, { size: 8.5, color: rgb(0.4, 0.4, 0.4) });
@@ -341,7 +333,7 @@ export const buildLaporanPdfBlob = async (item) => {
   const drawMetaBlock = () => {
     page.drawRectangle({
       x: margin,
-      y: 660,
+      y: 635,
       width: contentWidth,
       height: 50,
       color: rgb(0.96, 0.98, 0.97),
@@ -349,14 +341,14 @@ export const buildLaporanPdfBlob = async (item) => {
       borderWidth: 1,
     });
 
-    drawText("Nomor Laporan", margin + 12, 702, { size: 9, bold: true, color: rgb(0.35, 0.35, 0.35) });
-    drawText(String(item.id), margin + 12, 690, { size: 10.5, color: rgb(0.1, 0.1, 0.1) });
+    drawText("Nomor Laporan", margin + 12, 667, { size: 9, bold: true, color: rgb(0.35, 0.35, 0.35) });
+    drawText(String(item.id), margin + 12, 655, { size: 10.5, color: rgb(0.1, 0.1, 0.1) });
 
-    drawText("Tanggal Cetak", margin + 190, 702, { size: 9, bold: true, color: rgb(0.35, 0.35, 0.35) });
-    drawText(new Date().toLocaleString("id-ID"), margin + 190, 690, { size: 10.5, color: rgb(0.1, 0.1, 0.1) });
+    drawText("Tanggal Cetak", margin + 190, 667, { size: 9, bold: true, color: rgb(0.35, 0.35, 0.35) });
+    drawText(new Date().toLocaleString("id-ID"), margin + 190, 655, { size: 10.5, color: rgb(0.1, 0.1, 0.1) });
 
-    drawText("Tahap Saat Ini", margin + 390, 702, { size: 9, bold: true, color: rgb(0.35, 0.35, 0.35) });
-    drawText(progress.currentStage, margin + 390, 690, { size: 10.5, bold: true, color: rgb(0.1, 0.32, 0.25) });
+    drawText("Tahap Saat Ini", margin + 390, 667, { size: 9, bold: true, color: rgb(0.35, 0.35, 0.35) });
+    drawText(progress.currentStage, margin + 390, 655, { size: 10.5, bold: true, color: rgb(0.1, 0.32, 0.25) });
   };
 
   const startNewPage = () => {
@@ -364,7 +356,7 @@ export const buildLaporanPdfBlob = async (item) => {
     pageNumber += 1;
     drawHeader();
     drawMetaBlock();
-    y = 645;
+    y = 615;
   };
 
   const ensureSpace = (neededHeight = 28) => {
@@ -419,67 +411,123 @@ export const buildLaporanPdfBlob = async (item) => {
 
   const boolLabel = (value) => (value === undefined || value === null ? "-" : value ? "Sesuai" : "Tidak Sesuai");
 
+  const monItems = Array.isArray(implementasi?.monitorings)
+    ? implementasi.monitorings
+    : (implementasi?.monitoring ? [implementasi.monitoring] : []);
+
+  const latestMon = monItems.length > 0 ? monItems[monItems.length - 1] : null;
+
+  // Implementation helper matching modal logic
+  const valImplementasi = (fieldSesuai, fieldName, fallbackName) => {
+    if (!implementasi) return "-";
+    const aktual = typeof implementasi.realisasi_aktual === 'string'
+      ? (JSON.parse(implementasi.realisasi_aktual || '{}'))
+      : (implementasi.realisasi_aktual || {});
+
+    const targetField = fallbackName || fieldName;
+    if (implementasi[fieldSesuai]) {
+      const val = item ? item[targetField] : null;
+      return val !== undefined && val !== null ? val : "-";
+    }
+    const valAktual = aktual[fieldName];
+    if (valAktual !== undefined && valAktual !== null && valAktual !== "") return valAktual;
+    const valFallback = item ? item[targetField] : null;
+    return valFallback !== undefined && valFallback !== null ? valFallback : "-";
+  };
+
+  const getDokumentasiCount = (dok) => {
+    if (!dok) return 0;
+    if (Array.isArray(dok)) return dok.length;
+    if (typeof dok === 'string') {
+      try {
+        const parsed = JSON.parse(dok);
+        if (Array.isArray(parsed)) return parsed.length;
+      } catch {
+        if (dok.includes(',')) return dok.split(',').filter(s => s.trim() !== '').length;
+      }
+      return 1;
+    }
+    return 1;
+  };
+
+  const fmtDateValue = (val) => {
+    if (!val) return "—";
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return String(val);
+    return d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+  };
+
+  const getKategoriLabel = (healthStr, evalData) => {
+    const term = String(healthStr || evalData?.kategori || "").toLowerCase();
+    if (term.includes('excel') || term.includes('sangat') || term.includes('baik')) return "Sangat Sehat (Excellent / BAIK)";
+    if (term.includes('good') || term.includes('sedang')) return "Sehat (Good / SEDANG)";
+    if (term.includes('warn') || term.includes('kurang') || term.includes('buruk')) return "Kurang Sehat (Warning / BURUK)";
+    if (term.includes('critical') || term.includes('kritis') || term.includes('gagal')) return "Kritis (Critical / GAGAL)";
+    return healthStr || "-";
+  };
+
+  const dokCount = implementasi ? (implementasi.dokumentasi_count ?? getDokumentasiCount(implementasi.dokumentasi_kegiatan)) : 0;
+
   startNewPage();
 
-  addSection("DATA PERENCANAAN");
-  addField("ID Laporan", item.id);
+  addSection("INFORMASI LEMBAGA");
   addField("Nama Lembaga", item.nama_perusahaan);
-  addField("Identitas Blok", item.identitas_blok || "-");
-  addField("Nama PIC", item.nama_pic);
+  addField("Nama PIC", item.nama_pic || "-");
   addField("Narahubung", item.narahubung || "-");
-  addField("Jenis Kegiatan", item.jenis_kegiatan);
-  addField("Jenis Bibit", item.jenis_bibit || "-");
-  addField("Jumlah Bibit", item.jumlah_bibit ? `${item.jumlah_bibit} Unit` : "-");
-  addField("Lokasi", item.lokasi || "-");
-  addField("Tanggal Pelaksanaan", item.tanggal_pelaksanaan || "-");
-  addField("Koordinat", `${item.lat ?? "-"}, ${item.long ?? "-"}`);
+  addField("Email", item.user?.email || "-");
 
-  addSection("STATUS DAN VERIFIKASI");
-  addField("Status Implementasi", progress.hasImplementasi ? "Sudah Implementasi" : "Belum Implementasi");
-  addField("Tahap Saat Ini", progress.currentStage);
-  addField("Progress Perencanaan", "Selesai");
-  addField("Progress Implementasi", progress.hasImplementasi ? "Selesai" : "Belum");
-  addField("Progress Monitoring", progress.hasMonitoring ? "Selesai" : "Belum");
-  addField("Progress Evaluasi", progress.hasEvaluasi ? "Selesai" : "Belum");
-  addField("Blockchain Doc Hash", item.blockchain?.doc_hash || "-");
-  addField("Blockchain TX Hash", item.blockchain?.tx_hash || "-");
-  addField("Blockchain Verification", item.blockchain?.verified ? "Full Verified" : (item.blockchain?.tx_hash ? "Uploaded (Pending Verify)" : "Not Uploaded"));
+  addSection("DETAIL PERENCANAAN");
+  addField("ID Dokumen", item.id);
+  addField("Jenis Kegiatan Direncanakan", item.jenis_kegiatan);
+  addField("Lokasi Direncanakan", item.lokasi || "-");
+  addField("Tanggal Direncanakan", fmtDateValue(item.tanggal_pelaksanaan));
+  addField("Jumlah Bibit Direncanakan", item.jumlah_bibit ? `${item.jumlah_bibit} Bibit` : "-");
+  addField("Jenis Bibit Direncanakan", item.jenis_bibit || "-");
+  addField("TX Hash Perencanaan", item.blockchain_tx_hash || item.blockchain?.tx_hash || "-");
 
-  if (progress.hasImplementasi || implementasi) {
-    const implementasiDocs = parseStoredFiles(implementasi?.dokumentasi_kegiatan);
+  if (progress.hasImplementasi && implementasi) {
+    const jumlahBibitDitanam = valImplementasi('jumlah_bibit_sesuai', 'jumlah_bibit');
     addSection("DETAIL IMPLEMENTASI");
-    addField("PIC Koorlap", implementasi?.pic_koorlap || "-");
-    addField("Kesesuaian Nama Lembaga", boolLabel(getKesesuaianValue(implementasi, "nama_perusahaan")));
-    addField("Kesesuaian Lokasi", boolLabel(getKesesuaianValue(implementasi, "lokasi")));
-    addField("Kesesuaian Jenis Kegiatan", boolLabel(getKesesuaianValue(implementasi, "jenis_kegiatan")));
-    addField("Kesesuaian Jumlah Bibit", boolLabel(getKesesuaianValue(implementasi, "jumlah_bibit")));
-    addField("Kesesuaian Jenis Bibit", boolLabel(getKesesuaianValue(implementasi, "jenis_bibit")));
-    addField("Kesesuaian Tanggal", boolLabel(getKesesuaianValue(implementasi, "tanggal")));
-    addField("Geotagging Implementasi", implementasi?.geotagging || "-");
-    addField("Koordinat Implementasi", `${implementasi?.lat ?? "-"}, ${implementasi?.long ?? "-"}`);
-    addField("Dokumentasi Implementasi", implementasiDocs.length > 0 ? `${implementasiDocs.length} file` : "-");
+    addField("Jenis Kegiatan Aktual", valImplementasi('jenis_kegiatan_sesuai', 'jenis_kegiatan'));
+    addField("Lokasi Aktual", valImplementasi('lokasi_sesuai', 'lokasi'));
+    addField("Tanggal Implementasi", fmtDateValue(valImplementasi('tanggal_sesuai', 'tanggal', 'tanggal_pelaksanaan')));
+    addField("Jumlah Bibit Ditanam", jumlahBibitDitanam !== "-" ? `${jumlahBibitDitanam} Bibit` : "-");
+    addField("Jenis Bibit Ditanam", valImplementasi('jenis_bibit_sesuai', 'jenis_bibit'));
+    addField("Dokumentasi", dokCount > 0 ? `${dokCount} Foto/File` : "Tidak Ada");
+    addField("TX Hash Implementasi", implementasi.blockchain_tx_hash || "-");
   }
 
-  if (progress.hasMonitoring || monitoring) {
-    // Debug: Log monitoring structure
-    console.log('[reportPdf] Monitoring data:', monitoring);
-    
-    // Handle nested monitoring structure
-    const monitoringData = monitoring?.monitoring || monitoring;
-    const monitoringDocs = parseStoredFiles(monitoringData?.dokumentasi_monitoring);
-    
-    addSection("DETAIL MONITORING");
-    addField("Jumlah Bibit Ditanam", monitoringData?.jumlah_bibit_ditanam ?? "-");
-    addField("Jumlah Bibit Mati", monitoringData?.jumlah_bibit_mati ?? "-");
-    addField("Diameter Batang", monitoringData?.diameter_batang ? `${monitoringData.diameter_batang} cm` : "-");
-    addField("Jumlah Daun", monitoringData?.jumlah_daun ?? "-");
-    addField("Survival Rate", monitoringData?.survival_rate !== undefined && monitoringData?.survival_rate !== null ? `${monitoringData.survival_rate}%` : "-");
-    addField("Kondisi Daun Mengering", monitoringData?.daun_mengering ?? "-");
-    addField("Kondisi Daun Layu", monitoringData?.daun_layu ?? "-");
-    addField("Kondisi Daun Menguning", monitoringData?.daun_menguning ?? "-");
-    addField("Bercak Daun", monitoringData?.bercak_daun ?? "-");
-    addField("Serangan Hama/Serangga", monitoringData?.daun_serangga ?? "-");
-    addField("Dokumentasi Monitoring", monitoringDocs.length > 0 ? `${monitoringDocs.length} file` : "-");
+  if (progress.hasMonitoring && monItems.length > 0) {
+    const evalData = item.evaluation_data;
+    const survivalRateText = evalData
+      ? `${Number(evalData.detail?.cumulative_survival ?? 0).toFixed(2)}% (Kumulatif)`
+      : (latestMon?.survival_rate ? `${latestMon.survival_rate}%` : "-");
+
+    const healthText = getKategoriLabel(item.health_status, evalData);
+
+    addSection("REKAP EVALUASI & MONITORING");
+    addField("Total Monitoring", String(monItems.length));
+    addField("Monitoring Terakhir", fmtDateValue(latestMon?.created_at));
+
+    if (evalData && evalData.nilai_akhir) {
+      addField("Nilai Akhir (NA)", `${evalData.nilai_akhir} / 5.00`);
+      addField("Kategori Kelayakan", healthText);
+      addField("Rekomendasi Tindakan", evalData.rekomendasi || "-");
+      addField("Survival Rate Kumulatif", `${evalData.criteria?.stabilitas_lanskap?.skor_survival_rate}/5 (${evalData.detail?.cumulative_survival}%)`);
+      addField("Tinggi Vegetasi Akhir", `${evalData.criteria?.stabilitas_lanskap?.skor_tinggi_bibit}/5 (${evalData.detail?.tinggi_bibit_akhir_cm} cm)`);
+      addField("Kesehatan Daun", `${evalData.criteria?.stabilitas_lanskap?.skor_kesehatan_daun}/5 (${evalData.detail?.avg_daun_sehat_pct}%)`);
+      addField("Tren Pemeliharaan", `${evalData.criteria?.efisiensi_program?.skor_tren_survival}/5 (${evalData.detail?.delta_survival_periode ?? 0}%)`);
+    } else {
+      addField("Survival Rate Aktual", survivalRateText);
+      addField("Kondisi Kesehatan", healthText);
+    }
+
+    addSection("RIWAYAT MONITORING");
+    monItems.forEach((mon, idx) => {
+      const detailsText = `Bulan Ke: ${mon.bulan_monitoring || "—"} | Survival: ${mon.survival_rate ? `${mon.survival_rate}%` : "—"} | Mati: ${mon.jumlah_bibit_mati ?? "0"} | Tinggi: ${mon.tinggi_bibit ? `${mon.tinggi_bibit} cm` : "—"}`;
+      addField(`Ronde #${idx + 1} (${fmtDateValue(mon.created_at)})`, detailsText);
+      addField(`TX Hash Ronde #${idx + 1}`, mon.blockchain_tx_hash || "-");
+    });
   }
 
   page.drawLine({ start: { x: margin, y: 46 }, end: { x: margin + contentWidth, y: 46 }, thickness: 0.6, color: rgb(0.76, 0.76, 0.76) });

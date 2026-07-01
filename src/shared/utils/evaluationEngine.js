@@ -272,6 +272,9 @@ export const buildCompanyReport = (perencanaan, implementasiList, monitoringList
     healthConditionDetail: getSurvivalHealthProfile(survivalValues.length ? mean(survivalValues) : null),
     leafHealthCondition: getHealthLabel(healthScores),
     monitoringItems: monitoringItems,
+    evaluationData: perencanaan?.evaluation_data || null,
+    finalScore: perencanaan?.final_score || null,
+    healthStatus: perencanaan?.health_status || null,
   };
 };
 

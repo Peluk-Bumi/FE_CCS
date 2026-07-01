@@ -3,7 +3,7 @@
 Aplikasi web **Peluk Bumi Environmental Monitoring System (EMS)**: dashboard konservasi dinamis, analisis intelijen (ESG & Tren), pelaporan PDF/QR, integrasi blockchain activity, dan **verifikasi publik** tanpa login.
 
 - **Stack:** React 19, Vite 5, Tailwind CSS, Chart.js, Ethers.js
-- **Versi:** 1.6.0 (Intelligence & Dynamic Rounds Update)
+- **Versi:** v2.0.0 (Intelligence, Dynamic Rounds, and Auto-Scoring Evaluasi)
 - **Mobile UI:** v1.5.0 dengan MobileHeader, BottomTabBar, responsive design
 
 ## Fitur Utama V2
@@ -13,12 +13,17 @@ Aplikasi web **Peluk Bumi Environmental Monitoring System (EMS)**: dashboard kon
 - **ESG Score Analytics**: Perhitungan skor Environmental, Social, dan Governance secara real-time.
 - **Anomaly Detection**: Peringatan dini jika terdeteksi data yang tidak wajar di lapangan.
 
+### 📊 Auto-Scoring Evaluasi & Rekomendasi
+- **Ecology-based Assessment**: Perhitungan kelangsungan hidup kumulatif progresif (Perdirjen KSDAE P.13/2015), midpoint enum parser daun, dan tinggi mangrove propagule khas TWA.
+- **Visual Rincian Skor**: Transparansi rincian skor Stabilitas Lanskap (bobot 90%) dan Efisiensi Program (bobot 10%) di dashboard dan verifikasi publik.
+- **Unified PDF Report**: Laporan lengkap dalam format PDF diselaraskan dengan modal verifikasi publik beserta riwayat ronde monitoring dan TX hash per ronde.
+
 ### 🔄 Dynamic Monitoring
 - Mendukung konfigurasi `durasi_proyek` dan `monitoring_interval` yang fleksibel.
 - Form monitoring yang otomatis menyesuaikan ronde berdasarkan jadwal proyek.
 
 ### 🔗 Blockchain Activity Monitoring
-- Status sinkronisasi blockchain per aktivitas (Perencanaan, Implementasi, Monitoring).
+- Status sinkronisasi blockchain per aktivitas (Perencanaan, Implementasi, Monitoring, Evaluasi).
 - Deep link ke Blockchain Explorer untuk audit trail publik.
 
 ## Quick start

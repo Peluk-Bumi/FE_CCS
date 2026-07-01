@@ -86,9 +86,62 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
     .filter((v) => v !== null && v !== undefined);
 
   const survivalAvg36 = survivalValues36.length ? mean(survivalValues36) : null;
-  const survivalDisplay = survivalAvg36 !== null ? `${survivalAvg36.toFixed(2)}%` : report.survivalRate;
-  const healthProfile = getSurvivalHealthProfile(survivalAvg36 !== null ? survivalAvg36 : report.survivalRate);
-  const computedHealthLabel = getSurvivalHealthLabel(survivalAvg36 !== null ? survivalAvg36 : report.survivalRate);
+
+  // Use backend evaluationData if available
+  const evalData = report?.evaluationData;
+
+  const survivalDisplay = evalData
+    ? `${Number(evalData.detail?.cumulative_survival ?? 0).toFixed(2)}% (Kumulatif)`
+    : (survivalAvg36 !== null ? `${survivalAvg36.toFixed(2)}%` : report.survivalRate);
+
+  const getKategoriLabel = (kat) => {
+    switch (String(kat).toLowerCase()) {
+      case "baik":
+      case "excellent":
+        return "BAIK (Sangat Sehat)";
+      case "sedang":
+      case "good":
+        return "SEDANG (Sehat)";
+      case "buruk":
+      case "warning":
+        return "BURUK (Kurang Sehat)";
+      case "gagal":
+      case "critical":
+        return "GAGAL (Kritis)";
+      default:
+        return kat || "-";
+    }
+  };
+
+  const computedHealthLabel = evalData
+    ? getKategoriLabel(evalData.kategori)
+    : (survivalAvg36 !== null ? getSurvivalHealthLabel(survivalAvg36) : report.healthCondition);
+
+  const healthProfile = evalData
+    ? { description: evalData.rekomendasi }
+    : (survivalAvg36 !== null ? getSurvivalHealthProfile(survivalAvg36) : report.healthConditionDetail);
+
+  const finalAvgHeight = evalData
+    ? `${Number(evalData.detail?.avg_tinggi_bibit_cm ?? 0).toFixed(2)}`
+    : report.avgHeight;
+
+  const enrichedReport = {
+    ...report,
+    healthCondition: computedHealthLabel,
+    healthConditionDetail: healthProfile,
+    survivalRate: survivalDisplay,
+    avgHeight: finalAvgHeight,
+  };
+
+  const survivalStatus = evalData
+    ? (String(evalData.kategori).toUpperCase() === "BAIK"
+        ? "BAIK"
+        : String(evalData.kategori).toUpperCase() === "SEDANG"
+        ? "BERHASIL"
+        : String(evalData.kategori).toUpperCase() === "BURUK"
+        ? "PERLU_PERHATIAN"
+        : "GAGAL")
+    : getSuccessStatus(survivalAvg36 !== null ? survivalAvg36 : report.survivalRate);
 
   useEffect(() => {
     if (!report) {
@@ -153,9 +206,6 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
   };
 
   if (!report) return null;
-
-  const enrichedReport = { ...report, healthCondition: computedHealthLabel, healthConditionDetail: healthProfile, survivalRate: survivalDisplay };
-  const survivalStatus = getSuccessStatus(survivalAvg36 !== null ? survivalAvg36 : report.survivalRate);
 
   return (
     <TabbedModal
@@ -225,6 +275,67 @@ export default function EvaluasiModal({ report, onClose, apiOrigin }) {
               <div className="col-span-2 md:col-span-1"><p className="text-gray-500">Geotagging</p><p className="font-medium mt-0.5">{report.lokasiGeotagging}</p></div>
             </div>
           </Accordion>
+
+          {/* Rincian Evaluasi Otomatis */}
+          {evalData && (
+            <Accordion title="Rincian Penilaian Otomatis (Perdirjen KSDAE P.13/2015)" defaultOpen={true}>
+              <div className="space-y-4 text-xs md:text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-3 border-b border-gray-100 dark:border-gray-800">
+                  <div>
+                    <p className="text-gray-500">Nilai Akhir (NA)</p>
+                    <p className="text-base font-bold mt-0.5 text-emerald-600 dark:text-emerald-400">
+                      {evalData.nilai_akhir} / 5.00
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Kategori Kelayakan</p>
+                    <p className="text-base font-bold mt-0.5 text-emerald-600 dark:text-emerald-400 capitalize">
+                      {evalData.kategori === 'good' ? 'SEDANG (Sehat)' : evalData.kategori === 'excellent' ? 'BAIK (Sangat Sehat)' : evalData.kategori === 'warning' ? 'BURUK (Kurang Sehat)' : 'GAGAL'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Total Bibit Awal</p>
+                    <p className="font-semibold mt-0.5">{evalData.detail?.bibit_awal ?? report.jumlahBibit} bibit</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Sisa Bibit Hidup Akhir</p>
+                    <p className="font-semibold mt-0.5">{evalData.detail?.bibit_hidup_akhir ?? "-"} bibit</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-bold text-gray-800 dark:text-gray-200">Kriteria A: Stabilitas Lanskap (Bobot 90%)</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="bg-gray-50 dark:bg-gray-800/40 p-3 rounded-xl border border-gray-100 dark:border-gray-800">
+                      <p className="text-gray-500 text-[10px] uppercase font-bold">Skor Kelangsungan Hidup Kumulatif</p>
+                      <p className="font-bold text-sm mt-0.5">{evalData.criteria?.stabilitas_lanskap?.skor_survival_rate ?? "-"} / 5</p>
+                      <p className="text-[10px] text-gray-400 mt-1">Nilai: {evalData.detail?.cumulative_survival ?? "-"}%</p>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-800/40 p-3 rounded-xl border border-gray-100 dark:border-gray-800">
+                      <p className="text-gray-500 text-[10px] uppercase font-bold">Skor Tinggi Vegetasi Akhir</p>
+                      <p className="font-bold text-sm mt-0.5">{evalData.criteria?.stabilitas_lanskap?.skor_tinggi_bibit ?? "-"} / 5</p>
+                      <p className="text-[10px] text-gray-400 mt-1">Tinggi akhir: {evalData.detail?.tinggi_bibit_akhir_cm ?? "-"} cm</p>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-800/40 p-3 rounded-xl border border-gray-100 dark:border-gray-800">
+                      <p className="text-gray-500 text-[10px] uppercase font-bold">Skor Kesehatan Daun</p>
+                      <p className="font-bold text-sm mt-0.5">{evalData.criteria?.stabilitas_lanskap?.skor_kesehatan_daun ?? "-"} / 5</p>
+                      <p className="text-[10px] text-gray-400 mt-1">Indeks Sehat: {evalData.detail?.avg_daun_sehat_pct ?? "-"}%</p>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-gray-400 text-right">Rata-rata Stabilitas Lanskap: {evalData.criteria?.stabilitas_lanskap?.rata_rata ?? "-"} / 5.00</p>
+                </div>
+
+                <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                  <h4 className="font-bold text-gray-800 dark:text-gray-200">Kriteria B: Efisiensi Program (Bobot 10%)</h4>
+                  <div className="bg-gray-50 dark:bg-gray-800/40 p-3 rounded-xl border border-gray-100 dark:border-gray-800 max-w-sm">
+                    <p className="text-gray-500 text-[10px] uppercase font-bold">Skor Tren Keberhasilan Pemeliharaan</p>
+                    <p className="font-bold text-sm mt-0.5">{evalData.criteria?.efisiensi_program?.skor_tren_survival ?? "-"} / 5</p>
+                    <p className="text-[10px] text-gray-400 mt-1">Delta Survival Periode: {evalData.detail?.delta_survival_periode ?? 0}%</p>
+                  </div>
+                </div>
+              </div>
+            </Accordion>
+          )}
 
           {/* Introduction - Accordion */}
           <Accordion title="Pendahuluan">
