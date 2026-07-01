@@ -18,6 +18,38 @@ export const buildPlanningQrContent = (item) => {
   return `${baseUrl}/monitoring-access/${item.id}${query ? `?${query}` : ""}`;
 };
 
+/**
+ * Membuat nama file QR yang unik per perencanaan.
+ * Format: qr-perencanaan-{id}-{tanggal_pelaksanaan}.png
+ * Contoh: qr-perencanaan-42-2025-08-15.png
+ */
+export const buildPlanningQrFilename = (item) => {
+  const id = item?.id;
+  if (!id) return "qr-perencanaan.png";
+
+  const rawDate =
+    item?.tanggal_pelaksanaan ||
+    item?.tanggal_implementasi ||
+    item?.created_at;
+
+  let dateStr = "";
+  if (rawDate) {
+    try {
+      const d = new Date(rawDate);
+      if (!isNaN(d.getTime())) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        dateStr = `-${y}-${m}-${day}`;
+      }
+    } catch {
+      // skip
+    }
+  }
+
+  return `qr-perencanaan-${id}${dateStr}.png`;
+};
+
 export const generatePlanningQrDataUrl = async (item) => {
   const qrContent = buildPlanningQrContent(item);
 

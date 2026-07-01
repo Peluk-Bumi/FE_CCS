@@ -81,6 +81,7 @@ const LocationCard = ({
       value: mode === 'default' ? location?.nama_perusahaan : null,
       planningValue: mode === 'comparison' ? planningData?.nama_perusahaan : null,
       actualValue: mode === 'comparison' ? getActualValue(actualData, 'nama_perusahaan') : null,
+      sesuaiKey: 'nama_perusahaan_sesuai',
       color: 'text-blue-600',
       bgColor: 'bg-blue-100'
     },
@@ -90,6 +91,7 @@ const LocationCard = ({
       value: mode === 'default' ? location?.jenis_kegiatan : null,
       planningValue: mode === 'comparison' ? planningData?.jenis_kegiatan : null,
       actualValue: mode === 'comparison' ? getActualValue(actualData, 'jenis_kegiatan') : null,
+      sesuaiKey: 'jenis_kegiatan_sesuai',
       color: 'text-green-600',
       bgColor: 'bg-green-100'
     },
@@ -99,6 +101,7 @@ const LocationCard = ({
       value: mode === 'default' ? location?.jenis_bibit : null,
       planningValue: mode === 'comparison' ? planningData?.jenis_bibit : null,
       actualValue: mode === 'comparison' ? getActualValue(actualData, 'jenis_bibit') : null,
+      sesuaiKey: 'jenis_bibit_sesuai',
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-100'
     },
@@ -108,6 +111,7 @@ const LocationCard = ({
       value: mode === 'default' ? `${location?.jumlah_bibit?.toLocaleString() || 0} batang` : null,
       planningValue: mode === 'comparison' ? `${planningData?.jumlah_bibit?.toLocaleString() || 0} batang` : null,
       actualValue: mode === 'comparison' ? `${getActualValue(actualData, 'jumlah_bibit')?.toLocaleString() || 0} batang` : null,
+      sesuaiKey: 'jumlah_bibit_sesuai',
       color: 'text-orange-600',
       bgColor: 'bg-orange-100'
     },
@@ -117,6 +121,7 @@ const LocationCard = ({
       value: mode === 'default' ? `${location?.lat}, ${location?.long || location?.lng}` : null,
       planningValue: mode === 'comparison' ? `${planningData?.lat}, ${planningData?.long || planningData?.lng}` : null,
       actualValue: mode === 'comparison' ? `${getActualValue(actualData, 'lat') || actualData?.lat}, ${getActualValue(actualData, 'long') || actualData?.long || getActualValue(actualData, 'lng') || actualData?.lng}` : null,
+      sesuaiKey: 'lokasi_sesuai',
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
       isCoordinate: true
@@ -125,12 +130,21 @@ const LocationCard = ({
       icon: FiCalendar,
       label: dateLabel,
       value: mode === 'default' ? formatDate(getTanggal(location)) : null,
-      planningValue: mode === 'comparison' ? formatDate(getTanggal(planningData)) : null,
+      planningValue: mode === 'comparison' ? formatDate(getTanggal(planningData) || actualData?.tanggal_pelaksanaan || actualData?.tanggal_rencana || actualData?.created_at) : null,
       actualValue: mode === 'comparison' ? formatDate(getActualValue(actualData, 'tanggal_pelaksanaan') || getActualValue(actualData, 'tanggal') || getTanggal(actualData)) : null,
+      sesuaiKey: 'tanggal_sesuai',
       color: 'text-pink-600',
       bgColor: 'bg-pink-100'
     }
   ];
+
+  console.log('[LocationCard] DEBUG DATE:', {
+    planningData,
+    actualData,
+    getTanggalResult: planningData ? getTanggal(planningData) : null,
+    actualDataTanggalPelaksanaan: actualData?.tanggal_pelaksanaan,
+    actualDataTanggal: actualData?.tanggal,
+  });
 
   return (
     <motion.div
@@ -159,7 +173,16 @@ const LocationCard = ({
           {/* Grid Items */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {detailItems.map((item, idx) => {
-              const isDifferent = mode === 'comparison' && item.planningValue !== item.actualValue && item.planningValue && item.actualValue;
+              let isDifferent = false;
+              if (mode === 'comparison' && actualData) {
+                if (item.sesuaiKey && actualData[item.sesuaiKey] !== undefined) {
+                  // check boolean matching
+                  const isSesuai = actualData[item.sesuaiKey] === true || actualData[item.sesuaiKey] === 1 || actualData[item.sesuaiKey] === "1";
+                  isDifferent = !isSesuai;
+                } else {
+                  isDifferent = item.planningValue !== item.actualValue && item.planningValue && item.actualValue;
+                }
+              }
               
               return (
                 <motion.div
@@ -204,7 +227,7 @@ const LocationCard = ({
                                 <FiCheckCircle className="w-3 h-3 text-green-500" />
                               </div>
                               <span className={`text-xs font-bold break-words text-green-800 dark:text-green-300 ${item.isCoordinate ? 'font-mono text-[10px]' : ''}`}>
-                                {item.actualValue || item.planningValue || '-'}
+                                {(item.actualValue && item.actualValue !== '-') ? item.actualValue : (item.planningValue && item.planningValue !== '-') ? item.planningValue : '-'}
                               </span>
                             </div>
                           )}

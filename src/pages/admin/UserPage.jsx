@@ -1,22 +1,13 @@
 import { useEffect, useState, useRef } from "react";
-import api from "@/shared/services/api";
-import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
-import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  FiSearch, FiUserPlus, FiEdit2, FiTrash2, FiMail, FiShield,
-  FiUser, FiX, FiCheck, FiAlertCircle, FiChevronLeft, FiChevronRight,
-  FiFilter, FiDownload, FiRefreshCw
-} from "react-icons/fi";
-import PageTitle from "@/shared/components/common/PageTitle";
+import { FiEdit2, FiTrash2, FiUserPlus, FiSearch, FiFilter, FiRefreshCw, FiAlertCircle, FiX, FiCheck, FiUser, FiShield, FiMail } from 'react-icons/fi';
+import { toast } from 'react-toastify';
+import PageTitle from '@/shared/components/common/PageTitle';
+import api from '@/shared/services/api';
 import { Input } from "@/shared/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/shared/components/ui/select";
+import { Button } from "@/shared/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import LoadingSpinner from "@/shared/components/layout/LoadingSpinner";
 import { cn } from "@/shared/utils/utils";
 export default function UserPage() {
   const [users, setUsers] = useState([]);
@@ -265,11 +256,10 @@ export default function UserPage() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
           {/* Search */}
           <div className="md:col-span-5 relative">
-            <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
             <Input
               type="text"
               placeholder="Cari nama atau email..."
-              className="pl-12"
+              prefix={<FiSearch className="w-5 h-5" />}
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -279,7 +269,6 @@ export default function UserPage() {
           </div>
           {/* Filter */}
           <div className="md:col-span-3 relative">
-            <FiFilter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
             <Select
               value={filterRole}
               onValueChange={(val) => {
@@ -287,7 +276,7 @@ export default function UserPage() {
                 setCurrentPage(1);
               }}
             >
-              <SelectTrigger className="pl-12">
+              <SelectTrigger>
                 <SelectValue placeholder="Semua Role" />
               </SelectTrigger>
               <SelectContent>
@@ -299,24 +288,23 @@ export default function UserPage() {
           </div>
           {/* Actions */}
           <div className="md:col-span-4 flex gap-4">
-            <motion.button
+            <Button
+              variant="outline"
+              size="lg"
               onClick={fetchUsers}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-all"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              className="flex-1 w-full"
             >
               <FiRefreshCw className="w-4 h-4" />
               <span className="hidden sm:inline">Refresh</span>
-            </motion.button>
-            <motion.button
+            </Button>
+            <Button
+              size="lg"
               onClick={openAddModal}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white rounded-xl font-medium shadow-lg transition-all"
-              whileHover={{ scale: 1.02, boxShadow: "0 10px 40px -10px rgba(81, 118, 64, 0.5)" }}
-              whileTap={{ scale: 0.98 }}
+              className="flex-1 w-full"
             >
               <FiUserPlus className="w-4 h-4" />
               <span className="hidden sm:inline">Tambah User</span>
-            </motion.button>
+            </Button>
           </div>
         </div>
       </motion.div>

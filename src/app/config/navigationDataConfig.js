@@ -26,6 +26,14 @@ export const navigationDataConfig = {
         category: "main",
       },
       {
+        id: "panduan",
+        label: "Panduan",
+        path: "/panduan",
+        iconName: "FiBookOpen",
+        description: "Panduan Pengguna",
+        category: "main",
+      },
+      {
         id: "verification",
         label: "Verifikasi",
         path: "/verifikasi",

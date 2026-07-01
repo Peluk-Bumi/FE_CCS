@@ -24,7 +24,7 @@ import {
 import RadioCard from "@/shared/components/ui/radio-card";
 import { cn } from "@/shared/utils/utils";
 import QrCodeModal from "@/features/admin/components/laporan/QrCodeModal";
-import { downloadQrDataUrl, generatePlanningQrDataUrl } from "../utils/planningQr";
+import { buildPlanningQrFilename, downloadQrDataUrl, generatePlanningQrDataUrl } from "../utils/planningQr";
 import navigationConfig from "@/app/config/navigationConfig";
 import { PageTabs } from "@/shared/components/ui/tabs";
 
@@ -224,6 +224,7 @@ const PerencanaanForm = () => {
           const generatedQr = await generatePlanningQrDataUrl(savedPerencanaan);
           setQrCodeData({
             url: generatedQr,
+            item: savedPerencanaan,
             verified: Boolean(blockchain.tx_hash || blockchain.doc_hash),
           });
           setQrModalOpen(true);
@@ -678,7 +679,7 @@ const PerencanaanForm = () => {
         open={qrModalOpen}
         qrCodeData={qrCodeData}
         onClose={() => setQrModalOpen(false)}
-        onDownload={() => qrCodeData?.url && downloadQrDataUrl(qrCodeData.url, "qr-perencanaan.png")}
+        onDownload={() => qrCodeData?.url && downloadQrDataUrl(qrCodeData.url, buildPlanningQrFilename(qrCodeData?.item))}
         title="QR Code Perencanaan"
         noteTitle="QR ini dipakai untuk verifikasi monitoring"
         noteDescription="Simpan QR ini atau unduh kembali dari halaman All Perencanaan. Saat dipindai, QR akan mengarahkan user ke halaman monitoring perencanaan yang sesuai."

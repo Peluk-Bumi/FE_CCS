@@ -15,12 +15,15 @@ const TEST_CREDENTIALS = {
   }
 };
 
+// Enable auto‑login using Vite env variable. Set VITE_ENABLE_AUTO_LOGIN=true in .env.development to activate.
+const ENABLE_AUTO_LOGIN = import.meta.env.VITE_ENABLE_AUTO_LOGIN === 'true';
+
 /**
  * Auto-login with test credentials (development only)
  */
 export async function autoLoginIfDev(loginFunction) {
-  // Only in development and if not already logged in
-  if (import.meta.env.DEV && !localStorage.getItem('token')) {
+  // Only in development, if enabled, and if not already logged in
+  if (import.meta.env.DEV && ENABLE_AUTO_LOGIN && !localStorage.getItem('token')) {
     console.log('[DevHelper] Auto-logging in with admin credentials for development...');
     
     try {

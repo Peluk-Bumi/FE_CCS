@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Logo from "./navbar/Logo";
 import DesktopNavigation from "./navbar/DesktopNavigation";
 import NavbarControls from "./navbar/NavbarControls";
+import navigationConfig from "@/app/config/navigationConfig";
 
 export default function Navbar({ isUser = false }) {
   const { user, isAuthenticated, logout } = useAuth();
@@ -33,13 +34,21 @@ export default function Navbar({ isUser = false }) {
     navigate("/");
   };
 
-  const navItems = [
-    { name: "Beranda", path: "/", icon: FiHome, color: "primary" },
-    { name: "Tentang", path: "/about", icon: FiInfo, color: "blue" },
-    { name: "Panduan", path: "/panduan", icon: FiBookOpen, color: "emerald" },
-    { name: "Verifikasi", path: "/verifikasi", icon: FiCheckCircle, color: "green" },
-    { name: "FAQ", path: "/faqs", icon: FiHelpCircle, color: "teal" },
-  ];
+  const navItems = navigationConfig.landingNavItems.map((item) => {
+    let iconComp = FiHome;
+    if (item.iconName === "FiInfo") iconComp = FiInfo;
+    if (item.iconName === "FiBookOpen") iconComp = FiBookOpen;
+    if (item.iconName === "FiCheckCircle") iconComp = FiCheckCircle;
+    if (item.iconName === "FiHelpCircle") iconComp = FiHelpCircle;
+
+    let color = "primary";
+    if (item.path.includes("about")) color = "blue";
+    if (item.path.includes("panduan")) color = "emerald";
+    if (item.path.includes("verifikasi")) color = "green";
+    if (item.path.includes("faq")) color = "teal";
+
+    return { name: item.label, path: item.path, icon: iconComp, color };
+  });
 
   const profileMenuItems = [
     {

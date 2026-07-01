@@ -111,7 +111,7 @@ const PlanningTable = ({
                           </td>
                           <td className="p-3 align-top">
                             <div className="font-medium text-gray-900 dark:text-gray-100">{company}</div>
-                            <div className="text-sm text-gray-500">ID: {item.user_id}</div>
+                            <div className="text-sm text-gray-500">ID Perencanaan: {item.id}</div>
                           </td>
                           <td className="p-3 align-top">
                             <div className="flex items-start gap-1.5 text-sm text-gray-700 dark:text-gray-300">

@@ -5,38 +5,38 @@ import { FiArrowLeft } from "react-icons/fi"
 import { useAuth } from "@/app/context/AuthContext"
 import { cn } from "@/shared/utils/utils"
 
-const MobileHeader = React.forwardRef(({ 
+const MobileHeader = React.forwardRef(({
   className,
-  ...props 
+  ...props
 }, ref) => {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuth()
-  
+
   const isAdmin = user?.role === "admin"
   const isAdminRoute = location.pathname.startsWith("/admin")
   const isDashboard =
     location.pathname === "/user/dashboard" ||
     location.pathname === "/admin/dashboard"
   const showBack = !isDashboard
-  
+
   const handleBack = () => {
     navigate(-1) // Go back in history
   }
-  
+
   const handleLogoClick = () => {
     navigate('/') // Go to landing page
   }
-  
+
   const getPageTitle = () => {
     const path = location.pathname
-    
+
     if (isAdminRoute) {
       // Admin routes
       if (path === '/admin/dashboard') return { title: 'Dashboard', subtitle: 'Admin Panel' }
       if (path === '/admin/users') return { title: 'Pengguna', subtitle: 'Kelola pengguna sistem' }
-      if (path === '/admin/perencanaan/all') return { title: 'All Perencanaan', subtitle: 'Daftar semua perencanaan' }
-      if (path === '/admin/perencanaan') return { title: 'Perencanaan', subtitle: 'Rencana konservasi' }
+      if (path === '/admin/perencanaan/all') return { title: 'Daftar Perencanaan', subtitle: 'Daftar semua perencanaan' }
+      if (path === '/admin/perencanaan') return { title: 'Buat Perencanaan', subtitle: 'Rencana konservasi' }
       if (path === '/admin/implementasi') return { title: 'Implementasi', subtitle: 'Aksi lapangan' }
       if (path === '/admin/laporan') return { title: 'Laporan', subtitle: 'Laporan sistem' }
       if (path === '/admin/monitoring') return { title: 'Monitoring', subtitle: 'Pantau aktivitas' }
@@ -48,8 +48,8 @@ const MobileHeader = React.forwardRef(({
     } else {
       // User routes
       if (path === '/user/dashboard') return { title: 'Dashboard', subtitle: 'User Panel' }
-      if (path === '/user/perencanaan/all') return { title: 'All Perencanaan', subtitle: 'Daftar perencanaan Anda' }
-      if (path === '/user/perencanaan') return { title: 'Perencanaan', subtitle: 'Rencana konservasi' }
+      if (path === '/user/perencanaan/all') return { title: 'Perencanaan Saya', subtitle: 'Daftar perencanaan Anda' }
+      if (path === '/user/perencanaan') return { title: 'Buat Perencanaan', subtitle: 'Rencana konservasi' }
       if (path === '/user/implementasi') return { title: 'Implementasi', subtitle: 'Aksi lapangan' }
       if (path === '/user/monitoring') return { title: 'Monitoring', subtitle: 'Pantau aktivitas' }
       if (path === '/user/evaluasi') return { title: 'Evaluasi', subtitle: 'Evaluasi hasil' }

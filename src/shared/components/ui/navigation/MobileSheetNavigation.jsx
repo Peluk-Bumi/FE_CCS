@@ -1,5 +1,5 @@
 import * as React from "react"
-import { 
+import {
   FiSettings,
   FiLogOut,
   FiSun,
@@ -10,7 +10,8 @@ import {
   FiCheckCircle,
   FiActivity,
   FiBarChart2,
-  FiFileText
+  FiFileText,
+  FiPlus
 } from "react-icons/fi"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "@/app/context/AuthContext"
@@ -19,21 +20,21 @@ import navigationConfig from "@/app/config/navigationConfig"
 import BottomSheetContainer from "@/shared/components/ui/sheet/BottomSheetContainer"
 import { PanelNavButton } from "@/shared/components/ui/navigation/PanelNavButton"
 
-const MobileSheetNavigation = React.forwardRef(({ 
+const MobileSheetNavigation = React.forwardRef(({
   isOpen,
   onClose,
   className,
-  ...props 
+  ...props
 }, ref) => {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const [userMenuOpen, setUserMenuOpen] = React.useState(false)
-  
+
   // Check if user is admin
   const isAdmin = user?.role === 'admin'
-  
+
   // Icon mapping function
   const getIcon = (iconName) => {
     const iconMap = {
@@ -90,10 +91,11 @@ const MobileSheetNavigation = React.forwardRef(({
       ref={ref}
       {...props}
     >
-      {/* Main Menu Navigation - Mobile: No submenu, direct to main page */}
-      <nav className="p-3 space-y-0.5 scrollbar-hide">
+      {/* Main Menu Navigation - Mobile: Grid Layout */}
+      <nav className="p-4 grid grid-cols-4 gap-2 overflow-y-auto scrollbar-hide pb-20">
         {/* 1. Dashboard */}
         <PanelNavButton
+          layout="grid"
           icon={getIcon("FiHome")}
           active={location.pathname === (isAdmin ? "/admin/dashboard" : "/user/dashboard")}
           onClick={() => handleNavigation(isAdmin ? "/admin/dashboard" : "/user/dashboard")}
@@ -101,8 +103,9 @@ const MobileSheetNavigation = React.forwardRef(({
           Dashboard
         </PanelNavButton>
 
-        {/* 2. Perencanaan - Direct to main page, submenu shown as tabs on page */}
+        {/* 2. Perencanaan */}
         <PanelNavButton
+          layout="grid"
           icon={getIcon("FiClipboard")}
           active={isPlanningRoute}
           onClick={() => handleNavigation(planningMainPath)}
@@ -112,6 +115,7 @@ const MobileSheetNavigation = React.forwardRef(({
 
         {/* 3. Implementasi */}
         <PanelNavButton
+          layout="grid"
           icon={getIcon("FiCheckCircle")}
           active={location.pathname === (isAdmin ? "/admin/implementasi" : "/user/implementasi")}
           onClick={() => handleNavigation(isAdmin ? "/admin/implementasi" : "/user/implementasi")}
@@ -121,6 +125,7 @@ const MobileSheetNavigation = React.forwardRef(({
 
         {/* 4. Monitoring */}
         <PanelNavButton
+          layout="grid"
           icon={getIcon("FiActivity")}
           active={location.pathname === (isAdmin ? "/admin/monitoring" : "/user/monitoring")}
           onClick={() => handleNavigation(isAdmin ? "/admin/monitoring" : "/user/monitoring")}
@@ -128,8 +133,9 @@ const MobileSheetNavigation = React.forwardRef(({
           Monitoring
         </PanelNavButton>
 
-        {/* 5. Evaluasi - Direct to main page, submenu shown as tabs on page */}
+        {/* 5. Evaluasi */}
         <PanelNavButton
+          layout="grid"
           icon={getIcon("FiBarChart2")}
           active={isEvaluationRoute}
           onClick={() => handleNavigation(evaluationMainPath)}
@@ -137,11 +143,9 @@ const MobileSheetNavigation = React.forwardRef(({
           Evaluasi
         </PanelNavButton>
 
-        {/* Divider */}
-        <div className="my-2 border-t border-gray-200 dark:border-gray-700" />
-
         {/* 6. Verifikasi - Special with accent variant */}
         <PanelNavButton
+          layout="grid"
           icon={getIcon("FiCheckCircle")}
           active={location.pathname === "/verifikasi"}
           variant="accent"
@@ -150,9 +154,20 @@ const MobileSheetNavigation = React.forwardRef(({
           Verifikasi
         </PanelNavButton>
 
-        {/* 7. Pengguna (Admin Only) */}
+        {/* 7. Log History */}
+        <PanelNavButton
+          layout="grid"
+          icon={getIcon("FiFileText")}
+          active={location.pathname === (isAdmin ? "/admin/log-history" : "/user/log-history")}
+          onClick={() => handleNavigation(isAdmin ? "/admin/log-history" : "/user/log-history")}
+        >
+          {isAdmin ? "Log Sistem" : "Log Aktivitas"}
+        </PanelNavButton>
+
+        {/* 8. Pengguna (Admin Only) */}
         {isAdmin && (
           <PanelNavButton
+            layout="grid"
             icon={getIcon("FiUsers")}
             active={location.pathname === "/admin/users"}
             onClick={() => handleNavigation("/admin/users")}
@@ -160,17 +175,7 @@ const MobileSheetNavigation = React.forwardRef(({
             Pengguna
           </PanelNavButton>
         )}
-
-        {/* 8. Log History */}
-        <PanelNavButton
-          icon={getIcon("FiFileText")}
-          active={location.pathname === (isAdmin ? "/admin/log-history" : "/user/log-history")}
-          onClick={() => handleNavigation(isAdmin ? "/admin/log-history" : "/user/log-history")}
-        >
-          {isAdmin ? "Log Sistem" : "Log Aktivitas"}
-        </PanelNavButton>
       </nav>
-
       {/* User Info Footer */}
       <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-3">
         <div className="relative">
@@ -194,7 +199,7 @@ const MobileSheetNavigation = React.forwardRef(({
             </div>
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
           </button>
-          
+
           {/* User Menu Dropdown */}
           {userMenuOpen && (
             <div className="absolute bottom-full mb-2 left-0 right-0 bg-white dark:bg-gray-800 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
@@ -220,11 +225,11 @@ const MobileSheetNavigation = React.forwardRef(({
                   </div>
                 </div>
               </div>
-              
+
               {/* Menu Items */}
               <div className="p-2">
                 {/* Theme Toggle */}
-                <button
+                {/* <button
                   onClick={() => {
                     toggleTheme()
                     setUserMenuOpen(false)
@@ -242,7 +247,7 @@ const MobileSheetNavigation = React.forwardRef(({
                       <span className="font-medium">Mode Gelap</span>
                     </>
                   )}
-                </button>
+                </button> */}
 
                 {/* Settings */}
                 <button
@@ -252,7 +257,7 @@ const MobileSheetNavigation = React.forwardRef(({
                   <FiSettings className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <span className="font-medium">Pengaturan</span>
                 </button>
-                
+
                 {/* Logout */}
                 <button
                   onClick={handleLogout}

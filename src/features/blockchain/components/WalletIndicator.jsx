@@ -77,7 +77,7 @@ export default function WalletIndicator() {
   };
 
   return (
-    <div className="relative z-40">
+    <div className="relative z-10">
       {/* Wallet Button */}
       <motion.button
         ref={buttonRef}

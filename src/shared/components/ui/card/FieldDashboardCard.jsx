@@ -21,6 +21,7 @@ const FieldDashboardCard = React.forwardRef(({
   type = "default", // kept for API compat but no longer drives colors
   onClick,
   className,
+  valueClassName,
   ...props 
 }, ref) => {
   return (
@@ -45,31 +46,33 @@ const FieldDashboardCard = React.forwardRef(({
     >
       {/* Header — text left, icon right */}
       <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0 text-left">
-          <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 truncate">
+        <div className="flex-1 min-w-0 text-left pr-2">
+          <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 line-clamp-2 break-words">
             {title}
           </h3>
-          <p className="text-2xl font-black text-gray-900 dark:text-gray-100 leading-none">
+          <div className={cn("text-2xl font-black text-gray-900 dark:text-gray-100 leading-none break-words", valueClassName)}>
             {value}
-          </p>
+          </div>
           {subtitle && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 break-words">
               {subtitle}
             </p>
           )}
         </div>
 
         {/* Icon — group-hover: bg darkens, icon scales up */}
-        <div className={cn(
-          "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300",
-          "bg-primary/5 border border-primary/60 text-primary-dark",
-          "group-hover:bg-primary-dark dark:group-hover:bg-primary-light",
-          "group-hover:text-white group-hover:scale-105 group-hover:shadow-md"
-        )}>
-          {icon && React.isValidElement(icon)
-            ? React.cloneElement(icon, { className: "w-5 h-5" })
-            : icon}
-        </div>
+        {icon && (
+          <div className={cn(
+            "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300",
+            "bg-primary/5 border border-primary/60 text-primary-dark",
+            "group-hover:bg-primary-dark dark:group-hover:bg-primary-light",
+            "group-hover:text-white group-hover:scale-105 group-hover:shadow-md"
+          )}>
+            {React.isValidElement(icon)
+              ? React.cloneElement(icon, { className: "w-5 h-5" })
+              : icon}
+          </div>
+        )}
       </div>
 
       {/* Footer — trend badge + tap hint */}

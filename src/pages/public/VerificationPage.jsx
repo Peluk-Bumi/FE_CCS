@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import {
   FiCamera, FiCheckCircle, FiAlertCircle, FiRefreshCw,
   FiX, FiDownload, FiCopy, FiChevronDown, FiChevronUp, FiUpload,
-  FiShield, FiExternalLink,
+  FiShield, FiExternalLink, FiSearch, FiImage,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/context/AuthContext";
@@ -703,13 +703,15 @@ export default function Verifikasi() {
 
       // ✅ Try to parse as JSON first
       let parsed = null;
-      try {
-        parsed = JSON.parse(trimmedData);
-        console.log('[Verifikasi] ✅ Parsed as JSON successfully');
-        console.log('[Verifikasi] JSON keys:', Object.keys(parsed));
-        console.log('[Verifikasi] Full JSON:', parsed);
-      } catch (jsonErr) {
-        console.log('[Verifikasi] Not JSON format:', jsonErr.message);
+      if (trimmedData.startsWith('{') || trimmedData.startsWith('[')) {
+        try {
+          parsed = JSON.parse(trimmedData);
+          console.log('[Verifikasi] ✅ Parsed as JSON successfully');
+          console.log('[Verifikasi] JSON keys:', Object.keys(parsed));
+          console.log('[Verifikasi] Full JSON:', parsed);
+        } catch (jsonErr) {
+          console.log('[Verifikasi] Failed to parse JSON:', jsonErr.message);
+        }
       }
 
       // ✅ Handle different JSON formats
@@ -1097,253 +1099,353 @@ export default function Verifikasi() {
     <>
       <PagePaddingContainer>
         <MainContainer>
-          {/* Main Grid */}
-          <div className="mb-4">
-            <PageTitle 
+
+          {/* ── Page Title ── */}
+          <div className="mb-6">
+            <PageTitle
               badge="Verifikasi Blockchain"
               badgeIcon={FiShield}
-              title="Verifikasi Dokumen" 
-              description="Pindai QR Code atau masukkan ID untuk memverifikasi dokumen di sistem." 
+              title="Verifikasi Dokumen"
+              description="Pindai QR Code dari laporan kegiatan untuk memastikan keaslian data yang tersimpan di blockchain."
             />
           </div>
-            
-            <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10 items-start">
-          {/* Scanner Section */}
-          <motion.div
-            className="lg:col-span-7 2xl:col-span-8 bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 sm:p-8 border border-green-100 dark:border-gray-700"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6 flex items-center gap-2">
-              <FiCamera className="w-6 h-6 text-green-600 dark:text-green-400" />
-              Scanner QR Code
-            </h2>
 
-            {/* Error Alert */}
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-center gap-3"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                >
-                  <FiAlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                  <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Camera Selection */}
-            {devices.length > 1 && (
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Pilih Kamera
-                </label>
-                <select
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all font-medium"
-                  onChange={(e) => setDeviceId(e.target.value)}
-                  value={deviceId}
-                >
-                  {devices.map((d) => (
-                    <option key={d.deviceId} value={d.deviceId}>
-                      {d.label || `Kamera ${d.deviceId.substring(0, 8)}`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Scanner atau Manual Input */}
-            <AnimatePresence mode="wait">
-              {!useManualInput && scannerReady && !cameraStarted && !scanResult ? (
-                <motion.div
-                  key="camera-prompt"
-                  className="mx-auto w-full lg:max-w-[420px] xl:max-w-[460px] rounded-2xl overflow-hidden border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 p-8 flex flex-col items-center justify-center mb-6"
-                  style={{ aspectRatio: '1/1' }}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                >
-                  <FiCamera className="w-16 h-16 text-gray-400 mb-4" />
-                  <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
-                    Kamera diperlukan untuk melakukan scan QR Code. Klik tombol di bawah untuk memulai kamera.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setCameraStarted(true);
-                      setScanning(true);
-                    }}
-                    className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl transition-colors flex items-center gap-2"
-                  >
-                    <FiCamera className="w-5 h-5" />
-                    Mulai Kamera
-                  </button>
-                </motion.div>
-              ) : null}
-
-              {!useManualInput && scannerReady && cameraStarted && scanning && !scanResult ? (
-                <motion.div
-                  key="scanner"
-                  className="relative mx-auto w-full lg:max-w-[420px] xl:max-w-[460px] rounded-2xl overflow-hidden border-4 border-green-500 shadow-2xl bg-gray-900 mb-6"
-                  style={{ aspectRatio: '1/1' }}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                >
-                  {/* Video Stream untuk QR Code */}
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="w-full h-full object-cover"
-                    onLoadedMetadata={() => {
-                      console.log('[Verifikasi] Video loaded');
-                    }}
-                  />
-
-                  {/* Scanning Frame */}
-                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                    <div className="absolute inset-8 border-2 border-green-400 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.4)] lg:hidden"></div>
-                    <motion.div
-                      className="absolute w-48 h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent rounded-full"
-                      animate={{ y: [-60, 60] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    />
-                  </div>
-
-                  {/* Instructions */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-center">
-                    <p className="text-white text-sm font-medium">Arahkan kamera ke QR Code</p>
-                  </div>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-
-            {/* File Upload */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Upload Gambar QR Code
-              </label>
-              <label className="flex flex-col items-center justify-center w-full p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">Klik untuk upload gambar</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  onClick={(e) => { e.target.value = null; }}
-                  className="sr-only"
-                />
-              </label>
-            </div>
-
-            {/* Success State */}
-            {scanResult && !laporanDetail && (
-              <motion.div
-                className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-2xl p-8 text-center aspect-square flex flex-col items-center justify-center"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-              >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                >
-                  <FiCheckCircle className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-                </motion.div>
-                <p className="text-blue-700 dark:text-blue-300 font-bold text-lg mb-2">QR Code Valid</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  {loadingLaporan ? 'Memuat detail laporan...' : 'Sedang memproses...'}
-                </p>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                  className="mt-4"
-                >
-                  <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full"></div>
-                </motion.div>
-              </motion.div>
-            )}
-
-            {/* Success State - Show Detail */}
-            {scanResult && laporanDetail && (
-              <motion.div
-                className="bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700 rounded-2xl p-8 text-center aspect-square flex flex-col items-center justify-center"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-              >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                >
-                  <FiCheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-                </motion.div>
-                <p className="text-green-700 dark:text-green-300 font-bold text-lg mb-2">Berhasil Terverifikasi</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Lihat detail laporan di sebelah kanan
-                </p>
-              </motion.div>
-            )}
-          </motion.div>
-
-          <LaporanDetailModal
-            isOpen={showDetailModal}
-            onClose={resetScan}
-            laporanDetail={laporanDetail}
-            loadingLaporan={loadingLaporan}
-            blockchainData={blockchainData}
-            EXPLORER_BASE_URL={EXPLORER_BASE_URL}
-            onReset={resetScan}
-          />
-
-          {/* Instructions (jika belum scan) */}
-          {!laporanDetail && (
+          {/* ── Mobile step guide (sebelum scan, hanya mobile) ── */}
+          {!scanResult && (
             <motion.div
-              className="lg:col-span-5 2xl:col-span-4 space-y-6"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              className="lg:hidden mb-6 grid grid-cols-2 sm:grid-cols-4 gap-3"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
             >
-              <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-blue-100 dark:border-gray-700 p-6">
-                <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-                  <FiAlertCircle className="w-5 h-5 text-blue-600" />
-                  Cara Menggunakan
-                </h4>
-                <ol className="space-y-3">
-                  {["Izinkan akses kamera", "Pilih kamera jika ada lebih dari satu", "Arahkan ke QR Code", "Atau upload gambar/input manual", "Detail laporan akan ditampilkan"].map((step, i) => (
-                    <li key={i} className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-400">
-                      <span className="flex-shrink-0 w-5 h-5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center text-xs font-bold">
-                        {i + 1}
-                      </span>
-                      <span>{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-
-              {/* Info Card */}
-              <div className="bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-200 dark:border-green-700 p-6">
-                <h4 className="font-bold text-green-900 dark:text-green-200 mb-3 flex items-center gap-2">
-                  <FiCheckCircle className="w-5 h-5" />
-                  Informasi Publik
-                </h4>
-                <p className="text-xs text-green-800 dark:text-green-300 mb-3">
-                  Halaman ini dapat diakses oleh siapa saja tanpa perlu login. Scan QR Code dari laporan untuk melihat detail lengkapnya.
-                </p>
-                <p className="text-xs text-green-700 dark:text-green-400">
-                  ✅ Transparansi: Semua data perencanaan kegiatan konservasi dapat diverifikasi melalui QR Code
-                </p>
-              </div>
+              {[
+                { icon: FiCamera,       label: "Buka kamera" },
+                { icon: FiSearch,       label: "Arahkan ke QR" },
+                { icon: FiImage,        label: "Atau upload foto" },
+                { icon: FiCheckCircle,  label: "Lihat detail" },
+              ].map((s, i) => (
+                <div key={i} className="flex flex-col items-center gap-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 p-3 text-center shadow-sm">
+                  <span className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-800 flex items-center justify-center text-green-600 dark:text-green-400 font-bold text-sm">
+                    {i + 1}
+                  </span>
+                  <s.icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <span className="text-[11px] font-medium text-gray-600 dark:text-gray-400 leading-tight">{s.label}</span>
+                </div>
+              ))}
             </motion.div>
           )}
-            </div>
-          </MainContainer>
-        </PagePaddingContainer>
+
+          {/* ── Main Grid ── */}
+          <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+
+            {/* ── Scanner Card ── */}
+            <motion.div
+              className="lg:col-span-7 2xl:col-span-8 bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 overflow-hidden"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+            >
+              {/* Card header */}
+              <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40">
+                <span className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
+                  <FiCamera className="w-4 h-4 text-green-600 dark:text-green-400" />
+                </span>
+                <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm sm:text-base">
+                  Scanner QR Code
+                </h2>
+              </div>
+
+              <div className="p-5 sm:p-7 space-y-5">
+
+                {/* Error */}
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      className="flex items-start gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4"
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                    >
+                      <FiAlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                      <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Pilih kamera */}
+                {devices.length > 1 && (
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+                      Pilih Kamera
+                    </label>
+                    <select
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                      onChange={(e) => setDeviceId(e.target.value)}
+                      value={deviceId}
+                    >
+                      {devices.map((d) => (
+                        <option key={d.deviceId} value={d.deviceId}>
+                          {d.label || `Kamera ${d.deviceId.substring(0, 8)}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* ── Viewfinder ── */}
+                {/* Camera tetap tampil meski manual input aktif, kecuali sudah ada scanResult */}
+                <AnimatePresence mode="wait">
+
+                  {/* Belum mulai */}
+                  {scannerReady && !cameraStarted && !scanResult ? (
+                    <motion.div
+                      key="camera-prompt"
+                      className="rounded-2xl border-2 border-dashed border-green-200 dark:border-green-800 bg-gradient-to-b from-green-50/60 to-white dark:from-green-900/10 dark:to-gray-900 p-10 flex flex-col items-center justify-center gap-5 min-h-[260px]"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                    >
+                      <motion.div
+                        className="w-20 h-20 rounded-2xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center shadow-inner"
+                        animate={{ scale: [1, 1.04, 1] }}
+                        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        <FiCamera className="w-10 h-10 text-green-600 dark:text-green-400" />
+                      </motion.div>
+                      <div className="text-center">
+                        <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">Mulai Scan QR Code</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Izinkan akses kamera, lalu arahkan ke QR Code pada dokumen
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => { setCameraStarted(true); setScanning(true); }}
+                        className="px-6 py-3 bg-green-600 hover:bg-green-700 active:scale-95 text-white font-semibold rounded-xl transition-all shadow-md shadow-green-600/25 flex items-center gap-2 text-sm"
+                      >
+                        <FiCamera className="w-4 h-4" />
+                        Buka Kamera
+                      </button>
+                    </motion.div>
+                  ) : null}
+
+                  {/* Kamera aktif — tetap tampil meski input manual dibuka */}
+                  {scannerReady && cameraStarted && scanning && !scanResult ? (
+                    <motion.div
+                      key="scanner"
+                      className="relative rounded-2xl overflow-hidden border-4 border-green-500 shadow-2xl bg-black"
+                      style={{ aspectRatio: "4/3" }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                    >
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="w-full h-full object-cover"
+                        onLoadedMetadata={() => console.log('[Verifikasi] Video loaded')}
+                      />
+                      <div className="absolute inset-0 pointer-events-none">
+                        {["top-4 left-4 border-t-4 border-l-4 rounded-tl-xl", "top-4 right-4 border-t-4 border-r-4 rounded-tr-xl", "bottom-4 left-4 border-b-4 border-l-4 rounded-bl-xl", "bottom-4 right-4 border-b-4 border-r-4 rounded-br-xl"].map((cls, i) => (
+                          <div key={i} className={`absolute w-8 h-8 border-green-400 ${cls}`} />
+                        ))}
+                        <motion.div
+                          className="absolute left-8 right-8 h-0.5 bg-gradient-to-r from-transparent via-green-400 to-transparent"
+                          animate={{ top: ["20%", "80%", "20%"] }}
+                          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                        />
+                      </div>
+                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-4 text-center">
+                        <p className="text-white text-xs font-medium">Arahkan kamera ke QR Code</p>
+                      </div>
+                    </motion.div>
+                  ) : null}
+
+                  {/* Loading detail */}
+                  {scanResult && !laporanDetail && (
+                    <motion.div
+                      key="loading"
+                      className="rounded-2xl border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-10 flex flex-col items-center justify-center gap-4 min-h-[200px]"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                    >
+                      <FiCheckCircle className="w-14 h-14 text-blue-500" />
+                      <div className="text-center">
+                        <p className="font-bold text-blue-700 dark:text-blue-300 text-lg mb-1">QR Code Dikenali</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {loadingLaporan ? "Memuat detail dokumen…" : "Sedang memproses…"}
+                        </p>
+                      </div>
+                      <motion.div
+                        className="w-8 h-8 border-[3px] border-blue-500 border-t-transparent rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      />
+                    </motion.div>
+                  )}
+
+                  {/* Berhasil */}
+                  {scanResult && laporanDetail && (
+                    <motion.div
+                      key="success"
+                      className="rounded-2xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-8 flex flex-col items-center justify-center gap-4 min-h-[200px]"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                    >
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 220, damping: 14 }}
+                      >
+                        <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
+                          <FiCheckCircle className="w-10 h-10 text-green-600" />
+                        </div>
+                      </motion.div>
+                      <div className="text-center">
+                        <p className="font-bold text-green-700 dark:text-green-300 text-lg mb-1">Dokumen Terverifikasi</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Detail lengkap siap ditampilkan</p>
+                      </div>
+                      <button
+                        onClick={() => setShowDetailModal(true)}
+                        className="mt-1 px-5 py-2.5 bg-green-600 hover:bg-green-700 active:scale-95 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-green-600/25 flex items-center gap-2"
+                      >
+                        <FiExternalLink className="w-4 h-4" />
+                        Lihat Detail Dokumen
+                      </button>
+                      <button
+                        onClick={resetScan}
+                        className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 underline underline-offset-2 transition-colors"
+                      >
+                        Scan QR lain
+                      </button>
+                    </motion.div>
+                  )}
+
+                </AnimatePresence>
+
+                {/* ── Alt methods ── */}
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {/* Upload */}
+                  <label className="flex items-center gap-3 px-4 py-3 border border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
+                    <span className="w-8 h-8 flex-shrink-0 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-green-100 dark:group-hover:bg-green-900/30 flex items-center justify-center transition-colors">
+                      <FiUpload className="w-4 h-4 text-gray-500 group-hover:text-green-600 transition-colors" />
+                    </span>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Upload Gambar QR</p>
+                      <p className="text-[11px] text-gray-400">JPG, PNG, dsb.</p>
+                    </div>
+                    <input type="file" accept="image/*" onChange={handleFileUpload} onClick={(e) => { e.target.value = null; }} className="sr-only" />
+                  </label>
+
+                  {/* Manual */}
+                  <button
+                    onClick={() => setUseManualInput((v) => !v)}
+                    className="flex items-center gap-3 px-4 py-3 border border-dashed border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group text-left"
+                  >
+                    <span className="w-8 h-8 flex-shrink-0 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 flex items-center justify-center transition-colors">
+                      <FiCopy className="w-4 h-4 text-gray-500 group-hover:text-blue-600 transition-colors" />
+                    </span>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Input Manual / Tempel Kode</p>
+                      <p className="text-[11px] text-gray-400">{useManualInput ? "Sembunyikan form" : "Tempel teks QR Code"}</p>
+                    </div>
+                  </button>
+                </div>
+
+                {/* Manual form */}
+                <AnimatePresence>
+                  {useManualInput && (
+                    <motion.form
+                      onSubmit={handleManualQRSubmit}
+                      className="flex gap-2"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                    >
+                      <input
+                        type="text"
+                        value={manualQRCode}
+                        onChange={(e) => setManualQRCode(e.target.value)}
+                        placeholder="Tempel data QR Code di sini…"
+                        className="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                      />
+                      <button type="submit" className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl text-sm transition-all">
+                        Cek
+                      </button>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
+
+              </div>
+            </motion.div>
+
+            {/* ── Sidebar (desktop only, sebelum scan) ── */}
+            {!laporanDetail && (
+              <motion.div
+                className="hidden lg:flex lg:col-span-5 2xl:col-span-4 flex-col gap-5"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.25 }}
+              >
+                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5">
+                  <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
+                    <FiAlertCircle className="w-4 h-4 text-blue-500" />
+                    Cara Menggunakan
+                  </h4>
+                  <ol className="space-y-3">
+                    {[
+                      [FiCamera,       "Klik Buka Kamera dan izinkan akses"],
+                      [FiSearch,       "Arahkan kamera tepat ke QR Code"],
+                      [FiImage,        "Atau upload foto / tempel data QR"],
+                      [FiCheckCircle,  "Detail dokumen otomatis tampil"],
+                    ].map(([Icon, text], i) => (
+                      <li key={i} className="flex items-center gap-3">
+                        <span className="flex-shrink-0 w-7 h-7 rounded-full bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 flex items-center justify-center text-xs font-bold text-green-700 dark:text-green-400">
+                          {i + 1}
+                        </span>
+                        <Icon className="w-3.5 h-3.5 flex-shrink-0 text-green-600 dark:text-green-500" />
+                        <span className="text-xs text-gray-600 dark:text-gray-400">{text}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div className="rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 border border-green-200 dark:border-green-800 p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FiShield className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    <h4 className="text-sm font-bold text-green-900 dark:text-green-200">Halaman Publik</h4>
+                  </div>
+                  <p className="text-xs text-green-800 dark:text-green-300 leading-relaxed mb-3">
+                    Halaman ini terbuka untuk umum tanpa perlu login. Setiap QR Code terhubung ke data blockchain yang tidak bisa dimanipulasi.
+                  </p>
+                  <div className="flex flex-col gap-1.5">
+                    {["Bebas login", "Data terenkripsi blockchain", "Transparansi publik"].map((item) => (
+                      <span key={item} className="flex items-center gap-2 text-[11px] font-medium text-green-700 dark:text-green-400">
+                        <FiCheckCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+          </div>
+        </MainContainer>
+      </PagePaddingContainer>
+
+      <LaporanDetailModal
+        isOpen={showDetailModal}
+        onClose={resetScan}
+        laporanDetail={laporanDetail}
+        loadingLaporan={loadingLaporan}
+        blockchainData={blockchainData}
+        EXPLORER_BASE_URL={EXPLORER_BASE_URL}
+        onReset={resetScan}
+      />
+
       <Footer />
     </>
   );
-}
+}

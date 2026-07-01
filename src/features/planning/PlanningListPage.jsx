@@ -9,7 +9,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import PlanningTable from "@/features/planning/components/PlanningTable";
 import QrCodeModal from "@/features/admin/components/laporan/QrCodeModal";
-import { downloadQrDataUrl, generatePlanningQrDataUrl } from "@/features/planning/utils/planningQr";
+import { buildPlanningQrFilename, downloadQrDataUrl, generatePlanningQrDataUrl } from "@/features/planning/utils/planningQr";
 import { PageTabs } from "@/shared/components/ui/tabs";
 import navigationConfig from "@/app/config/navigationConfig";
 
@@ -18,7 +18,7 @@ export default function PlanningListPage() {
   const navigate = useNavigate();
   const isAdmin = user?.role === "admin";
   const createPath = isAdmin ? "/admin/perencanaan" : "/user/perencanaan";
-  const pageTitle = isAdmin ? "All Perencanaan" : "Perencanaan Saya";
+  const pageTitle = isAdmin ? "List Perencanaan" : "Perencanaan Saya";
   const pageSubtitle = isAdmin
     ? "Menampilkan seluruh data perencanaan"
     : "Menampilkan data perencanaan milik Anda";
@@ -88,6 +88,7 @@ export default function PlanningListPage() {
       const qrUrl = await generatePlanningQrDataUrl(item);
       setQrCodeData({
         url: qrUrl,
+        item,
         verified: Boolean(item?.blockchain?.tx_hash || item?.blockchain?.doc_hash),
       });
       setQrModalOpen(true);
@@ -117,13 +118,13 @@ export default function PlanningListPage() {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full sm:max-w-md">
-          <FiSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className="w-full sm:max-w-md">
           <Input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Cari lembaga, PIC, lokasi, bibit, atau status..."
-            className="pl-10"
+            prefix={<FiSearch className="w-5 h-5 text-gray-400" />}
+            className="w-full"
           />
         </div>
 
@@ -162,10 +163,10 @@ export default function PlanningListPage() {
         open={qrModalOpen}
         qrCodeData={qrCodeData}
         onClose={() => setQrModalOpen(false)}
-        onDownload={() => qrCodeData?.url && downloadQrDataUrl(qrCodeData.url, "qr-perencanaan.png")}
+        onDownload={() => qrCodeData?.url && downloadQrDataUrl(qrCodeData.url, buildPlanningQrFilename(qrCodeData?.item))}
         title="QR Code Perencanaan"
         noteTitle="Simpan QR ini untuk verifikasi monitoring"
-        noteDescription="Jika tidak sempat mengunduh setelah membuat perencanaan, QR ini bisa diakses kembali dari halaman All Perencanaan."
+        noteDescription="Jika tidak sempat mengunduh setelah membuat perencanaan, QR ini bisa diakses kembali dari halaman List Perencanaan."
         downloadLabel="Download QR Perencanaan (PNG)"
       />
     </div>

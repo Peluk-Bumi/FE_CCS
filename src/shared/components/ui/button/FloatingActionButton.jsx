@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiCompass, FiX, FiHome, FiInfo, FiCheckCircle, FiHelpCircle, FiLogIn, FiLogOut, FiUser, FiGrid } from 'react-icons/fi';
+import { FiX, FiHome, FiInfo, FiCheckCircle, FiHelpCircle, FiLogIn, FiLogOut, FiUser, FiGrid, FiBookOpen, FiCompass } from 'react-icons/fi';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/app/context/AuthContext';
 import navigationDataConfig from '@/app/config/navigationDataConfig';
@@ -43,18 +43,19 @@ const FloatingActionButton = ({ context = 'landing', visibleOn = 'mobile', posit
   const ICON_MAP = {
     FiHome: <FiHome className="w-5 h-5" />,
     FiInfo: <FiInfo className="w-5 h-5" />,
+    FiBookOpen: <FiBookOpen className="w-5 h-5" />,
     FiHelpCircle: <FiHelpCircle className="w-5 h-5" />,
     FiCheckCircle: <FiCheckCircle className="w-5 h-5" />,
   };
 
   const authItems = isAuthenticated
     ? [
-        { id: 'dashboard', label: `Dashboard (${user?.name || 'User'})`, path: user?.role === 'admin' ? '/admin/dashboard' : '/user/dashboard', iconName: 'FiGrid', category: 'user' },
-        { id: 'logout', label: 'Logout', action: 'logout', iconName: 'FiLogOut', category: 'user' },
-      ]
+      { id: 'dashboard', label: `Dashboard (${user?.name?.split(' ')[0] || 'User'})`, path: user?.role === 'admin' ? '/admin/dashboard' : '/user/dashboard', iconName: 'FiGrid', category: 'user' },
+      { id: 'logout', label: 'Logout', action: 'logout', iconName: 'FiLogOut', category: 'user' },
+    ]
     : [
-        { id: 'login', label: 'Login', path: '/login', iconName: 'FiLogIn', category: 'auth', prominent: true },
-      ];
+      { id: 'login', label: 'Login', path: '/login', iconName: 'FiLogIn', category: 'auth', prominent: true },
+    ];
 
   const renderItem = (item, index, delay) => {
     const isActive = location.pathname === item.path;
@@ -73,26 +74,25 @@ const FloatingActionButton = ({ context = 'landing', visibleOn = 'mobile', posit
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 10 }}
           transition={{ delay: delay * 0.03 + 0.05, duration: 0.15 }}
-          className="px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white text-sm font-medium shadow-md whitespace-nowrap"
+          className="px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white text-sm font-medium shadow-md whitespace-normal break-words"
         >
           {item.label}
         </motion.span>
 
         <motion.button
           onClick={() => item.action === 'logout' ? handleLogout() : handleNav(item.path)}
-          className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all flex-shrink-0 ${
-            isProminent
+          className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all flex-shrink-0 ${isProminent
               ? isActive
                 ? 'bg-gradient-to-br from-primary to-primary-dark text-white border-2 border-primary'
                 : 'bg-white dark:bg-gray-800 text-primary dark:text-primary-light border-2 border-primary/50'
               : isActive
-              ? 'bg-gradient-to-br from-primary to-primary-dark text-white'
-              : item.category === 'user'
-              ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/30'
-              : item.category === 'auth'
-              ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 border-2 border-blue-200 dark:border-blue-700'
-              : 'bg-white dark:bg-gray-800 text-primary dark:text-primary-light hover:bg-gray-50 dark:hover:bg-gray-700'
-          }`}
+                ? 'bg-gradient-to-br from-primary to-primary-dark text-white'
+                : item.category === 'user'
+                  ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/30'
+                  : item.category === 'auth'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 border-2 border-blue-200 dark:border-blue-700'
+                    : 'bg-white dark:bg-gray-800 text-primary dark:text-primary-light hover:bg-gray-50 dark:hover:bg-gray-700'
+            }`}
           whileHover={{ scale: 1.15 }}
           whileTap={{ scale: 0.9 }}
           aria-label={item.label}

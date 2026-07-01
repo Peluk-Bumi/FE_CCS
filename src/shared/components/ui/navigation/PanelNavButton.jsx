@@ -64,6 +64,7 @@ const PanelNavButton = React.forwardRef(
     {
       className,
       variant = "default", // default | primary | accent | destructive
+      layout = "list", // list | grid
       icon,
       children,
       disabled = false,
@@ -91,7 +92,7 @@ const PanelNavButton = React.forwardRef(
     return (
       <div className="w-full">
         <motion.div
-          whileHover={!isDisabled ? { scale: 0.995, x: 3 } : {}}
+          whileHover={!isDisabled ? { scale: 0.995, x: layout === "list" ? 3 : 0, y: layout === "grid" ? -2 : 0 } : {}}
           whileTap={!isDisabled ? { scale: 0.98 } : {}}
           transition={{ type: "spring", stiffness: 400, damping: 20 }}
         >
@@ -101,14 +102,16 @@ const PanelNavButton = React.forwardRef(
             variant="ghost"
             onClick={onClick}
             className={cn(
-              // base nav layout - clean without borders
-              "w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl font-medium text-[15px] min-h-[48px]",
-
+              // base nav layout
+              "w-full rounded-xl font-medium transition-all",
+              layout === "grid"
+                ? "flex flex-col items-center justify-center gap-1 p-2 text-[11px] h-[84px]"
+                : "flex items-center justify-start gap-3 px-4 py-3 text-[15px] min-h-[48px] h-auto",
               // variant styles
               variantStyles[variant],
 
               // active state - clean background (not for accent)
-              shouldShowActive && "bg-primary/10 text-primary dark:text-primary-light",
+              shouldShowActive && "bg-primary/10 text-primary dark:text-primary-light border-primary/20",
 
               className
             )}
@@ -116,16 +119,28 @@ const PanelNavButton = React.forwardRef(
           >
             {/* ICON */}
             {icon && (
-              <span className="w-5 h-5 flex items-center justify-center shrink-0">
-                {icon}
+              <span className={cn(
+                "flex items-center justify-center shrink-0 transition-colors",
+                layout === "grid" ? "w-9 h-9 rounded-full mb-0.5" : "w-5 h-5",
+                variant === "accent" ? "text-white" : "text-primary",
+                shouldShowActive && layout === "grid" && "bg-primary text-white"
+              )}>
+                {React.cloneElement(icon, {
+                  className: layout === "grid" ? "w-6 h-6" : ""
+                })}
               </span>
             )}
 
             {/* TEXT */}
-            <span className="flex-1 text-left">{children}</span>
+            <span className={cn(
+              layout === "grid"
+              ? "text-center w-full leading-tight whitespace-normal break-words"
+              : "flex-1 text-left whitespace-normal break-words min-w-0",
+              shouldShowActive && layout === "grid" && "font-bold"
+            )}>{children}</span>
 
             {/* SUBMENU CHEVRON */}
-            {hasSubmenu && (
+            {hasSubmenu && layout === "list" && (
               <span className="shrink-0 text-gray-400">
                 {isSubmenuOpen ? (
                   <FiChevronDown className="w-4 h-4" />
@@ -135,8 +150,8 @@ const PanelNavButton = React.forwardRef(
               </span>
             )}
 
-            {/* ACTIVE INDICATOR - simple dot (not for accent) */}
-            {active && !hasSubmenu && variant !== "accent" && (
+            {/* ACTIVE INDICATOR - simple dot (not for accent, list only) */}
+            {active && !hasSubmenu && variant !== "accent" && layout === "list" && (
               <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
             )}
           </Button>
@@ -151,7 +166,7 @@ const PanelNavButton = React.forwardRef(
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="overflow-hidden ml-4 mt-1 space-y-0.5"
+                className="overflow-x-hidden ml-4 mt-1 space-y-0.5"
               >
                 {subItems}
               </motion.div>

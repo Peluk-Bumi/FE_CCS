@@ -80,7 +80,7 @@ export default function Sidebar({ isUser = false, onClose }) {
   };
 
   return (
-    <aside className="h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col shadow-xl transition-colors">
+    <aside className="h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col shadow-xl transition-colors overflow-x-hidden">
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <motion.div
@@ -122,7 +122,7 @@ export default function Sidebar({ isUser = false, onClose }) {
       </motion.div>
 
       {/* ── Main Navigation ─────────────────────────────────────────────────── */}
-      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto scrollbar-hide">
+      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto overflow-x-hidden scrollbar-hide">
         {/* 1. Dashboard */}
         <PanelNavButton
           icon={getIcon("FiHome")}

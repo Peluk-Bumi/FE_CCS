@@ -11,7 +11,6 @@ import {
   FiActivity,
   FiUser,
   FiClock,
-  FiMoreVertical,
   FiRefreshCw,
   FiFileText,
   FiMonitor,
@@ -19,6 +18,7 @@ import {
   FiSearch,
   FiLink,
   FiHash,
+  FiDownload,
 } from "react-icons/fi";
 import WalletIndicator from '@/features/blockchain/components/WalletIndicator';
 import { PieChart, BarChart } from "@/shared/components/charts/Charts";
@@ -538,7 +538,6 @@ export default function Dashboard() {
                   <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Aktivitas Terkini</h3>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Update terakhir dari sistem</p>
                 </div>
-                <FiMoreVertical className="w-5 h-5 text-primary" />
               </div>
               <div className="space-y-3">
                 {stats.recent_activities && stats.recent_activities.length > 0 ? (
@@ -681,7 +680,6 @@ export default function Dashboard() {
                   <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Aksi Cepat</h3>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Akses langsung</p>
                 </div>
-                <FiMoreVertical className="w-5 h-5 text-primary" />
               </div>
               <div className="space-y-2">
                 {[
